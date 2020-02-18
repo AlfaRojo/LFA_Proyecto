@@ -21,7 +21,10 @@ namespace LFA_Proyecto.Help
             }
         }
         public Dictionary<string, string> DiccionarioColeccion = new Dictionary<string, string>();
-        public List<Valores> listaValores = new List<Valores>();
+        public List<string> listaSets = new List<string>();
+        public List<string> listaToken = new List<string>();
+        public List<string> listaAction = new List<string>();
+        public List<string> listaError = new List<string>();
         //Agregar
     }
 }

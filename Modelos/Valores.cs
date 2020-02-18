@@ -8,9 +8,9 @@ namespace LFA_Proyecto.Modelos
 {
     public class Valores
     {
-        public string mySET { get; set; }
-        public string myTOKEN { get; set; }
-        public string myACTION { get; set; }
-        public string myERROR { get; set; }
+        public string[] mySET { get; set; }
+        public string[] myTOKEN { get; set; }
+        public string[] myACTION { get; set; }
+        public string[] myERROR { get; set; }
     }
 }
