@@ -32,11 +32,9 @@ namespace LFA_Proyecto
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Datos.Instance.DiccionarioColeccion.Clear();
+            AgregarDiccionario();
             var contArchivo = string.Empty;
             var rutaArchivo = string.Empty;
-
-            Datos.Instance.DiccionarioColeccion.Add("SETS", "SETS");
 
             using (OpenFileDialog actuArchivo = new OpenFileDialog())
             {
@@ -49,54 +47,67 @@ namespace LFA_Proyecto
                 {
                     rutaArchivo = actuArchivo.FileName;
                     var fileStream = actuArchivo.OpenFile();
-                    using (StreamReader reader = new StreamReader(fileStream))
+                    using (StreamReader reader = new StreamReader(fileStream))//----------------Lectura del archivo----------------\\
                     {
-                        while (reader.Peek() >= 0)
-                        {
-                            contArchivo = reader.ReadLine();
-                            if (contArchivo.Contains("SETS"))
-                            {
-                                Datos.Instance.listaSets.Add(contArchivo);
-                            }
-                            else if (contArchivo.Contains("TOKENS"))
-                            {
-                                Datos.Instance.listaToken.Add(contArchivo);
-                            }
-                            else if (contArchivo.Contains("ACTIONS"))
-                            {
-                                Datos.Instance.listaAction.Add(contArchivo);
-                            }
-                            else if (contArchivo.Contains("ERROR"))
-                            {
-                                Datos.Instance.listaError.Add(contArchivo);
-                            }
-                        }
+                        contArchivo = reader.ReadLine();
+                        string resSETS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("SETS"));
+                        string resTOKENS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("TOKENS"));
+                        string resACTIONS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ACTIONS"));
+                        string resRESERVA = File.ReadAllLines(rutaArchivo).First(X => X.Contains("RESERVADAS()"));
+                        string resERROR = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ERROR"));
+
+                        SETlabel.Text = "SETS " + ComprobarString(resSETS);
+                        TOKENlabel.Text = "TOKENS " + ComprobarString(resTOKENS);
+                        ACTIONlabel.Text = "ACTIONS " + ComprobarString(resACTIONS);
+                        RESERVAlabel.Text = "RESERVA() " + ComprobarString(resRESERVA);
+                        ERRORlabel.Text = "ERROR " + ComprobarString(resERROR);
                     }
                 }
             }
             rutaLabel.Text = rutaArchivo;
             miDato.Visible = true;
-
-            var OperacionSintaxis = new Sintaxis
-            {
-                SintaxisEscrita = contArchivo
-            };
             var DelimitadorSETS = Datos.Instance.DiccionarioColeccion.ElementAt(thisSET).Key;
-            string[] ArreglOperaciones = Regex.Split(OperacionSintaxis.SintaxisEscrita, DelimitadorSETS);
+            var DelimitadorTOKEN = Datos.Instance.DiccionarioColeccion.ElementAt(thisTOKENS).Key;
+            var DelimitadorACTION = Datos.Instance.DiccionarioColeccion.ElementAt(thisACTION).Key;
+            var DelimitadorERROR = Datos.Instance.DiccionarioColeccion.ElementAt(thisERROR).Key;
 
             //NuevoArchivo(contArchivo);
 
             MessageBox.Show(contArchivo, "Contenido del archivo: " + rutaArchivo, MessageBoxButtons.OK);//Solo confirmación visual
         }
+        String ComprobarString(string myString)
+        {
+            if (String.IsNullOrEmpty(myString))
+            {
+                return " no se encuentra en el archivo";
+            }
+            return " se encuentra en el archivo";
+        }
         public void NuevoArchivo(FileStream myFile)
         {
             //myFile.Split(Delimitadores);
-
-
             var NuevosValores = new Valores
             {
 
             };
+        }
+        public void AgregarDiccionario()
+        {
+            if (Datos.Instance.DiccionarioColeccion.Count != 0)
+            {
+                return;
+            }
+            else
+            {
+                Datos.Instance.DiccionarioColeccion.Add("SETS", "SETS");
+                Datos.Instance.DiccionarioColeccion.Add("TOKENS", "TOKENS");
+                Datos.Instance.DiccionarioColeccion.Add("ACTIONS", "ACTIONS");
+                Datos.Instance.DiccionarioColeccion.Add("ERROR", "ERROR");
+            }
+        }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
