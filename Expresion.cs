@@ -23,9 +23,7 @@ namespace LFA_Proyecto
             Datos.Instance.eTOKEN.Clear();//Elimina los datos previos
             Datos.Instance.eTOKEN.Add(textBox1.Text);//Agrega nuevos datos
             MessageBox.Show("Expresión regular cambiada a " + textBox1.Text);//Confirmación
-            Form1 Inicial = new Form1();
             this.Hide();
-            Inicial.Show();
         }
     }
 }

@@ -48,14 +48,40 @@ namespace LFA_Proyecto
                     var fileStream = actuArchivo.OpenFile();
                     using (StreamReader reader = new StreamReader(fileStream))//----------------Lectura del archivo----------------\\
                     {
-                        string lectura;
-                        while ((lectura = reader.ReadLine()) != null)
+                        while ((contArchivo = reader.ReadLine()) != null)
                         {
-                            contArchivo = reader.ReadLine();
                             string resSETS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("SETS"));
-                            string resTOKENS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("TOKENS"));
-                            string resACTIONS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ACTIONS"));
-                            string resRESERVA = File.ReadAllLines(rutaArchivo).First(X => X.Contains("RESERVADAS()"));
+                            string resTOKENS = "";
+                            string resACTIONS = "";
+                            string resRESERVA = "";
+                            try//TOKENS es obligatorio que venga
+                            {
+                                resTOKENS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("TOKENS"));
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                MessageBox.Show("No contiene -TOKEN-");
+                                return;
+                            }
+                            try//ACTIONS es obligatorio que venga
+                            {
+                                resACTIONS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ACTIONS"));
+                                try//RESERVADAS() es obligatorio que venga seguido de ACTIONS
+                                {
+                                    resRESERVA = File.ReadAllLines(rutaArchivo).First(X => X.Contains("RESERVADAS()"));
+                                }
+                                catch (InvalidOperationException)
+                                {
+
+                                    MessageBox.Show("No contiene -RESERVAS()-");
+                                    return;
+                                }
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                MessageBox.Show("No contiene -ACTIONS-");
+                                return;
+                            }
                             string resERROR = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ERROR"));
 
                             SETlabel.Text = "SETS " + ComprobarString(resSETS);
@@ -76,7 +102,7 @@ namespace LFA_Proyecto
 
             //NuevoArchivo(contArchivo);
 
-            MessageBox.Show(contArchivo, "Contenido del archivo: " + rutaArchivo, MessageBoxButtons.OK);//Solo confirmación visual
+            MessageBox.Show("Archivo leido correctamente",rutaArchivo, MessageBoxButtons.OK);//Solo confirmación visual
         }
         String ComprobarString(string myString)
         {
