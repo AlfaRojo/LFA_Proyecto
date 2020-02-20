@@ -17,7 +17,6 @@ namespace LFA_Proyecto
     public partial class Form1 : Form
     {
         #region Valores
-        string pathToFile = "";
         int thisSET = 0;
         int thisTOKENS = 1;
         int thisACTION = 2;
@@ -49,27 +48,31 @@ namespace LFA_Proyecto
                     var fileStream = actuArchivo.OpenFile();
                     using (StreamReader reader = new StreamReader(fileStream))//----------------Lectura del archivo----------------\\
                     {
-                        contArchivo = reader.ReadLine();
-                        string resSETS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("SETS"));
-                        string resTOKENS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("TOKENS"));
-                        string resACTIONS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ACTIONS"));
-                        string resRESERVA = File.ReadAllLines(rutaArchivo).First(X => X.Contains("RESERVADAS()"));
-                        string resERROR = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ERROR"));
+                        string lectura;
+                        while ((lectura = reader.ReadLine()) != null)
+                        {
+                            contArchivo = reader.ReadLine();
+                            string resSETS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("SETS"));
+                            string resTOKENS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("TOKENS"));
+                            string resACTIONS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ACTIONS"));
+                            string resRESERVA = File.ReadAllLines(rutaArchivo).First(X => X.Contains("RESERVADAS()"));
+                            string resERROR = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ERROR"));
 
-                        SETlabel.Text = "SETS " + ComprobarString(resSETS);
-                        TOKENlabel.Text = "TOKENS " + ComprobarString(resTOKENS);
-                        ACTIONlabel.Text = "ACTIONS " + ComprobarString(resACTIONS);
-                        RESERVAlabel.Text = "RESERVA() " + ComprobarString(resRESERVA);
-                        ERRORlabel.Text = "ERROR " + ComprobarString(resERROR);
+                            SETlabel.Text = "SETS " + ComprobarString(resSETS);
+                            TOKENlabel.Text = "TOKENS " + ComprobarString(resTOKENS);
+                            ACTIONlabel.Text = "ACTIONS " + ComprobarString(resACTIONS);
+                            RESERVAlabel.Text = "RESERVA() " + ComprobarString(resRESERVA);
+                            ERRORlabel.Text = "ERROR " + ComprobarString(resERROR);
+                        }
                     }
                 }
             }
             rutaLabel.Text = rutaArchivo;
             miDato.Visible = true;
-            var DelimitadorSETS = Datos.Instance.DiccionarioColeccion.ElementAt(thisSET).Key;
-            var DelimitadorTOKEN = Datos.Instance.DiccionarioColeccion.ElementAt(thisTOKENS).Key;
-            var DelimitadorACTION = Datos.Instance.DiccionarioColeccion.ElementAt(thisACTION).Key;
-            var DelimitadorERROR = Datos.Instance.DiccionarioColeccion.ElementAt(thisERROR).Key;
+            var DelimitadorSETS = Datos.Instance.diccionarioColeccion.ElementAt(thisSET).Key;
+            var DelimitadorTOKEN = Datos.Instance.diccionarioColeccion.ElementAt(thisTOKENS).Key;
+            var DelimitadorACTION = Datos.Instance.diccionarioColeccion.ElementAt(thisACTION).Key;
+            var DelimitadorERROR = Datos.Instance.diccionarioColeccion.ElementAt(thisERROR).Key;
 
             //NuevoArchivo(contArchivo);
 
@@ -83,31 +86,30 @@ namespace LFA_Proyecto
             }
             return " se encuentra en el archivo";
         }
-        public void NuevoArchivo(FileStream myFile)
+        public void AgregarDiccionario()//Para que un usuario lo pueda editar posteriormente
         {
-            //myFile.Split(Delimitadores);
-            var NuevosValores = new Valores
-            {
-
-            };
-        }
-        public void AgregarDiccionario()
-        {
-            if (Datos.Instance.DiccionarioColeccion.Count != 0)
+            if (Datos.Instance.diccionarioColeccion.Count != 0)
             {
                 return;
             }
             else
             {
-                Datos.Instance.DiccionarioColeccion.Add("SETS", "SETS");
-                Datos.Instance.DiccionarioColeccion.Add("TOKENS", "TOKENS");
-                Datos.Instance.DiccionarioColeccion.Add("ACTIONS", "ACTIONS");
-                Datos.Instance.DiccionarioColeccion.Add("ERROR", "ERROR");
+                Datos.Instance.diccionarioColeccion.Add("SETS", "SETS");
+                Datos.Instance.diccionarioColeccion.Add("TOKENS", "TOKENS");
+                Datos.Instance.diccionarioColeccion.Add("ACTIONS", "ACTIONS");
+                Datos.Instance.diccionarioColeccion.Add("ERROR", "ERROR");
+                return;
             }
         }
         private void Form1_Load(object sender, EventArgs e)
         {
+            Datos.Instance.eTOKEN.Add("");
+        }
 
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Expresion Expresion = new Expresion();
+            Expresion.Show();
         }
     }
 }

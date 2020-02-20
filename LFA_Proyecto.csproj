@@ -46,6 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Expresion.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Expresion.Designer.cs">
+      <DependentUpon>Expresion.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -53,10 +59,14 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Help\Datos.cs" />
+    <Compile Include="Modelos\ER_ET.cs" />
     <Compile Include="Modelos\Sintaxis.cs" />
     <Compile Include="Modelos\Valores.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Expresion.resx">
+      <DependentUpon>Expresion.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

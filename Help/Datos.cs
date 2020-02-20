@@ -20,11 +20,14 @@ namespace LFA_Proyecto.Help
                 }
             }
         }
-        public Dictionary<string, string> DiccionarioColeccion = new Dictionary<string, string>();
-        public List<string> listaSets = new List<string>();
-        public List<string> listaToken = new List<string>();
-        public List<string> listaAction = new List<string>();
-        public List<string> listaError = new List<string>();
+        public Dictionary<string, string> diccionarioColeccion = new Dictionary<string, string>();//Para que el usuario pueda modificar luego
+        public Stack<string> pilaArbol = new Stack<string>();//Arbol de expresiones
+        public Stack<string> pilaAux = new Stack<string>();//Se usa para guardar los TOKENS
+        public List<string> eTOKEN = new List<string>();//Guardando la expresion regular para comprobar en las pilas
+        public List<string> listaSets = new List<string>();//Almacena todo de SETS
+        public List<string> listaToken = new List<string>();//Almacena todo de TOKENS
+        public List<string> listaAction = new List<string>();//Almacena todo de ACTIONS/RESERVADAS()
+        public List<string> listaError = new List<string>();//Almacena todo de ERROR
         //Agregar
     }
 }
