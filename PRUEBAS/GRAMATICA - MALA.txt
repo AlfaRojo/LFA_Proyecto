@@ -2,7 +2,7 @@ SETS
 	LETRA   = 'A'..'Z'+'a'..'z'+'_'
 	DIGITO  = '0'..'9'
 	CHARSET = CHR(32)..CHR(254)
-
+TOKENS
 	TOKEN 1= DIGITO DIGITO *
 	TOKEN 2='"' CHARSET '"'|''' CHARSET '''
 	TOKEN  4  = '='
@@ -35,7 +35,7 @@ SETS
 	TOKEN  53  = ':''='
 	TOKEN 3= LETRA ( LETRA | DIGITO )*   { RESERVADAS() } 
 ACTIONS 
-RESERVADAS() 
+
 {
 	18 = 'PROGRAM'
 	19 = 'INCLUDE'

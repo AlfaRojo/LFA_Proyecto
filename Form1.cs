@@ -17,6 +17,11 @@ namespace LFA_Proyecto
     public partial class Form1 : Form
     {
         #region Valores
+        string resSETS = "";
+        string resTOKENS = "";
+        string resACTIONS = "";
+        string resRESERVA = "";
+        string resERROR = "";
         int thisSET = 0;
         int thisTOKENS = 1;
         int thisACTION = 2;
@@ -50,13 +55,20 @@ namespace LFA_Proyecto
                     {
                         while ((contArchivo = reader.ReadLine()) != null)
                         {
-                            string resSETS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("SETS"));
-                            string resTOKENS = "";
-                            string resACTIONS = "";
-                            string resRESERVA = "";
+                            var test = reader.ReadLineAsync();
+                            try//SETS no es obligatorio que venga en el archivo
+                            {
+                                resSETS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("SETS"));
+                                SETlabel.Text = "SETS " + ComprobarString(resSETS);
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                //No contiene SETS... No es obligatorio que lo contenga
+                            }
                             try//TOKENS es obligatorio que venga
                             {
                                 resTOKENS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("TOKENS"));
+                                TOKENlabel.Text = "TOKENS se encuentra en el archivo";
                             }
                             catch (InvalidOperationException)
                             {
@@ -66,13 +78,15 @@ namespace LFA_Proyecto
                             try//ACTIONS es obligatorio que venga
                             {
                                 resACTIONS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ACTIONS"));
+                                ACTIONlabel.Text = "ACTIONS se encuentra en el archivo";
                                 try//RESERVADAS() es obligatorio que venga seguido de ACTIONS
                                 {
-                                    resRESERVA = File.ReadAllLines(rutaArchivo).First(X => X.Contains("RESERVADAS()"));
+                                    resRESERVA = File.ReadAllLines(rutaArchivo).First(X => X.Contains("RESERVADAS()\n\r"));
+                                    string repetidos = GetResultado(resRESERVA);
+                                    RESERVAlabel.Text = "RESERVADAS() se encuentra en el archivo " + repetidos + " veces";
                                 }
                                 catch (InvalidOperationException)
                                 {
-
                                     MessageBox.Show("No contiene -RESERVAS()-");
                                     return;
                                 }
@@ -82,13 +96,44 @@ namespace LFA_Proyecto
                                 MessageBox.Show("No contiene -ACTIONS-");
                                 return;
                             }
-                            string resERROR = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ERROR"));
+                            try//ERROR no es obligatorio que venga en el archivo
+                            {
+                                resERROR = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ERROR"));
+                                ERRORlabel.Text = "ERROR " + ComprobarString(resERROR);
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                //No contiene ERROR... No es obligatorio que lo contenga
+                            }
+                            var lecturaAux = string.Empty;
+                            while ((lecturaAux = reader.ReadLine()) != null)
+                            {
+                                if (lecturaAux.ToString() == resSETS)
+                                {
 
-                            SETlabel.Text = "SETS " + ComprobarString(resSETS);
-                            TOKENlabel.Text = "TOKENS " + ComprobarString(resTOKENS);
-                            ACTIONlabel.Text = "ACTIONS " + ComprobarString(resACTIONS);
-                            RESERVAlabel.Text = "RESERVA() " + ComprobarString(resRESERVA);
-                            ERRORlabel.Text = "ERROR " + ComprobarString(resERROR);
+                                }
+                                if (lecturaAux.ToString() == resTOKENS)
+                                {
+
+                                }
+                                if (lecturaAux.ToString() == resACTIONS)
+                                {
+                                    var seguido = reader.ReadLine();
+                                    if (seguido.ToString() == resRESERVA)
+                                    {
+                                        ///Sintaxis correcto
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("RESERVADAS() debe de ir seguido de ACTIONS");
+                                        return;
+                                    }
+                                }
+                                if (lecturaAux.ToString() == resERROR)
+                                {
+
+                                }
+                            }
                         }
                     }
                 }
@@ -102,7 +147,7 @@ namespace LFA_Proyecto
 
             //NuevoArchivo(contArchivo);
 
-            MessageBox.Show("Archivo leido correctamente",rutaArchivo, MessageBoxButtons.OK);//Solo confirmación visual
+            MessageBox.Show("Archivo leido correctamente", rutaArchivo, MessageBoxButtons.OK);//Solo confirmación visual
         }
         String ComprobarString(string myString)
         {
@@ -136,6 +181,21 @@ namespace LFA_Proyecto
         {
             Expresion Expresion = new Expresion();
             Expresion.Show();
+        }
+        private static string GetResultado(string Linea)
+        {
+            IEnumerable<string> palabrasRepetidas = GetWordList(Linea);
+
+            var result = palabrasRepetidas
+                .GroupBy(x => x)
+                .Select(Grupo => new { Word = Grupo.Key, Count = Grupo.Count() })
+                .OrderByDescending(x => x.Count).FirstOrDefault();
+            return result.Count.ToString();
+        }
+
+        private static IEnumerable<string> GetWordList(string linea)
+        {
+            return linea.Split(' ').Where(st => !st.Equals(""));
         }
     }
 }
