@@ -9,21 +9,21 @@ using LFA_Proyecto.Arbol;
 
 namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
 {
-//  Entradas
-//1.	Tokens de la expresión regular(Símbolos terminales “st”, meta caracteres operadores incluyendo la concatenación “op”)
-//2.	Pila de Tokens llamada “T”
-//3.	Pila de árboles llamada “S”
-//  Salidas
-//1.	Árbol de expresión con el símbolo terminal extendido #
+    //  Entradas
+    //1.	Tokens de la expresión regular(Símbolos terminales “st”, meta caracteres operadores incluyendo la concatenación “op”)
+    //2.	Pila de Tokens llamada “T”
+    //3.	Pila de árboles llamada “S”
+    //  Salidas
+    //1.	Árbol de expresión con el símbolo terminal extendido #
 
     class ER_ET
     {
         public void CodMoe()
         {
-            while (Datos.Instance.eTOKEN.Count() > 0 )//Mientras existan TOKENS en la expresión regular
+            while (Datos.Instance.eTOKEN.Count() > 0)//Mientras existan TOKENS en la expresión regular
             {
                 string TokenActual = Datos.Instance.eTOKEN.ElementAt(0);//Obtener TOKEN
-                if (TokenActual == Datos.Instance.listaSets.First(X=>X.Contains(TokenActual)))//Sii el Token es SIMBOLO TERMINAL(SETS)
+                if (TokenActual == Datos.Instance.listaSets.First(X => X.Contains(TokenActual)))//Sii el Token es SIMBOLO TERMINAL(SETS)
                 {
                     var Ensamblando = new ArbolB//Se convierte en arbol
                     {
@@ -38,7 +38,7 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                 if (TokenActual == ")")//Sii TOKEN es (
                 {
                     while (Datos.Instance.PilaT.Count() >= 0 && Datos.Instance.PilaT.Peek() != "(")//Mientras la longitud de T sea mayor o igual a 0
-                        //y el último dato insertado en T sea diferente de “(“
+                                                                                                   //y el último dato insertado en T sea diferente de “(“
                     {
                         if (Datos.Instance.PilaT.Count() == 0)//Sii la longitud de la pila es 0
                         {
@@ -48,22 +48,37 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                         {
                             MessageBox.Show("Existe un error, faltan operadores");//Error
                         }
-                        var PopAuxT = Datos.Instance.PilaT.Pop();//Hacer POP a T
-                        var PopAuxS = Datos.Instance.PilaS.Pop();//Hacer POP a S
-                        var PopAuxS2 = Datos.Instance.PilaS.Pop();//Hacer POP a S
+
                         var EnsamblandoTemp = new ArbolB
                         {
-                            Valores = PopAuxT,//Crear arbol(nodo) del Pop en pila T
-                            HijoDerecho = PopAuxS,//Asignar hijos derecho
-                            HijoIzquierdo = PopAuxS2//Asignar hijos izquierdo
+                            Valores = Datos.Instance.PilaT.Pop(),//Hacer Pop y Crear arbol(nodo) del Pop en pila T
+                            HijoDerecho = Datos.Instance.PilaS.Pop(),//Hacer Pop y Asignar hijos derecho
+                            HijoIzquierdo = Datos.Instance.PilaS.Pop()//Hacer Pop y Asignar hijos izquierdo
                         };
                         Datos.Instance.PilaS.Push(EnsamblandoTemp);//Se lleva a la pila
                     }
                     Datos.Instance.PilaT.Pop();//Quitar ultimo elemento de la pila
                 }
-                if (TokenActual == "*")//Sii el TOKEN es concatenación(*)
+                else if (TokenActual == Datos.Instance.Metacaracteres.First(X => X.Contains(".")).ToString())//Sii el TOKEN es concatenación(.) - Guardado en lista
                 {
-
+                    var auxiliar = Datos.Instance.Metacaracteres.First(X => X.Contains(".")).ToString();//Para usarlo luego
+                    if (auxiliar == Datos.Instance.Unarios.First(Y => Y.Contains("")).ToString())//Sii el Metacaracter es Unario
+                    {
+                        if (Datos.Instance.PilaS.Count() < 0)//Si la pila está vacia
+                        {
+                            MessageBox.Show("Existe un error, faltan operadores");//Error
+                        }
+                        var Ensamblando = new ArbolB//Crearle un nodo
+                        {
+                            Valores = auxiliar,
+                            HijoIzquierdo = Datos.Instance.PilaS.Pop(),
+                        };
+                        Datos.Instance.PilaS.Push(Ensamblando);
+                    }
+                    else if (Datos.Instance.PilaT.Count() != 0 && Datos.Instance.PilaT.Peek() != "(")// &TOKEN es menor a ultimo op en T
+                    {
+                             
+                    }
                 }
             }
         }
