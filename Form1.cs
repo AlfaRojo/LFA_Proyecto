@@ -22,6 +22,7 @@ namespace LFA_Proyecto
         string resACTIONS = "";
         string resRESERVA = "";
         string resERROR = "";
+        int repetidos = 0;
         int thisSET = 0;
         int thisTOKENS = 1;
         int thisACTION = 2;
@@ -63,7 +64,7 @@ namespace LFA_Proyecto
                             }
                             catch (InvalidOperationException)
                             {
-                                //No contiene SETS... No es obligatorio que lo contenga
+                                SETlabel.Text = "SETS " + ComprobarString(resSETS);
                             }
                             try//TOKENS es obligatorio que venga
                             {
@@ -81,12 +82,16 @@ namespace LFA_Proyecto
                                 ACTIONlabel.Text = "ACTIONS se encuentra en el archivo";
                                 try//RESERVADAS() es obligatorio que venga seguido de ACTIONS
                                 {
-                                    resRESERVA = File.ReadAllLines(rutaArchivo).First(X => X.Contains("RESERVADAS()\n\r"));
-                                    string repetidos = GetResultado(resRESERVA);
+                                    resRESERVA = File.ReadAllLines(rutaArchivo).First(X => X.EndsWith("RESERVADAS()"));
+                                    repetidos = Convert.ToInt32(GetResultado(resRESERVA));
                                     RESERVAlabel.Text = "RESERVADAS() se encuentra en el archivo " + repetidos + " veces";
                                 }
                                 catch (InvalidOperationException)
                                 {
+                                    for (int i = 0; i < repetidos; i++)
+                                    {
+
+                                    }
                                     MessageBox.Show("No contiene -RESERVAS()-");
                                     return;
                                 }
@@ -103,7 +108,7 @@ namespace LFA_Proyecto
                             }
                             catch (InvalidOperationException)
                             {
-                                //No contiene ERROR... No es obligatorio que lo contenga
+                                ERRORlabel.Text = "ERROR " + ComprobarString(resERROR);
                             }
                             var lecturaAux = string.Empty;
                             while ((lecturaAux = reader.ReadLine()) != null)
@@ -123,9 +128,9 @@ namespace LFA_Proyecto
                                     {
                                         ///Sintaxis correcto
                                     }
-                                    else
+                                    else//Sintaxis incorrecto entre ACTIONS & RESERVADAS()
                                     {
-                                        MessageBox.Show("RESERVADAS() debe de ir seguido de ACTIONS");
+                                        MessageBox.Show("ACTIONS debe de ir seguido de RESERVADAS()");
                                         return;
                                     }
                                 }
