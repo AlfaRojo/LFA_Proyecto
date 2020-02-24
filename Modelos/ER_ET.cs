@@ -48,7 +48,6 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                         {
                             MessageBox.Show("Existe un error, faltan operadores");//Error
                         }
-
                         var EnsamblandoTemp = new ArbolB
                         {
                             Valores = Datos.Instance.PilaT.Pop(),//Hacer Pop y Crear arbol(nodo) del Pop en pila T
@@ -77,10 +76,51 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                     }
                     else if (Datos.Instance.PilaT.Count() != 0 && Datos.Instance.PilaT.Peek() != "(")// &TOKEN es menor a ultimo op en T
                     {
-                             
+                        var Temporal = new ArbolB
+                        {
+                            Valores = Datos.Instance.PilaT.Pop(),//Hacer Pop y Crear arbol(nodo) del Pop en pila T
+                        };
+                        if (Datos.Instance.PilaS.Count() < 2)
+                        {
+                            MessageBox.Show("Existe un error, faltan operadores");//Error
+                        }
+                        Temporal.HijoDerecho = Datos.Instance.PilaS.Pop();//Agregar hijo Derecho
+                        Temporal.HijoIzquierdo = Datos.Instance.PilaS.Pop();//Agregar hijo Derecho
+                        Datos.Instance.PilaS.Push(Temporal);//Agregar nuevo arbol a PilaS
+                    }
+                    else if (TokenActual != auxiliar)//Sii op no es unario
+                    {
+                        Datos.Instance.PilaT.Push(TokenActual);
                     }
                 }
+                else
+                {
+                    MessageBox.Show("Error! No es un Token reconocido");//Error
+                }
             }
+            while (Datos.Instance.PilaT.Count() > 0)
+            {
+                var Temp = new ArbolB
+                {
+                    Valores = Datos.Instance.PilaT.Pop(),
+                };
+                if (Temp.Valores == "(")
+                {
+                    MessageBox.Show("Existe un error, faltan operadores");//Error
+                }
+                if (Datos.Instance.PilaS.Count() != 0)
+                {
+                    MessageBox.Show("Existe un error, faltan operadores");//Error
+                }
+                Temp.HijoDerecho = Datos.Instance.PilaS.Pop();
+                Temp.HijoIzquierdo = Datos.Instance.PilaS.Pop();
+                Datos.Instance.PilaS.Push(Temp);
+            }
+            if (Datos.Instance.PilaS.Count() != 1)
+            {
+                MessageBox.Show("Existe un error, faltan operadores");//Error
+            }
+            Datos.Instance.PilaS.Pop();//Arbol final
         }
     }
 }
