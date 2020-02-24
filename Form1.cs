@@ -54,89 +54,122 @@ namespace LFA_Proyecto
                     var fileStream = actuArchivo.OpenFile();
                     using (StreamReader reader = new StreamReader(fileStream))//----------------Lectura del archivo----------------\\
                     {
-                        while ((contArchivo = reader.ReadLine()) != null)
+                        try//SETS no es obligatorio que venga en el archivo
                         {
-                            var test = reader.ReadLineAsync();
-                            try//SETS no es obligatorio que venga en el archivo
+                            resSETS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("SETS"));
+                            SETlabel.Text = "SETS " + ComprobarString(resSETS);
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            SETlabel.Text = "SETS " + ComprobarString(resSETS);
+                        }
+                        try//TOKENS es obligatorio que venga
+                        {
+                            resTOKENS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("TOKENS"));
+                            TOKENlabel.Text = "TOKENS se encuentra en el archivo";
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            MessageBox.Show("No contiene -TOKEN-");
+                            return;
+                        }
+                        try//ACTIONS es obligatorio que venga
+                        {
+                            resACTIONS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ACTIONS"));
+                            ACTIONlabel.Text = "ACTIONS se encuentra en el archivo";
+                            try//RESERVADAS() es obligatorio que venga seguido de ACTIONS
                             {
-                                resSETS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("SETS"));
-                                SETlabel.Text = "SETS " + ComprobarString(resSETS);
+                                resRESERVA = File.ReadAllLines(rutaArchivo).First(X => X.Contains("RESERVADAS()"));
+                                repetidos = Convert.ToInt32(GetResultado(resRESERVA));
+                                RESERVAlabel.Text = "RESERVADAS() se encuentra en el archivo " + repetidos + " veces";
                             }
                             catch (InvalidOperationException)
                             {
-                                SETlabel.Text = "SETS " + ComprobarString(resSETS);
-                            }
-                            try//TOKENS es obligatorio que venga
-                            {
-                                resTOKENS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("TOKENS"));
-                                TOKENlabel.Text = "TOKENS se encuentra en el archivo";
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                MessageBox.Show("No contiene -TOKEN-");
+                                MessageBox.Show("No contiene -RESERVAS()-");
                                 return;
                             }
-                            try//ACTIONS es obligatorio que venga
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            MessageBox.Show("No contiene -ACTIONS-");
+                            return;
+                        }
+                        try//ERROR no es obligatorio que venga en el archivo
+                        {
+                            resERROR = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ERROR"));
+                            ERRORlabel.Text = "ERROR " + ComprobarString(resERROR);
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            ERRORlabel.Text = "ERROR " + ComprobarString(resERROR);
+                        }
+                        var lecturaAux = string.Empty;
+                        while (reader.Peek() > 0)
+                        {
+                            lecturaAux = reader.ReadLine();
+                            if (lecturaAux.ToString() == resSETS)
                             {
-                                resACTIONS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ACTIONS"));
-                                ACTIONlabel.Text = "ACTIONS se encuentra en el archivo";
-                                try//RESERVADAS() es obligatorio que venga seguido de ACTIONS
+                                while ((lecturaAux = reader.ReadLine()) != resSETS)
                                 {
-                                    resRESERVA = File.ReadAllLines(rutaArchivo).First(X => X.EndsWith("RESERVADAS()"));
-                                    repetidos = Convert.ToInt32(GetResultado(resRESERVA));
-                                    RESERVAlabel.Text = "RESERVADAS() se encuentra en el archivo " + repetidos + " veces";
-                                }
-                                catch (InvalidOperationException)
-                                {
-                                    for (int i = 0; i < repetidos; i++)
+                                    if (lecturaAux == resTOKENS || lecturaAux == resERROR|| lecturaAux == resACTIONS)
                                     {
-
+                                        break;
                                     }
-                                    MessageBox.Show("No contiene -RESERVAS()-");
+                                    Datos.Instance.listaSets.Add(lecturaAux);
+                                }
+                            }
+                            if (lecturaAux.ToString() == resTOKENS)
+                            {
+                                while ((lecturaAux = reader.ReadLine()) != resTOKENS)
+                                {
+                                    if (lecturaAux == resSETS || lecturaAux == resERROR || lecturaAux == resACTIONS)
+                                    {
+                                        break;
+                                    }
+                                    Datos.Instance.listaToken.Add(lecturaAux);
+                                }
+                            }
+                            if (lecturaAux.ToString() == resACTIONS)
+                            {
+                                var seguido = reader.ReadLine();
+                                if (seguido.ToString().Replace(" ", "") == "RESERVADAS()")
+                                {
+                                    var next = reader.ReadLine();
+                                    if (next.ToString().Replace(" ","") == "{")
+                                    {
+                                        while ((lecturaAux = reader.ReadLine()) != resACTIONS)
+                                        {
+                                            if (lecturaAux == resTOKENS || lecturaAux == resERROR || lecturaAux == resSETS)
+                                            {
+                                                if (Datos.Instance.listaAction.Last().ToString() == "}")
+                                                {
+                                                    MessageBox.Show("ACTIONS debe finalizar en -}-");
+                                                }
+                                                break;
+                                            }
+                                            Datos.Instance.listaAction.Add(lecturaAux);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("ACTIONS debe iniciar en -{-");
+                                    }
+                                }
+                                else//Sintaxis incorrecto entre ACTIONS & RESERVADAS()
+                                {
+                                    MessageBox.Show("ACTIONS debe de ir seguido de RESERVADAS()");
                                     return;
                                 }
                             }
-                            catch (InvalidOperationException)
+                            if (lecturaAux.ToString() == resERROR)
                             {
-                                MessageBox.Show("No contiene -ACTIONS-");
-                                return;
-                            }
-                            try//ERROR no es obligatorio que venga en el archivo
-                            {
-                                resERROR = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ERROR"));
-                                ERRORlabel.Text = "ERROR " + ComprobarString(resERROR);
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                ERRORlabel.Text = "ERROR " + ComprobarString(resERROR);
-                            }
-                            var lecturaAux = string.Empty;
-                            while ((lecturaAux = reader.ReadLine()) != null)
-                            {
-                                if (lecturaAux.ToString() == resSETS)
+                                while ((lecturaAux = reader.ReadLine()) != resERROR)
                                 {
-
-                                }
-                                if (lecturaAux.ToString() == resTOKENS)
-                                {
-
-                                }
-                                if (lecturaAux.ToString() == resACTIONS)
-                                {
-                                    var seguido = reader.ReadLine();
-                                    if (seguido.ToString() == resRESERVA)
+                                    if (lecturaAux == resTOKENS || lecturaAux == resACTIONS || lecturaAux == resSETS)
                                     {
-                                        ///Sintaxis correcto
+                                        break;
                                     }
-                                    else//Sintaxis incorrecto entre ACTIONS & RESERVADAS()
-                                    {
-                                        MessageBox.Show("ACTIONS debe de ir seguido de RESERVADAS()");
-                                        return;
-                                    }
-                                }
-                                if (lecturaAux.ToString() == resERROR)
-                                {
-
+                                    Datos.Instance.listaError.Add(lecturaAux);
                                 }
                             }
                         }
