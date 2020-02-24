@@ -54,18 +54,26 @@ namespace LFA_Proyecto
                     var fileStream = actuArchivo.OpenFile();
                     using (StreamReader reader = new StreamReader(fileStream))//----------------Lectura del archivo----------------\\
                     {
+                        if (fileStream.Length == 0)
+                        {
+                            MessageBox.Show("El archivo no contiene información");
+                            return;
+                        }
                         try//SETS no es obligatorio que venga en el archivo
                         {
                             resSETS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("SETS"));
+                            SETlabel.Visible = true;
                             SETlabel.Text = "SETS " + ComprobarString(resSETS);
                         }
                         catch (InvalidOperationException)
                         {
+                            SETlabel.Visible = true;
                             SETlabel.Text = "SETS " + ComprobarString(resSETS);
                         }
                         try//TOKENS es obligatorio que venga
                         {
                             resTOKENS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("TOKENS"));
+                            TOKENlabel.Visible = true;
                             TOKENlabel.Text = "TOKENS se encuentra en el archivo";
                         }
                         catch (InvalidOperationException)
@@ -76,18 +84,8 @@ namespace LFA_Proyecto
                         try//ACTIONS es obligatorio que venga
                         {
                             resACTIONS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ACTIONS"));
+                            ACTIONlabel.Visible = true;
                             ACTIONlabel.Text = "ACTIONS se encuentra en el archivo";
-                            try//RESERVADAS() es obligatorio que venga seguido de ACTIONS
-                            {
-                                resRESERVA = File.ReadAllLines(rutaArchivo).First(X => X.Contains("RESERVADAS()"));
-                                repetidos = Convert.ToInt32(GetResultado(resRESERVA));
-                                RESERVAlabel.Text = "RESERVADAS() se encuentra en el archivo " + repetidos + " veces";
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                MessageBox.Show("No contiene -RESERVAS()-");
-                                return;
-                            }
                         }
                         catch (InvalidOperationException)
                         {
@@ -97,6 +95,7 @@ namespace LFA_Proyecto
                         try//ERROR no es obligatorio que venga en el archivo
                         {
                             resERROR = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ERROR"));
+                            ERRORlabel.Visible = true;
                             ERRORlabel.Text = "ERROR " + ComprobarString(resERROR);
                         }
                         catch (InvalidOperationException)
@@ -111,22 +110,30 @@ namespace LFA_Proyecto
                             {
                                 while ((lecturaAux = reader.ReadLine()) != resSETS)
                                 {
-                                    if (lecturaAux == resTOKENS || lecturaAux == resERROR|| lecturaAux == resACTIONS)
+                                    if (lecturaAux == resTOKENS || lecturaAux == resERROR || lecturaAux == resACTIONS || lecturaAux == null)//Condicion de salida
                                     {
                                         break;
                                     }
                                     Datos.Instance.listaSets.Add(lecturaAux);
+                                }
+                                for (int i = 0; i < Datos.Instance.listaSets.Count(); i++)//Agregar al GridView
+                                {
+                                    this.miDato.Rows.Add(i, Datos.Instance.listaSets.ElementAt(i), "SETS");
                                 }
                             }
                             if (lecturaAux.ToString() == resTOKENS)
                             {
                                 while ((lecturaAux = reader.ReadLine()) != resTOKENS)
                                 {
-                                    if (lecturaAux == resSETS || lecturaAux == resERROR || lecturaAux == resACTIONS)
+                                    if (lecturaAux == resSETS || lecturaAux == resERROR || lecturaAux == resACTIONS || lecturaAux == null)//Condicion de salida
                                     {
                                         break;
                                     }
                                     Datos.Instance.listaToken.Add(lecturaAux);
+                                }
+                                for (int i = 0; i < Datos.Instance.listaToken.Count(); i++)//Agregar al GridView
+                                {
+                                    this.miDato.Rows.Add(i, Datos.Instance.listaToken.ElementAt(i), "TOKENS");
                                 }
                             }
                             if (lecturaAux.ToString() == resACTIONS)
@@ -135,19 +142,24 @@ namespace LFA_Proyecto
                                 if (seguido.ToString().Replace(" ", "") == "RESERVADAS()")
                                 {
                                     var next = reader.ReadLine();
-                                    if (next.ToString().Replace(" ","") == "{")
+                                    if (next.ToString().Replace(" ", "") == "{")
                                     {
                                         while ((lecturaAux = reader.ReadLine()) != resACTIONS)
                                         {
-                                            if (lecturaAux == resTOKENS || lecturaAux == resERROR || lecturaAux == resSETS)
+                                            if (lecturaAux == resTOKENS || lecturaAux == resERROR || lecturaAux == resSETS || lecturaAux == null)//Condicion de salida
                                             {
-                                                if (Datos.Instance.listaAction.Last().ToString() == "}")
+                                                if (Datos.Instance.listaAction.Last().ToString() != "}")
                                                 {
                                                     MessageBox.Show("ACTIONS debe finalizar en -}-");
                                                 }
+                                                Datos.Instance.listaAction.RemoveAt(Datos.Instance.listaAction.Count() - 1);
                                                 break;
                                             }
                                             Datos.Instance.listaAction.Add(lecturaAux);
+                                        }
+                                        for (int i = 1; i < Datos.Instance.listaAction.Count(); i++)//Agregar al GridView
+                                        {
+                                            this.miDato.Rows.Add(i, Datos.Instance.listaAction.ElementAt(i), "ACTIONS");
                                         }
                                     }
                                     else
@@ -163,13 +175,18 @@ namespace LFA_Proyecto
                             }
                             if (lecturaAux.ToString() == resERROR)
                             {
+                                Datos.Instance.listaError.Add(lecturaAux);
                                 while ((lecturaAux = reader.ReadLine()) != resERROR)
                                 {
-                                    if (lecturaAux == resTOKENS || lecturaAux == resACTIONS || lecturaAux == resSETS)
+                                    if (lecturaAux == resTOKENS || lecturaAux == resACTIONS || lecturaAux == resSETS || lecturaAux == null)//Condicion de salida
                                     {
                                         break;
                                     }
                                     Datos.Instance.listaError.Add(lecturaAux);
+                                }
+                                for (int i = 0; i < Datos.Instance.listaError.Count(); i++)//Agregar al GridView
+                                {
+                                    this.miDato.Rows.Add(i, Datos.Instance.listaError.ElementAt(i), "ERROR");
                                 }
                             }
                         }
@@ -178,10 +195,6 @@ namespace LFA_Proyecto
             }
             rutaLabel.Text = rutaArchivo;
             miDato.Visible = true;
-            var DelimitadorSETS = Datos.Instance.diccionarioColeccion.ElementAt(thisSET).Key;
-            var DelimitadorTOKEN = Datos.Instance.diccionarioColeccion.ElementAt(thisTOKENS).Key;
-            var DelimitadorACTION = Datos.Instance.diccionarioColeccion.ElementAt(thisACTION).Key;
-            var DelimitadorERROR = Datos.Instance.diccionarioColeccion.ElementAt(thisERROR).Key;
 
             //NuevoArchivo(contArchivo);
 
@@ -220,17 +233,6 @@ namespace LFA_Proyecto
             Expresion Expresion = new Expresion();
             Expresion.Show();
         }
-        private static string GetResultado(string Linea)
-        {
-            IEnumerable<string> palabrasRepetidas = GetWordList(Linea);
-
-            var result = palabrasRepetidas
-                .GroupBy(x => x)
-                .Select(Grupo => new { Word = Grupo.Key, Count = Grupo.Count() })
-                .OrderByDescending(x => x.Count).FirstOrDefault();
-            return result.Count.ToString();
-        }
-
         private static IEnumerable<string> GetWordList(string linea)
         {
             return linea.Split(' ').Where(st => !st.Equals(""));
