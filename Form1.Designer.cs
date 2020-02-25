@@ -32,14 +32,15 @@
             this.button1 = new System.Windows.Forms.Button();
             this.rutaLabel = new System.Windows.Forms.Label();
             this.miDato = new System.Windows.Forms.DataGridView();
+            this.Fila = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.VALOR = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.TIPO = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.SETlabel = new System.Windows.Forms.Label();
             this.TOKENlabel = new System.Windows.Forms.Label();
             this.ACTIONlabel = new System.Windows.Forms.Label();
             this.ERRORlabel = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
-            this.Fila = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.VALOR = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.TIPO = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ER_TOKEN = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.miDato)).BeginInit();
             this.SuspendLayout();
             // 
@@ -88,6 +89,30 @@
             this.miDato.Size = new System.Drawing.Size(776, 150);
             this.miDato.TabIndex = 2;
             this.miDato.Visible = false;
+            // 
+            // Fila
+            // 
+            this.Fila.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Fila.HeaderText = "FILA";
+            this.Fila.MinimumWidth = 6;
+            this.Fila.Name = "Fila";
+            this.Fila.Width = 65;
+            // 
+            // VALOR
+            // 
+            this.VALOR.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.VALOR.HeaderText = "VALOR";
+            this.VALOR.MinimumWidth = 6;
+            this.VALOR.Name = "VALOR";
+            this.VALOR.Width = 84;
+            // 
+            // TIPO
+            // 
+            this.TIPO.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.TIPO.HeaderText = "TIPO";
+            this.TIPO.MinimumWidth = 6;
+            this.TIPO.Name = "TIPO";
+            this.TIPO.Width = 69;
             // 
             // SETlabel
             // 
@@ -140,6 +165,7 @@
             // button2
             // 
             this.button2.BackColor = System.Drawing.Color.Transparent;
+            this.button2.Enabled = false;
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button2.Font = new System.Drawing.Font("Modern No. 20", 18F, System.Drawing.FontStyle.Bold);
             this.button2.ForeColor = System.Drawing.Color.Transparent;
@@ -151,29 +177,15 @@
             this.button2.UseVisualStyleBackColor = false;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
-            // Fila
+            // ER_TOKEN
             // 
-            this.Fila.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.Fila.HeaderText = "FILA";
-            this.Fila.MinimumWidth = 6;
-            this.Fila.Name = "Fila";
-            this.Fila.Width = 65;
-            // 
-            // VALOR
-            // 
-            this.VALOR.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.VALOR.HeaderText = "VALOR";
-            this.VALOR.MinimumWidth = 6;
-            this.VALOR.Name = "VALOR";
-            this.VALOR.Width = 84;
-            // 
-            // TIPO
-            // 
-            this.TIPO.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.TIPO.HeaderText = "TIPO";
-            this.TIPO.MinimumWidth = 6;
-            this.TIPO.Name = "TIPO";
-            this.TIPO.Width = 69;
+            this.ER_TOKEN.AutoSize = true;
+            this.ER_TOKEN.ForeColor = System.Drawing.Color.White;
+            this.ER_TOKEN.Location = new System.Drawing.Point(9, 424);
+            this.ER_TOKEN.Name = "ER_TOKEN";
+            this.ER_TOKEN.Size = new System.Drawing.Size(178, 17);
+            this.ER_TOKEN.TabIndex = 9;
+            this.ER_TOKEN.Text = "<ID>.\" \"*.\"=\".\" \"*.\"\'\".<c>.\"\'\".#";
             // 
             // Form1
             // 
@@ -181,6 +193,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.ER_TOKEN);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.ERRORlabel);
             this.Controls.Add(this.ACTIONlabel);
@@ -212,6 +225,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Fila;
         private System.Windows.Forms.DataGridViewTextBoxColumn VALOR;
         private System.Windows.Forms.DataGridViewTextBoxColumn TIPO;
+        private System.Windows.Forms.Label ER_TOKEN;
     }
 }
 

@@ -20,13 +20,7 @@ namespace LFA_Proyecto
         string resSETS = "";
         string resTOKENS = "";
         string resACTIONS = "";
-        string resRESERVA = "";
         string resERROR = "";
-        int repetidos = 0;
-        int thisSET = 0;
-        int thisTOKENS = 1;
-        int thisACTION = 2;
-        int thisERROR = 3;
         char[] Delimitadores = { '.', ' ', '\n' };
         #endregion
 
@@ -54,6 +48,7 @@ namespace LFA_Proyecto
                     var fileStream = actuArchivo.OpenFile();
                     using (StreamReader reader = new StreamReader(fileStream))//----------------Lectura del archivo----------------\\
                     {
+                        #region EXISTENCIAS SETS/TOKENS/ACTIONS/ERROR
                         if (fileStream.Length == 0)
                         {
                             MessageBox.Show("El archivo no contiene información");
@@ -78,7 +73,7 @@ namespace LFA_Proyecto
                         }
                         catch (InvalidOperationException)
                         {
-                            MessageBox.Show("No contiene -TOKEN-");
+                            MessageBox.Show("El archivo debe llevar -TOKENS-");
                             return;
                         }
                         try//ACTIONS es obligatorio que venga
@@ -102,25 +97,34 @@ namespace LFA_Proyecto
                         {
                             ERRORlabel.Text = "ERROR " + ComprobarString(resERROR);
                         }
+                        #endregion
                         var lecturaAux = string.Empty;
                         while (reader.Peek() > 0)
                         {
                             lecturaAux = reader.ReadLine();
+                            #region All SETS Sintaxis //Falta comprobar concatenación con signo +
                             if (lecturaAux.ToString() == resSETS)
                             {
                                 while ((lecturaAux = reader.ReadLine()) != resSETS)
                                 {
                                     if (lecturaAux == resTOKENS || lecturaAux == resERROR || lecturaAux == resACTIONS || lecturaAux == null)//Condicion de salida
                                     {
+                                        if (Datos.Instance.listaSets.Count() < 1)//Sii existe SETS en el archivo, debe tener almenos uno
+                                        {
+                                            MessageBox.Show("Si el archivo contiene SETS, debe de llevar almenos un SET");
+                                            return;
+                                        }
                                         break;
                                     }
                                     Datos.Instance.listaSets.Add(lecturaAux);
                                 }
                                 for (int i = 0; i < Datos.Instance.listaSets.Count(); i++)//Agregar al GridView
                                 {
-                                    this.miDato.Rows.Add(i, Datos.Instance.listaSets.ElementAt(i), "SETS");
+                                    this.miDato.Rows.Add(i, Datos.Instance.listaSets.ElementAt(i).Replace(" ", ""), "SETS");
                                 }
                             }
+                            #endregion
+                            #region All TOKENS Sintaxis //Falta comprobar la expresion regular(F)
                             if (lecturaAux.ToString() == resTOKENS)
                             {
                                 while ((lecturaAux = reader.ReadLine()) != resTOKENS)
@@ -131,34 +135,65 @@ namespace LFA_Proyecto
                                     }
                                     Datos.Instance.listaToken.Add(lecturaAux);
                                 }
-                                for (int i = 0; i < Datos.Instance.listaToken.Count(); i++)//Agregar al GridView
+                                for (int i = 0; i < Datos.Instance.listaToken.Count(); i++)//Agregar al GridView y comprobar sintaxis
                                 {
+                                    if (!Datos.Instance.listaToken.ElementAt(i).Contains("TOKEN"))//Error de escritura
+                                    {
+                                        MessageBox.Show("TOKEN en la linea " + i + " no contiene TOKEN o se encunetra mal escrito");
+                                        return;
+                                    }
+                                    if ((Datos.Instance.listaToken.ElementAt(i)).All(char.IsDigit))//No contiene dígito----NO FUNCIONA, REVISAR!
+                                    {
+                                        MessageBox.Show("TOKEN en la linea " + i + " no contiene numeración válida");
+                                        return;
+                                    }
+                                    if (!Datos.Instance.listaToken.ElementAt(i).Contains("="))//Error de igualación
+                                    {
+                                        MessageBox.Show("TOKEN en la linea " + i + " no contiene =");
+                                        return;
+                                    }
+                                    //Agregar la comprobación de expresión regular
                                     this.miDato.Rows.Add(i, Datos.Instance.listaToken.ElementAt(i), "TOKENS");
                                 }
                             }
+                            #endregion
+                            #region All ACTIONS Sintaxis //Falta comprobación de número
                             if (lecturaAux.ToString() == resACTIONS)
                             {
                                 var seguido = reader.ReadLine();
-                                if (seguido.ToString().Replace(" ", "") == "RESERVADAS()")
+                                if (seguido.ToString().Replace(" ", "") == "RESERVADAS()")//Comprobar que le siga RESERVADAS()
                                 {
                                     var next = reader.ReadLine();
-                                    if (next.ToString().Replace(" ", "") == "{")
+                                    if (next.ToString().Replace(" ", "") == "{")//Comprobar 3ra linea abra con llave {
                                     {
                                         while ((lecturaAux = reader.ReadLine()) != resACTIONS)
                                         {
                                             if (lecturaAux == resTOKENS || lecturaAux == resERROR || lecturaAux == resSETS || lecturaAux == null)//Condicion de salida
                                             {
-                                                if (Datos.Instance.listaAction.Last().ToString() != "}")
+                                                if (Datos.Instance.listaAction.Last().ToString() != "}")//Sii el ultimo no es de cerrar llave }
                                                 {
                                                     MessageBox.Show("ACTIONS debe finalizar en -}-");
                                                 }
-                                                Datos.Instance.listaAction.RemoveAt(Datos.Instance.listaAction.Count() - 1);
+                                                Datos.Instance.listaAction.RemoveAt(Datos.Instance.listaAction.Count() - 1);//Sii lo contiene, se elimina, inesesario
                                                 break;
                                             }
-                                            Datos.Instance.listaAction.Add(lecturaAux);
+
+                                            Datos.Instance.listaAction.Add(lecturaAux);//Agregar a su lista respectiva
                                         }
                                         for (int i = 1; i < Datos.Instance.listaAction.Count(); i++)//Agregar al GridView
                                         {
+                                            if (!Datos.Instance.listaAction.ElementAt(i).Contains("="))//Error de igualación
+                                            {
+                                                MessageBox.Show("ACTIONS en la linea " + i + " no contiene =");
+                                                return;
+                                            }
+                                            if (!Datos.Instance.listaAction.ElementAt(i).Contains("'") 
+                                                && !Datos.Instance.listaAction.ElementAt(i).EndsWith("'"))//Inicio y cierre con apostrofe '
+                                            {
+                                                MessageBox.Show("ACTIONS en la linea " + i + " abre o cierra con '");
+                                                return;
+                                            }
+                                            //Agregar comprobación de número
                                             this.miDato.Rows.Add(i, Datos.Instance.listaAction.ElementAt(i), "ACTIONS");
                                         }
                                     }
@@ -173,22 +208,36 @@ namespace LFA_Proyecto
                                     return;
                                 }
                             }
-                            if (lecturaAux.ToString() == resERROR)
+                            #endregion
+                            #region All ERROR Sintaxis //Falta comprobar luego de singo =
+                            if (lecturaAux.ToString() == resERROR)//All ERRORS Sintaxis-----------------------------------------------------------------------
                             {
                                 Datos.Instance.listaError.Add(lecturaAux);
                                 while ((lecturaAux = reader.ReadLine()) != resERROR)
                                 {
                                     if (lecturaAux == resTOKENS || lecturaAux == resACTIONS || lecturaAux == resSETS || lecturaAux == null)//Condicion de salida
                                     {
+                                        if (Datos.Instance.listaError.Count() < 1)
+                                        {
+                                            MessageBox.Show("Archivo debe contener almenos un ERROR");
+                                            return;
+                                        }
                                         break;
                                     }
                                     Datos.Instance.listaError.Add(lecturaAux);
                                 }
                                 for (int i = 0; i < Datos.Instance.listaError.Count(); i++)//Agregar al GridView
                                 {
+                                    if (!Datos.Instance.listaError.ElementAt(i).StartsWith("ERROR"))
+                                    {
+                                        MessageBox.Show("ERROR en la linea " + i + " no inicia correctamente");
+                                        return;
+                                    }
+                                    //Agregar comprobación luego de =
                                     this.miDato.Rows.Add(i, Datos.Instance.listaError.ElementAt(i), "ERROR");
                                 }
                             }
+                            #endregion
                         }
                     }
                 }
@@ -223,12 +272,11 @@ namespace LFA_Proyecto
                 return;
             }
         }
-        private void Form1_Load(object sender, EventArgs e)
+        private void Form1_Load(object sender, EventArgs e)//Expresiones Regulares generadas manualmente
         {
-            Datos.Instance.eTOKEN.Add("");
+            Datos.Instance.eTOKEN.Add(ER_TOKEN.Text);
         }
-
-        private void button2_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e)//Poder cambiar la Expresión Regular manualmente(NO USAR)
         {
             Expresion Expresion = new Expresion();
             Expresion.Show();
