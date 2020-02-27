@@ -118,6 +118,10 @@ namespace LFA_Proyecto
                                     }
                                     Datos.Instance.listaSets.Add(lecturaAux);
                                 }
+                                if (Datos.Instance.listaSets.Contains(""))
+                                {
+                                    Datos.Instance.listaSets.RemoveAll(X => X == "");
+                                }
                                 for (int i = 0; i < Datos.Instance.listaSets.Count(); i++)//Agregar al GridView
                                 {
                                     this.miDato.Rows.Add(i, Datos.Instance.listaSets.ElementAt(i).Replace(" ", ""), "SETS");
@@ -134,6 +138,10 @@ namespace LFA_Proyecto
                                         break;
                                     }
                                     Datos.Instance.listaToken.Add(lecturaAux);
+                                }
+                                if (Datos.Instance.listaToken.Contains(""))
+                                {
+                                    Datos.Instance.listaToken.RemoveAll(X => X == "");
                                 }
                                 for (int i = 0; i < Datos.Instance.listaToken.Count(); i++)//Agregar al GridView y comprobar sintaxis
                                 {
@@ -168,6 +176,10 @@ namespace LFA_Proyecto
                                     {
                                         while ((lecturaAux = reader.ReadLine()) != resACTIONS)
                                         {
+                                            if (lecturaAux == "}")
+                                            {
+                                                break;
+                                            }
                                             if (lecturaAux == resTOKENS || lecturaAux == resERROR || lecturaAux == resSETS || lecturaAux == null)//Condicion de salida
                                             {
                                                 if (Datos.Instance.listaAction.Last().ToString() != "}")//Sii el ultimo no es de cerrar llave }
@@ -178,6 +190,10 @@ namespace LFA_Proyecto
                                                 break;
                                             }
                                             Datos.Instance.listaAction.Add(lecturaAux);//Agregar a su lista respectiva
+                                        }
+                                        if (Datos.Instance.listaAction.Contains(""))
+                                        {
+                                            Datos.Instance.listaAction.RemoveAll(X => X=="");
                                         }
                                         for (int i = 0; i < Datos.Instance.listaAction.Count(); i++)//Agregar al GridView y comprobar Sintaxis
                                         {
@@ -200,7 +216,6 @@ namespace LFA_Proyecto
                                                 MessageBox.Show("ACTIONS en la linea " + i + " no inicia correctamente");
                                                 return;
                                             }
-                                            //Agregar comprobación de número
                                             this.miDato.Rows.Add(i, Datos.Instance.listaAction.ElementAt(i), "ACTIONS");
                                         }
                                     }
@@ -232,6 +247,10 @@ namespace LFA_Proyecto
                                         break;
                                     }
                                     Datos.Instance.listaError.Add(lecturaAux);
+                                }
+                                if (Datos.Instance.listaError.Contains(""))
+                                {
+                                    Datos.Instance.listaError.RemoveAll(X => X == "");
                                 }
                                 for (int i = 0; i < Datos.Instance.listaError.Count(); i++)//Agregar al GridView y comprobar Sintaxis
                                 {    
@@ -299,6 +318,10 @@ namespace LFA_Proyecto
             {
                 Datos.Instance.eTOKEN.Add(ER_TOKEN.Text.Substring(i, 1));//Guarda caracter por caracter para la ER_ET
             }
+            Prioridades myPrior = new Prioridades();
+            myPrior.OperER();
+            myPrior.Metacaracteres();
+            myPrior.Unarios();
         }
         private void button2_Click(object sender, EventArgs e)//Poder cambiar la Expresión Regular manualmente(NO USAR)
         {

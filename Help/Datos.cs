@@ -37,6 +37,7 @@ namespace LFA_Proyecto.Help
 
         public List<string[]> Metacaracteres = new List<string[]>();
         public List<string[]> Unarios = new List<string[]>();
+        public List<string[]> OperadoresER = new List<string[]>();
         //Agregar
     }
 }
