@@ -22,80 +22,83 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
         {
             while (Datos.Instance.eTOKEN.Count() > 0)//Mientras existan TOKENS en la expresión regular
             {
-                string TokenActual = Datos.Instance.eTOKEN.ElementAt(0);//Obtener TOKEN
-                if (TokenActual == Datos.Instance.listaSets.First(X => X.Contains(TokenActual)))//Sii el Token es SIMBOLO TERMINAL(SETS)
+                for (int i = 0; i < Datos.Instance.eTOKEN.Count(); i++)
                 {
-                    var Ensamblando = new ArbolB//Se convierte en arbol
+                    string TokenActual = Datos.Instance.eTOKEN.ElementAt(i);//Obtener TOKEN actual
+                    if (TokenActual == Datos.Instance.listaSets.First(X => X.Contains(TokenActual)))//Sii el Token es SIMBOLO TERMINAL(SETS)
                     {
-                        Valores = ""
-                    };
-                    Datos.Instance.PilaS.Push(Ensamblando);//Se hace Push con el nuevo arbol generado
-                }
-                else if (TokenActual == "(")//Sii TOKEN es (
-                {
-                    Datos.Instance.PilaT.Push(TokenActual);//Hacer Push a con el TOKEN (
-                }
-                if (TokenActual == ")")//Sii TOKEN es (
-                {
-                    while (Datos.Instance.PilaT.Count() >= 0 && Datos.Instance.PilaT.Peek() != "(")//Mientras la longitud de T sea mayor o igual a 0
-                                                                                                   //y el último dato insertado en T sea diferente de “(“
-                    {
-                        if (Datos.Instance.PilaT.Count() == 0)//Sii la longitud de la pila es 0
+                        var Ensamblando = new ArbolB//Se convierte en arbol
                         {
-                            MessageBox.Show("Existe un error, faltan operadores");//Error
-                        }
-                        if (Datos.Instance.PilaS.Count() < 1)//Sii la longitud de la pila es menor a 2
-                        {
-                            MessageBox.Show("Existe un error, faltan operadores");//Error
-                        }
-                        var EnsamblandoTemp = new ArbolB
-                        {
-                            Valores = Datos.Instance.PilaT.Pop(),//Hacer Pop y Crear arbol(nodo) del Pop en pila T
-                            HijoDerecho = Datos.Instance.PilaS.Pop(),//Hacer Pop y Asignar hijos derecho
-                            HijoIzquierdo = Datos.Instance.PilaS.Pop()//Hacer Pop y Asignar hijos izquierdo
+                            Valores = ""
                         };
-                        Datos.Instance.PilaS.Push(EnsamblandoTemp);//Se lleva a la pila
+                        Datos.Instance.PilaS.Push(Ensamblando);//Se hace Push con el nuevo arbol generado
                     }
-                    Datos.Instance.PilaT.Pop();//Quitar ultimo elemento de la pila
-                }
-                else if (TokenActual == Datos.Instance.Metacaracteres.First(X => X.Contains(".")).ToString())//Sii el TOKEN es concatenación(.) - Guardado en lista
-                {
-                    var auxiliar = Datos.Instance.Metacaracteres.First(X => X.Contains(".")).ToString();//Para usarlo luego
-                    if (auxiliar == Datos.Instance.Unarios.First(Y => Y.Contains("")).ToString())//Sii el Metacaracter es Unario
+                    else if (TokenActual == "(")//Sii TOKEN es (
                     {
-                        if (Datos.Instance.PilaS.Count() < 0)//Si la pila está vacia
+                        Datos.Instance.PilaT.Push(TokenActual);//Hacer Push a con el TOKEN (
+                    }
+                    if (TokenActual == ")")//Sii TOKEN es (
+                    {
+                        while (Datos.Instance.PilaT.Count() >= 0 && Datos.Instance.PilaT.Peek() != "(")//Mientras la longitud de T sea mayor o igual a 0
+                                                                                                       //y el último dato insertado en T sea diferente de “(“
                         {
-                            MessageBox.Show("Existe un error, faltan operadores");//Error
+                            if (Datos.Instance.PilaT.Count() == 0)//Sii la longitud de la pila es 0
+                            {
+                                MessageBox.Show("Existe un error, faltan operadores");//Error
+                            }
+                            if (Datos.Instance.PilaS.Count() < 1)//Sii la longitud de la pila es menor a 2
+                            {
+                                MessageBox.Show("Existe un error, faltan operadores");//Error
+                            }
+                            var EnsamblandoTemp = new ArbolB
+                            {
+                                Valores = Datos.Instance.PilaT.Pop(),//Hacer Pop y Crear arbol(nodo) del Pop en pila T
+                                HijoDerecho = Datos.Instance.PilaS.Pop(),//Hacer Pop y Asignar hijos derecho
+                                HijoIzquierdo = Datos.Instance.PilaS.Pop()//Hacer Pop y Asignar hijos izquierdo
+                            };
+                            Datos.Instance.PilaS.Push(EnsamblandoTemp);//Se lleva a la pila
                         }
-                        var Ensamblando = new ArbolB//Crearle un nodo
-                        {
-                            Valores = auxiliar,
-                            HijoIzquierdo = Datos.Instance.PilaS.Pop(),
-                        };
-                        Datos.Instance.PilaS.Push(Ensamblando);
+                        Datos.Instance.PilaT.Pop();//Quitar ultimo elemento de la pila
                     }
-                    else if (Datos.Instance.PilaT.Count() != 0 && Datos.Instance.PilaT.Peek() != "(")// &TOKEN es menor a ultimo op en T
+                    else if (TokenActual == Datos.Instance.Metacaracteres.First(X => X.Contains(".")).ToString())//Sii el TOKEN es concatenación(.) - Guardado en lista
                     {
-                        var Temporal = new ArbolB
+                        var auxiliar = Datos.Instance.Metacaracteres.First(X => X.Contains(".")).ToString();//Para usarlo luego
+                        if (auxiliar == Datos.Instance.Unarios.First(Y => Y.Contains("")).ToString())//Sii el Metacaracter es Unario
                         {
-                            Valores = Datos.Instance.PilaT.Pop(),//Hacer Pop y Crear arbol(nodo) del Pop en pila T
-                        };
-                        if (Datos.Instance.PilaS.Count() < 2)
-                        {
-                            MessageBox.Show("Existe un error, faltan operadores");//Error
+                            if (Datos.Instance.PilaS.Count() < 0)//Si la pila está vacia
+                            {
+                                MessageBox.Show("Existe un error, faltan operadores");//Error
+                            }
+                            var Ensamblando = new ArbolB//Crearle un nodo
+                            {
+                                Valores = auxiliar,
+                                HijoIzquierdo = Datos.Instance.PilaS.Pop(),
+                            };
+                            Datos.Instance.PilaS.Push(Ensamblando);
                         }
-                        Temporal.HijoDerecho = Datos.Instance.PilaS.Pop();//Agregar hijo Derecho
-                        Temporal.HijoIzquierdo = Datos.Instance.PilaS.Pop();//Agregar hijo Derecho
-                        Datos.Instance.PilaS.Push(Temporal);//Agregar nuevo arbol a PilaS
+                        else if (Datos.Instance.PilaT.Count() != 0 && Datos.Instance.PilaT.Peek() != "(")// &TOKEN es menor a ultimo op en T - Datos.Instance.eTOKEN.ElementAt(i-1) < Datos.Instance.PilaT.Peek()
+                        {
+                            var Temporal = new ArbolB
+                            {
+                                Valores = Datos.Instance.PilaT.Pop(),//Hacer Pop y Crear arbol(nodo) del Pop en pila T
+                            };
+                            if (Datos.Instance.PilaS.Count() < 2)
+                            {
+                                MessageBox.Show("Existe un error, faltan operadores");//Error
+                            }
+                            Temporal.HijoDerecho = Datos.Instance.PilaS.Pop();//Agregar hijo Derecho
+                            Temporal.HijoIzquierdo = Datos.Instance.PilaS.Pop();//Agregar hijo Derecho
+                            Datos.Instance.PilaS.Push(Temporal);//Agregar nuevo arbol a PilaS
+                        }
+                        else if (TokenActual != auxiliar)//Sii op no es unario
+                        {
+                            Datos.Instance.PilaT.Push(TokenActual);
+                        }
                     }
-                    else if (TokenActual != auxiliar)//Sii op no es unario
+                    else
                     {
-                        Datos.Instance.PilaT.Push(TokenActual);
+                        MessageBox.Show("Error! No es un Token reconocido");//Error
                     }
-                }
-                else
-                {
-                    MessageBox.Show("Error! No es un Token reconocido");//Error
                 }
             }
             while (Datos.Instance.PilaT.Count() > 0)
