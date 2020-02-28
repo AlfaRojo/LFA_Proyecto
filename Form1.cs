@@ -22,6 +22,8 @@ namespace LFA_Proyecto
         string resACTIONS = "";
         string resERROR = "";
         char[] Delimitadores = { ' ', '\t', '\n', '\r' };
+        char[] AlfabetoMayuscula = Enumerable.Range('A', 26).Select(x => (char)x).ToArray();
+        char[] AlfabetoMinuscula = Enumerable.Range('a', 26).Select(x => (char)x).ToArray();
         #endregion
 
         public Form1()
@@ -53,7 +55,7 @@ namespace LFA_Proyecto
                         if (fileStream.Length == 0)
                         {
                             MessageBox.Show("El archivo no contiene información");
-                            return;
+                            button1_Click(sender, e);
                         }
                         try//SETS no es obligatorio que venga en el archivo
                         {
@@ -75,7 +77,7 @@ namespace LFA_Proyecto
                         catch (InvalidOperationException)
                         {
                             MessageBox.Show("El archivo no contiene -TOKENS- o se encuentra mal escrito");
-                            return;
+                            button1_Click(sender, e);
                         }
                         try//ACTIONS es obligatorio que venga
                         {
@@ -86,7 +88,7 @@ namespace LFA_Proyecto
                         catch (InvalidOperationException)
                         {
                             MessageBox.Show("El archivo no contiene -ACTIONS- o se encuentra mal escrito");
-                            return;
+                            button1_Click(sender, e);
                         }
                         try//ERROR no es obligatorio que venga en el archivo
                         {
@@ -97,7 +99,7 @@ namespace LFA_Proyecto
                         catch (InvalidOperationException)
                         {
                             MessageBox.Show("El archivo no contiene almenos un -ERROR- o se encuentra mal escrito");
-                            return;
+                            button1_Click(sender, e);
                         }
                         #endregion
                         var lecturaAux = string.Empty;
@@ -115,7 +117,7 @@ namespace LFA_Proyecto
                                         if (Datos.Instance.listaSets.Count() < 1)//Sii existe SETS en el archivo, debe tener almenos uno
                                         {
                                             MessageBox.Show("Si el archivo contiene SETS, debe de llevar almenos un SET");
-                                            return;
+                                            button1_Click(sender, e);
                                         }
                                         break;
                                     }
@@ -127,6 +129,11 @@ namespace LFA_Proyecto
                                 }
                                 for (int i = 0; i < Datos.Instance.listaSets.Count(); i++)//Agregar al GridView
                                 {
+                                    if (Datos.Instance.listaSets.ElementAt(i).Contains("+"))//Comprobar concatenación con signo +
+                                    {
+                                        string[] Delimitado = Datos.Instance.listaSets.ElementAt(i).Split('+');//Hacer split y comprobar derecha e izquierda
+                                        Spliter(Delimitado, sender, e);
+                                    }
                                     this.miDato.Rows.Add(i, Datos.Instance.listaSets.ElementAt(i).Replace(" ", ""), "SETS");
                                 }
                             }
@@ -154,27 +161,27 @@ namespace LFA_Proyecto
                                 {
                                     try
                                     {
-                                        string myText = Datos.Instance.listaToken.ElementAt(i);
-                                        myText = Regex.Replace(myText, @"\s+", "");
                                         var Delimitador = Datos.Instance.listaToken.ElementAt(i).Trim(Delimitadores);
                                         if (Delimitador == "")
                                         {
                                             Datos.Instance.listaToken.RemoveAt(i);
                                         }
+                                        string myText = Datos.Instance.listaToken.ElementAt(i);
+                                        myText = Regex.Replace(myText, @"\s+", "");
                                         if (!myText.Trim(Delimitadores).Contains("TOKEN"))//Error de escritura
                                         {
                                             MessageBox.Show("TOKEN en la linea " + i + " no contiene TOKEN o se encunetra mal escrito");
-                                            return;
+                                            button1_Click(sender, e);
                                         }
                                         if (Datos.Instance.listaToken.ElementAt(i).All(char.IsDigit))//No contiene dígito----NO FUNCIONA, REVISAR!
                                         {
                                             MessageBox.Show("TOKEN en la linea " + i + " no contiene numeración válida");
-                                            return;
+                                            button1_Click(sender, e);
                                         }
                                         if (!Datos.Instance.listaToken.ElementAt(i).Contains("="))//Error de igualación
                                         {
                                             MessageBox.Show("TOKEN en la linea " + i + " no contiene =");
-                                            return;
+                                            button1_Click(sender, e);
                                         }
                                         //Agregar la comprobación de expresión regular
                                         this.miDato.Rows.Add(i, Datos.Instance.listaToken.ElementAt(i), "TOKENS");
@@ -207,7 +214,7 @@ namespace LFA_Proyecto
                                                 if (Datos.Instance.listaAction.Last().Replace(" ", "").Replace("\t","") != "}")//Sii el ultimo no es de cerrar llave }
                                                 {
                                                     MessageBox.Show("ACTIONS debe finalizar en -}-");
-                                                    return;
+                                                    button1_Click(sender, e);
                                                 }
                                                 Datos.Instance.listaAction.RemoveAt(Datos.Instance.listaAction.Count() - 1);//Sii lo contiene, se elimina, inesesario
                                                 break;
@@ -226,18 +233,18 @@ namespace LFA_Proyecto
                                                 if (!(int.TryParse(compERROR[0], out int x)))
                                                 {
                                                     MessageBox.Show("ACTIONS en la linea " + i + " no inicia con valor numérico");
-                                                    return;
+                                                    button1_Click(sender, e);
                                                 }
                                                 if (!(compERROR[1].StartsWith("'")) && !(compERROR[1].EndsWith("'")))
                                                 {
                                                     MessageBox.Show("ACTIONS en la linea " + i + " no inicia o finaliza correctamente");
-                                                    return;
+                                                    button1_Click(sender, e);
                                                 }
                                             }
                                             catch (IndexOutOfRangeException)
                                             {
                                                 MessageBox.Show("ACTIONS en la linea " + i + " no inicia correctamente");
-                                                return;
+                                                button1_Click(sender, e);
                                             }
                                             this.miDato.Rows.Add(i, Datos.Instance.listaAction.ElementAt(i), "ACTIONS");
                                         }
@@ -245,13 +252,13 @@ namespace LFA_Proyecto
                                     else
                                     {
                                         MessageBox.Show("ACTIONS debe iniciar en -{-");
-                                        return;
+                                        button1_Click(sender, e);
                                     }
                                 }
                                 else//Sintaxis incorrecto entre ACTIONS & RESERVADAS()
                                 {
                                     MessageBox.Show("ACTIONS debe de ir seguido de RESERVADAS()");
-                                    return;
+                                    button1_Click(sender, e);
                                 }
                             }
                             #endregion
@@ -266,7 +273,7 @@ namespace LFA_Proyecto
                                         if (Datos.Instance.listaError.Count() < 1)
                                         {
                                             MessageBox.Show("Archivo debe contener almenos un ERROR");
-                                            return;
+                                            button1_Click(sender, e);
                                         }
                                         break;
                                     }
@@ -284,18 +291,18 @@ namespace LFA_Proyecto
                                         if (!(compERROR[0].Contains("ERROR")))
                                         {
                                             MessageBox.Show("ERROR en la linea " + i + " no inicia correctamente");
-                                            return;
+                                            button1_Click(sender, e);
                                         }
                                         if (!(int.TryParse(compERROR[1], out int x)))
                                         {
                                             MessageBox.Show("ERROR en la linea " + i + " no contiene valor numérico");
-                                            return;
+                                            button1_Click(sender, e);
                                         }
                                     }
                                     catch (IndexOutOfRangeException)
                                     {
                                         MessageBox.Show("ERROR en la linea " + i + " no inicia correctamente");
-                                        return;
+                                        button1_Click(sender, e);
                                     }
                                     this.miDato.Rows.Add(i, Datos.Instance.listaError.ElementAt(i), "ERROR");
                                 }
@@ -364,5 +371,25 @@ namespace LFA_Proyecto
             Datos.Instance.listaToken.Clear();
             miDato.Rows.Clear();
         }//Reiniciar listas sin necesidad de cerrar el programa
+        private void Spliter(string[] Linea, object sender, EventArgs e)
+        {
+            for (int i = 0; i < Linea.Length; i++)//Recorrer todo el arreglo en busca de errores de Sintaxis
+            {
+                if (Linea[i] == "")//Donde encuentre una posición vacia
+                {
+                    if ((i % 2) == 0)
+                    {
+                        MessageBox.Show("Antes del signo + debe contener una expresión");
+                        button1_Click(sender, e);
+                    }
+                    if ((i % 2) != 0)
+                    {
+                        MessageBox.Show("Después del signo + debe contener una expresión");
+                        button1_Click(sender, e);
+                    }
+                }
+            }
+            return;
+        }
     }
 }
