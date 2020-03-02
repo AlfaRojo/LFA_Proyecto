@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Windows.Forms;
@@ -135,13 +131,13 @@ namespace LFA_Proyecto
                                 {
                                     if (Datos.Instance.listaSets.ElementAt(i).Contains("=") && Datos.Instance.listaSets.ElementAt(i).Contains("'"))
                                     {
-                                        if (!(Datos.Instance.listaSets.ElementAt(i).Contains("'")))
-                                        {
-                                            string[] SeparadorChar = Datos.Instance.listaSets.ElementAt(i).Replace(" ", "").Trim(Delimitadores).Split('=');//Hacer split y comprobar derecha
-                                            SpliterChar(SeparadorChar, sender, e);
-                                        }
                                         string[] SeparadorIgual = Datos.Instance.listaSets.ElementAt(i).Replace(" ", "").Trim(Delimitadores).Split('=');//Hacer split y comprobar derecha
                                         SpliterIgual(SeparadorIgual, sender, e);
+                                    }
+                                    if (!(Datos.Instance.listaSets.ElementAt(i).Contains("'")))
+                                    {
+                                        string[] SeparadorChar = Datos.Instance.listaSets.ElementAt(i).Replace(" ", "").Trim(Delimitadores).Split('=');//Hacer split y comprobar derecha
+                                        SpliterChar(SeparadorChar, sender, e);
                                     }
                                     if (Datos.Instance.listaSets.ElementAt(i).Contains("+"))//Comprobar concatenación con signo +
                                     {
@@ -420,76 +416,65 @@ namespace LFA_Proyecto
         }
         private void SpliterIgual(string[] Linea, object sender, EventArgs e)
         {
-            for (int i = 0; i < Linea.Length; i++)
+            if (Linea[1] == "''")
             {
-                if (Linea[1] == "''")
-                {
-                    MessageBox.Show("En " + Linea[0] + ":\nDentro de las comillas debe ir una definición");
-                    RebootList();
-                    button1_Click(sender, e);
-                }
-                if (!Linea[1].StartsWith("'"))
-                {
-                    if (!Linea[1].EndsWith("'"))
-                    {
-                        MessageBox.Show("En " + Linea[0] + " debe terminar con comillas");
-                        RebootList();
-                        button1_Click(sender, e);
-                    }
-                    MessageBox.Show("En " + Linea[0] + " debe empezar con comillas");
-                    RebootList();
-                    button1_Click(sender, e);
-                }
-                else if (Linea[1].Count() < 2)
-                {
-                    MessageBox.Show("En " + Linea[0] + " debe empezar o terminar con comillas");
-                    RebootList();
-                    button1_Click(sender, e);
-                }
+                MessageBox.Show("En " + Linea[0] + ":\nDentro de las comillas debe ir una definición");
+                RebootList();
+                button1_Click(sender, e);
+            }
+            string[] splitComillas = Linea[1].Split(new string[] { "'" }, StringSplitOptions.None);
+            if ((splitComillas.Count() % 2) == 0)
+            {
+                MessageBox.Show("En " + Linea[1] + "\ndebe empezar y terminar con comillas");
+                RebootList();
+                button1_Click(sender, e);
+            }
+            if (Linea[1].Count() < 2)
+            {
+                MessageBox.Show("En " + Linea[0] + " debe empezar o terminar con comillas");
+                RebootList();
+                button1_Click(sender, e);
             }
             return;
         }
         private void SpliterChar(string[] Linea, object sender, EventArgs e)
         {
-            //int.TryParse(compERROR[0], out int x))
-            for (int i = 0; i < Linea.Length; i++)
+            if (!Linea[1].Contains("CHR"))
             {
-                if (!Linea[1].Contains("CHR"))
+                MessageBox.Show("En " + Linea[0] + " debe empezar con CHR");
+                RebootList();
+                button1_Click(sender, e);
+            }
+            else
+            {
+                string[] SplitParentesis = Linea[1].Split(new string[] { "(", ")" }, StringSplitOptions.None);
+                for (int j = 0; j < SplitParentesis.Length; j++)
                 {
-                    MessageBox.Show("En " + Linea[0] + " debe empezar con CHR");
-                    RebootList();
-                    button1_Click(sender, e);
-                }
-                else
-                {
-                    string[] SplitParentesis = Linea[1].Split(new string[] { "(", ")" }, StringSplitOptions.None);
-                    for (int j = 0; j < SplitParentesis.Length; j++)
+                    if (SplitParentesis[j].Contains(".."))
                     {
-                        if (SplitParentesis[j].Contains(".."))
+                        SplitParentesis[j] = SplitParentesis[j].Replace("..", "");
+                    }
+                    if ((j % 2) != 0)
+                    {
+                        try
                         {
-                            SplitParentesis[j] = SplitParentesis[j].Replace("..", "");
-                        }
-                        if ((j % 2) != 0)
-                        {
-                            try
+                            if (!(int.TryParse(SplitParentesis[j], out int x)))
                             {
-                                if (!(int.TryParse(SplitParentesis[j], out int x)))
-                                {
-                                    MessageBox.Show("SETS en la linea " + j + " no contiene valor numérico encerrado en parentesis");
-                                    RebootList();
-                                    button1_Click(sender, e);
-                                }
-                            }
-                            catch (IndexOutOfRangeException)
-                            {
-                                MessageBox.Show("CHR en la linea " + j + " debe contener un valor numérico");
+                                MessageBox.Show("SETS en la linea " + j + " no contiene valor numérico encerrado en parentesis");
                                 RebootList();
                                 button1_Click(sender, e);
                             }
                         }
+                        catch (IndexOutOfRangeException)
+                        {
+                            MessageBox.Show("CHR en la linea " + j + " debe contener un valor numérico");
+                            RebootList();
+                            button1_Click(sender, e);
+                        }
                     }
                 }
             }
+
         }
     }
 }
