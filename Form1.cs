@@ -23,7 +23,6 @@ namespace LFA_Proyecto
         string resERROR = "";
         char[] Delimitadores = { ' ', '\t', '\n', '\r' };
         char[] AlfabetoMayuscula = Enumerable.Range('A', 26).Select(x => (char)x).ToArray();
-        char[] AlfabetoMinuscula = Enumerable.Range('a', 26).Select(x => (char)x).ToArray();
         #endregion
 
         public Form1()
@@ -55,6 +54,7 @@ namespace LFA_Proyecto
                         if (fileStream.Length == 0)
                         {
                             MessageBox.Show("El archivo no contiene información");
+                            RebootList();
                             button1_Click(sender, e);
                         }
                         try//SETS no es obligatorio que venga en el archivo
@@ -77,6 +77,7 @@ namespace LFA_Proyecto
                         catch (InvalidOperationException)
                         {
                             MessageBox.Show("El archivo no contiene -TOKENS- o se encuentra mal escrito");
+                            RebootList();
                             button1_Click(sender, e);
                         }
                         try//ACTIONS es obligatorio que venga
@@ -88,6 +89,7 @@ namespace LFA_Proyecto
                         catch (InvalidOperationException)
                         {
                             MessageBox.Show("El archivo no contiene -ACTIONS- o se encuentra mal escrito");
+                            RebootList();
                             button1_Click(sender, e);
                         }
                         try//ERROR no es obligatorio que venga en el archivo
@@ -99,6 +101,7 @@ namespace LFA_Proyecto
                         catch (InvalidOperationException)
                         {
                             MessageBox.Show("El archivo no contiene almenos un -ERROR- o se encuentra mal escrito");
+                            RebootList();
                             button1_Click(sender, e);
                         }
                         #endregion
@@ -125,24 +128,25 @@ namespace LFA_Proyecto
                                 if (Datos.Instance.listaSets.Count() < 1)//Sii existe SETS en el archivo, debe tener almenos uno
                                 {
                                     MessageBox.Show("Si el archivo contiene SETS, debe de llevar almenos un SET");
+                                    RebootList();
                                     button1_Click(sender, e);
                                 }
                                 for (int i = 0; i < Datos.Instance.listaSets.Count(); i++)//Agregar al GridView
                                 {
+                                    if (Datos.Instance.listaSets.ElementAt(i).Contains("=") && Datos.Instance.listaSets.ElementAt(i).Contains("'"))
+                                    {
+                                        if (!(Datos.Instance.listaSets.ElementAt(i).Contains("'")))
+                                        {
+                                            string[] SeparadorChar = Datos.Instance.listaSets.ElementAt(i).Replace(" ", "").Trim(Delimitadores).Split('=');//Hacer split y comprobar derecha
+                                            SpliterChar(SeparadorChar, sender, e);
+                                        }
+                                        string[] SeparadorIgual = Datos.Instance.listaSets.ElementAt(i).Replace(" ", "").Trim(Delimitadores).Split('=');//Hacer split y comprobar derecha
+                                        SpliterIgual(SeparadorIgual, sender, e);
+                                    }
                                     if (Datos.Instance.listaSets.ElementAt(i).Contains("+"))//Comprobar concatenación con signo +
                                     {
                                         string[] Delimitado = Datos.Instance.listaSets.ElementAt(i).Split('+');//Hacer split y comprobar derecha e izquierda
                                         SpliterMas(Delimitado, sender, e);
-                                    }
-                                    if (Datos.Instance.listaSets.ElementAt(i).Contains("="))
-                                    {
-                                        string[] SeparadorIgual = Datos.Instance.listaSets.ElementAt(i).Split('=');//Hacer split y comprobar derecha
-                                        SpliterIgual(SeparadorIgual, sender, e);
-                                    }
-                                    else
-                                    {
-                                        MessageBox.Show(Datos.Instance.listaSets.ElementAt(i) + "\ndebe contener el signo = \n seguido de una definición \n empezada y terminada con comillas");
-                                        button1_Click(sender, e);
                                     }
                                     this.miDato.Rows.Add(i, Datos.Instance.listaSets.ElementAt(i).Replace(" ", ""), "SETS");
                                 }
@@ -181,16 +185,19 @@ namespace LFA_Proyecto
                                         if (!myText.Trim(Delimitadores).Contains("TOKEN"))//Error de escritura
                                         {
                                             MessageBox.Show("TOKEN en la linea " + i + " no contiene TOKEN o se encunetra mal escrito");
+                                            RebootList();
                                             button1_Click(sender, e);
                                         }
                                         if (Datos.Instance.listaToken.ElementAt(i).All(char.IsDigit))//No contiene dígito----NO FUNCIONA, REVISAR!
                                         {
                                             MessageBox.Show("TOKEN en la linea " + i + " no contiene numeración válida");
+                                            RebootList();
                                             button1_Click(sender, e);
                                         }
                                         if (!Datos.Instance.listaToken.ElementAt(i).Contains("="))//Error de igualación
                                         {
                                             MessageBox.Show("TOKEN en la linea " + i + " no contiene =");
+                                            RebootList();
                                             button1_Click(sender, e);
                                         }
                                         //Agregar la comprobación de expresión regular
@@ -224,6 +231,7 @@ namespace LFA_Proyecto
                                                 if (Datos.Instance.listaAction.Last().Replace(" ", "").Replace("\t", "") != "}")//Sii el ultimo no es de cerrar llave }
                                                 {
                                                     MessageBox.Show("ACTIONS debe finalizar en -}-");
+                                                    RebootList();
                                                     button1_Click(sender, e);
                                                 }
                                                 Datos.Instance.listaAction.RemoveAt(Datos.Instance.listaAction.Count() - 1);//Sii lo contiene, se elimina, inesesario
@@ -243,17 +251,20 @@ namespace LFA_Proyecto
                                                 if (!(int.TryParse(compERROR[0], out int x)))
                                                 {
                                                     MessageBox.Show("ACTIONS en la linea " + i + " no inicia con valor numérico");
+                                                    RebootList();
                                                     button1_Click(sender, e);
                                                 }
                                                 if (!(compERROR[1].StartsWith("'")) && !(compERROR[1].EndsWith("'")))
                                                 {
                                                     MessageBox.Show("ACTIONS en la linea " + i + " no inicia o finaliza correctamente");
+                                                    RebootList();
                                                     button1_Click(sender, e);
                                                 }
                                             }
                                             catch (IndexOutOfRangeException)
                                             {
                                                 MessageBox.Show("ACTIONS en la linea " + i + " no inicia correctamente");
+                                                RebootList();
                                                 button1_Click(sender, e);
                                             }
                                             this.miDato.Rows.Add(i, Datos.Instance.listaAction.ElementAt(i), "ACTIONS");
@@ -262,12 +273,14 @@ namespace LFA_Proyecto
                                     else
                                     {
                                         MessageBox.Show("ACTIONS debe iniciar en -{-");
+                                        RebootList();
                                         button1_Click(sender, e);
                                     }
                                 }
                                 else//Sintaxis incorrecto entre ACTIONS & RESERVADAS()
                                 {
                                     MessageBox.Show("ACTIONS debe de ir seguido de RESERVADAS()");
+                                    RebootList();
                                     button1_Click(sender, e);
                                 }
                             }
@@ -283,6 +296,7 @@ namespace LFA_Proyecto
                                         if (Datos.Instance.listaError.Count() < 1)
                                         {
                                             MessageBox.Show("Archivo debe contener almenos un ERROR");
+                                            RebootList();
                                             button1_Click(sender, e);
                                         }
                                         break;
@@ -301,17 +315,20 @@ namespace LFA_Proyecto
                                         if (!(compERROR[0].Contains("ERROR")))
                                         {
                                             MessageBox.Show("ERROR en la linea " + i + " no inicia correctamente");
+                                            RebootList();
                                             button1_Click(sender, e);
                                         }
                                         if (!(int.TryParse(compERROR[1], out int x)))
                                         {
                                             MessageBox.Show("ERROR en la linea " + i + " no contiene valor numérico");
+                                            RebootList();
                                             button1_Click(sender, e);
                                         }
                                     }
                                     catch (IndexOutOfRangeException)
                                     {
                                         MessageBox.Show("ERROR en la linea " + i + " no inicia correctamente");
+                                        RebootList();
                                         button1_Click(sender, e);
                                     }
                                     this.miDato.Rows.Add(i, Datos.Instance.listaError.ElementAt(i), "ERROR");
@@ -324,9 +341,7 @@ namespace LFA_Proyecto
             }
             rutaLabel.Text = rutaArchivo;
             miDato.Visible = true;
-
             //NuevoArchivo(contArchivo);
-
             MessageBox.Show("Archivo leido correctamente", rutaArchivo, MessageBoxButtons.OK);//Solo confirmación visual
         }
         String ComprobarString(string myString)
@@ -390,11 +405,13 @@ namespace LFA_Proyecto
                     if ((i % 2) == 0)
                     {
                         MessageBox.Show("Antes del signo + debe contener una definición");
+                        RebootList();
                         button1_Click(sender, e);
                     }
                     if ((i % 2) != 0)
                     {
                         MessageBox.Show("Después del signo + debe contener una definición");
+                        RebootList();
                         button1_Click(sender, e);
                     }
                 }
@@ -405,28 +422,72 @@ namespace LFA_Proyecto
         {
             for (int i = 0; i < Linea.Length; i++)
             {
-                try
+                if (Linea[1] == "''")
                 {
-                    if (Linea[1].Trim(Delimitadores) == "")
-                    {
-                        MessageBox.Show("Luego del signo = debe haber una definición \n empezada y terminada con comillas");
-                        button1_Click(sender, e);
-                    }
-                    if (!Linea[1].StartsWith("'"))
-                    {
-                        if (!Linea[1].EndsWith("'"))
-                        {
-                            MessageBox.Show(Linea[0] + " en " + Linea[1] + " debe terminar con comillas");
-                            button1_Click(sender, e);
-                        }
-                        MessageBox.Show(Linea[0] + " en " + Linea[1] + " debe empezar con comillas");
-                        button1_Click(sender, e);
-                    }
-                }
-                catch (InvalidOperationException)
-                {
-                    MessageBox.Show(Linea[0] + "\ndebe llevar el signo = \n seguido de una definición \n empezada y terminada con comillas");
+                    MessageBox.Show("En " + Linea[0] + ":\nDentro de las comillas debe ir una definición");
+                    RebootList();
                     button1_Click(sender, e);
+                }
+                if (!Linea[1].StartsWith("'"))
+                {
+                    if (!Linea[1].EndsWith("'"))
+                    {
+                        MessageBox.Show("En " + Linea[0] + " debe terminar con comillas");
+                        RebootList();
+                        button1_Click(sender, e);
+                    }
+                    MessageBox.Show("En " + Linea[0] + " debe empezar con comillas");
+                    RebootList();
+                    button1_Click(sender, e);
+                }
+                else if (Linea[1].Count() < 2)
+                {
+                    MessageBox.Show("En " + Linea[0] + " debe empezar o terminar con comillas");
+                    RebootList();
+                    button1_Click(sender, e);
+                }
+            }
+            return;
+        }
+        private void SpliterChar(string[] Linea, object sender, EventArgs e)
+        {
+            //int.TryParse(compERROR[0], out int x))
+            for (int i = 0; i < Linea.Length; i++)
+            {
+                if (!Linea[1].Contains("CHR"))
+                {
+                    MessageBox.Show("En " + Linea[0] + " debe empezar con CHR");
+                    RebootList();
+                    button1_Click(sender, e);
+                }
+                else
+                {
+                    string[] SplitParentesis = Linea[1].Split(new string[] { "(", ")" }, StringSplitOptions.None);
+                    for (int j = 0; j < SplitParentesis.Length; j++)
+                    {
+                        if (SplitParentesis[j].Contains(".."))
+                        {
+                            SplitParentesis[j] = SplitParentesis[j].Replace("..", "");
+                        }
+                        if ((j % 2) != 0)
+                        {
+                            try
+                            {
+                                if (!(int.TryParse(SplitParentesis[j], out int x)))
+                                {
+                                    MessageBox.Show("SETS en la linea " + j + " no contiene valor numérico encerrado en parentesis");
+                                    RebootList();
+                                    button1_Click(sender, e);
+                                }
+                            }
+                            catch (IndexOutOfRangeException)
+                            {
+                                MessageBox.Show("CHR en la linea " + j + " debe contener un valor numérico");
+                                RebootList();
+                                button1_Click(sender, e);
+                            }
+                        }
+                    }
                 }
             }
         }
