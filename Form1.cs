@@ -107,18 +107,13 @@ namespace LFA_Proyecto
                         while (reader.Peek() > 0)
                         {
                             lecturaAux = reader.ReadLine();
-                            #region All SETS Sintaxis //Falta comprobar concatenación con signo +
+                            #region All SETS Sintaxis //COMPLETO
                             if (lecturaAux.ToString().Replace("\t", "").Replace(" ", "") == "SETS")
                             {
                                 while ((lecturaAux = reader.ReadLine()) != resSETS)
                                 {
                                     if (lecturaAux == resTOKENS || lecturaAux == resERROR || lecturaAux == resACTIONS)//Condicion de salida
                                     {
-                                        if (Datos.Instance.listaSets.Count() < 1)//Sii existe SETS en el archivo, debe tener almenos uno
-                                        {
-                                            MessageBox.Show("Si el archivo contiene SETS, debe de llevar almenos un SET");
-                                            button1_Click(sender, e);
-                                        }
                                         break;
                                     }
                                     Datos.Instance.listaSets.Add(lecturaAux);
@@ -127,12 +122,27 @@ namespace LFA_Proyecto
                                 {
                                     Datos.Instance.listaSets.RemoveAll(X => X == "");
                                 }
+                                if (Datos.Instance.listaSets.Count() < 1)//Sii existe SETS en el archivo, debe tener almenos uno
+                                {
+                                    MessageBox.Show("Si el archivo contiene SETS, debe de llevar almenos un SET");
+                                    button1_Click(sender, e);
+                                }
                                 for (int i = 0; i < Datos.Instance.listaSets.Count(); i++)//Agregar al GridView
                                 {
                                     if (Datos.Instance.listaSets.ElementAt(i).Contains("+"))//Comprobar concatenación con signo +
                                     {
                                         string[] Delimitado = Datos.Instance.listaSets.ElementAt(i).Split('+');//Hacer split y comprobar derecha e izquierda
-                                        Spliter(Delimitado, sender, e);
+                                        SpliterMas(Delimitado, sender, e);
+                                    }
+                                    if (Datos.Instance.listaSets.ElementAt(i).Contains("="))
+                                    {
+                                        string[] SeparadorIgual = Datos.Instance.listaSets.ElementAt(i).Split('=');//Hacer split y comprobar derecha
+                                        SpliterIgual(SeparadorIgual, sender, e);
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show(Datos.Instance.listaSets.ElementAt(i) + "\ndebe contener el signo = \n seguido de una definición \n empezada y terminada con comillas");
+                                        button1_Click(sender, e);
                                     }
                                     this.miDato.Rows.Add(i, Datos.Instance.listaSets.ElementAt(i).Replace(" ", ""), "SETS");
                                 }
@@ -188,7 +198,7 @@ namespace LFA_Proyecto
                                     }
                                     catch (ArgumentOutOfRangeException)
                                     {
-                                        i=i-2;
+                                        i = i - 2;
                                     }
                                 }
                             }
@@ -200,7 +210,7 @@ namespace LFA_Proyecto
                                 if (lecturaAux.ToString().Replace(" ", "").Replace("\t", "") == "RESERVADAS()")//Comprobar que le siga RESERVADAS()
                                 {
                                     lecturaAux = reader.ReadLine();//Siguiente linea
-                                    if (lecturaAux.ToString().Replace(" ", "").Replace("\t","") == "{")//Comprobar 3ra linea abra con llave {
+                                    if (lecturaAux.ToString().Replace(" ", "").Replace("\t", "") == "{")//Comprobar 3ra linea abra con llave {
                                     {
                                         while ((lecturaAux = reader.ReadLine()) != "}")
                                         {
@@ -209,9 +219,9 @@ namespace LFA_Proyecto
                                                 lecturaAux = reader.ReadLine();
                                                 break;
                                             }
-                                            if (lecturaAux == resTOKENS || lecturaAux == resERROR|| lecturaAux == "SETS")//Condicion de salida
+                                            if (lecturaAux == resTOKENS || lecturaAux == resERROR || lecturaAux == "SETS")//Condicion de salida
                                             {
-                                                if (Datos.Instance.listaAction.Last().Replace(" ", "").Replace("\t","") != "}")//Sii el ultimo no es de cerrar llave }
+                                                if (Datos.Instance.listaAction.Last().Replace(" ", "").Replace("\t", "") != "}")//Sii el ultimo no es de cerrar llave }
                                                 {
                                                     MessageBox.Show("ACTIONS debe finalizar en -}-");
                                                     button1_Click(sender, e);
@@ -371,7 +381,7 @@ namespace LFA_Proyecto
             Datos.Instance.listaToken.Clear();
             miDato.Rows.Clear();
         }//Reiniciar listas sin necesidad de cerrar el programa
-        private void Spliter(string[] Linea, object sender, EventArgs e)
+        private void SpliterMas(string[] Linea, object sender, EventArgs e)
         {
             for (int i = 0; i < Linea.Length; i++)//Recorrer todo el arreglo en busca de errores de Sintaxis
             {
@@ -379,17 +389,46 @@ namespace LFA_Proyecto
                 {
                     if ((i % 2) == 0)
                     {
-                        MessageBox.Show("Antes del signo + debe contener una expresión");
+                        MessageBox.Show("Antes del signo + debe contener una definición");
                         button1_Click(sender, e);
                     }
                     if ((i % 2) != 0)
                     {
-                        MessageBox.Show("Después del signo + debe contener una expresión");
+                        MessageBox.Show("Después del signo + debe contener una definición");
                         button1_Click(sender, e);
                     }
                 }
             }
             return;
+        }
+        private void SpliterIgual(string[] Linea, object sender, EventArgs e)
+        {
+            for (int i = 0; i < Linea.Length; i++)
+            {
+                try
+                {
+                    if (Linea[1].Trim(Delimitadores) == "")
+                    {
+                        MessageBox.Show("Luego del signo = debe haber una definición \n empezada y terminada con comillas");
+                        button1_Click(sender, e);
+                    }
+                    if (!Linea[1].StartsWith("'"))
+                    {
+                        if (!Linea[1].EndsWith("'"))
+                        {
+                            MessageBox.Show(Linea[0] + " en " + Linea[1] + " debe terminar con comillas");
+                            button1_Click(sender, e);
+                        }
+                        MessageBox.Show(Linea[0] + " en " + Linea[1] + " debe empezar con comillas");
+                        button1_Click(sender, e);
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    MessageBox.Show(Linea[0] + "\ndebe llevar el signo = \n seguido de una definición \n empezada y terminada con comillas");
+                    button1_Click(sender, e);
+                }
+            }
         }
     }
 }
