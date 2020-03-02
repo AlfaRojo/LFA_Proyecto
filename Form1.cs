@@ -131,12 +131,12 @@ namespace LFA_Proyecto
                                 {
                                     if (Datos.Instance.listaSets.ElementAt(i).Contains("=") && Datos.Instance.listaSets.ElementAt(i).Contains("'"))
                                     {
-                                        string[] SeparadorIgual = Datos.Instance.listaSets.ElementAt(i).Replace(" ", "").Trim(Delimitadores).Split('=');//Hacer split y comprobar derecha
+                                        string[] SeparadorIgual = Datos.Instance.listaSets.ElementAt(i).Trim(Delimitadores).Replace(" ", "").Split('=');//Hacer split y comprobar derecha
                                         SpliterIgual(SeparadorIgual, sender, e);
                                     }
                                     if (!(Datos.Instance.listaSets.ElementAt(i).Contains("'")))
                                     {
-                                        string[] SeparadorChar = Datos.Instance.listaSets.ElementAt(i).Replace(" ", "").Trim(Delimitadores).Split('=');//Hacer split y comprobar derecha
+                                        string[] SeparadorChar = Datos.Instance.listaSets.ElementAt(i).Trim(Delimitadores).Replace(" ", "").Split('=');//Hacer split y comprobar derecha
                                         SpliterChar(SeparadorChar, sender, e);
                                     }
                                     if (Datos.Instance.listaSets.ElementAt(i).Contains("+"))//Comprobar concatenación con signo +
@@ -144,7 +144,7 @@ namespace LFA_Proyecto
                                         string[] Delimitado = Datos.Instance.listaSets.ElementAt(i).Split('+');//Hacer split y comprobar derecha e izquierda
                                         SpliterMas(Delimitado, sender, e);
                                     }
-                                    this.miDato.Rows.Add(i, Datos.Instance.listaSets.ElementAt(i).Replace(" ", ""), "SETS");
+                                    this.miDato.Rows.Add(i, Datos.Instance.listaSets.ElementAt(i).Replace(" ", "").Trim(Delimitadores), "SETS");
                                 }
                             }
                             #endregion
@@ -439,6 +439,10 @@ namespace LFA_Proyecto
         }
         private void SpliterChar(string[] Linea, object sender, EventArgs e)
         {
+            for (int i = 0; i < Linea.Length; i++)
+            {
+                Linea[i] = Linea[i].Replace(" ", "").Replace("\t", "");
+            }
             if (!Linea[1].Contains("CHR"))
             {
                 MessageBox.Show("En " + Linea[0] + " debe empezar con CHR");

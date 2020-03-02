@@ -62,7 +62,6 @@
     <Compile Include="Help\Datos.cs" />
     <Compile Include="Modelos\ER_ET.cs" />
     <Compile Include="Modelos\Prioridades.cs" />
-    <Compile Include="Modelos\Sintaxis.cs" />
     <Compile Include="Modelos\Valores.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
