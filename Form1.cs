@@ -180,24 +180,29 @@ namespace LFA_Proyecto
                                         myText = Regex.Replace(myText, @"\s+", "");
                                         if (!myText.Trim(Delimitadores).Contains("TOKEN"))//Error de escritura
                                         {
-                                            MessageBox.Show("TOKEN en la linea " + i + " no contiene TOKEN o se encunetra mal escrito");
+                                            MessageBox.Show("TOKEN en la linea " + i + " no contiene TOKEN o se encunetra mal escrito.");
                                             RebootList();
                                             button1_Click(sender, e);
                                         }
-                                        if (Datos.Instance.listaToken.ElementAt(i).All(char.IsDigit))//No contiene dígito----NO FUNCIONA, REVISAR!
+                                        if (myText.All(char.IsDigit))//No contiene dígito----NO FUNCIONA, REVISAR!
                                         {
-                                            MessageBox.Show("TOKEN en la linea " + i + " no contiene numeración válida");
+                                            MessageBox.Show("TOKEN en la linea " + i + " no contiene numeración válida.");
                                             RebootList();
                                             button1_Click(sender, e);
                                         }
-                                        if (!Datos.Instance.listaToken.ElementAt(i).Contains("="))//Error de igualación
+                                        if (!myText.Contains("="))//Error de igualación
                                         {
-                                            MessageBox.Show("TOKEN en la linea " + i + " no contiene =");
+                                            MessageBox.Show("TOKEN en la linea " + i + " no contiene =.");
                                             RebootList();
                                             button1_Click(sender, e);
+                                        }
+                                        else//Enviar split de igual para comprobar Sintaxis
+                                        {
+                                            string[] Linea = myText.Split('=');
+                                            SpliterTOKEN(Linea, sender, e);
                                         }
                                         //Agregar la comprobación de expresión regular
-                                        this.miDato.Rows.Add(i, Datos.Instance.listaToken.ElementAt(i), "TOKENS");
+                                        this.miDato.Rows.Add(i, myText, "TOKENS");
                                     }
                                     catch (ArgumentOutOfRangeException)
                                     {
@@ -337,7 +342,6 @@ namespace LFA_Proyecto
             }
             rutaLabel.Text = rutaArchivo;
             miDato.Visible = true;
-            //NuevoArchivo(contArchivo);
             MessageBox.Show("Archivo leido correctamente", rutaArchivo, MessageBoxButtons.OK);//Solo confirmación visual
         }
         String ComprobarString(string myString)
@@ -400,13 +404,13 @@ namespace LFA_Proyecto
                 {
                     if ((i % 2) == 0)
                     {
-                        MessageBox.Show("Antes del signo + debe contener una definición");
+                        MessageBox.Show("Antes del signo + debe contener una definición.");
                         RebootList();
                         button1_Click(sender, e);
                     }
                     if ((i % 2) != 0)
                     {
-                        MessageBox.Show("Después del signo + debe contener una definición");
+                        MessageBox.Show("Después del signo + debe contener una definición.");
                         RebootList();
                         button1_Click(sender, e);
                     }
@@ -418,20 +422,20 @@ namespace LFA_Proyecto
         {
             if (Linea[1] == "''")
             {
-                MessageBox.Show("En " + Linea[0] + ":\nDentro de las comillas debe ir una definición");
+                MessageBox.Show("En " + Linea[0] + ":\nDentro de las comillas debe ir una definición.");
                 RebootList();
                 button1_Click(sender, e);
             }
             string[] splitComillas = Linea[1].Split(new string[] { "'" }, StringSplitOptions.None);
             if ((splitComillas.Count() % 2) == 0)
             {
-                MessageBox.Show("En " + Linea[1] + "\ndebe empezar y terminar con comillas");
+                MessageBox.Show("En " + Linea[1] + "\ndebe empezar y terminar con comillas.");
                 RebootList();
                 button1_Click(sender, e);
             }
             if (Linea[1].Count() < 2)
             {
-                MessageBox.Show("En " + Linea[0] + " debe empezar o terminar con comillas");
+                MessageBox.Show("En " + Linea[0] + " debe empezar o terminar con comillas.");
                 RebootList();
                 button1_Click(sender, e);
             }
@@ -445,7 +449,7 @@ namespace LFA_Proyecto
             }
             if (!Linea[1].Contains("CHR"))
             {
-                MessageBox.Show("En " + Linea[0] + " debe empezar con CHR");
+                MessageBox.Show("En " + Linea[0] + " debe empezar con CHR.");
                 RebootList();
                 button1_Click(sender, e);
             }
@@ -464,21 +468,60 @@ namespace LFA_Proyecto
                         {
                             if (!(int.TryParse(SplitParentesis[j], out int x)))
                             {
-                                MessageBox.Show("SETS en la linea " + j + " no contiene valor numérico encerrado en parentesis");
+                                MessageBox.Show("SETS en la linea " + j + " no contiene valor numérico encerrado en parentesis.");
                                 RebootList();
                                 button1_Click(sender, e);
                             }
                         }
                         catch (IndexOutOfRangeException)
                         {
-                            MessageBox.Show("CHR en la linea " + j + " debe contener un valor numérico");
+                            MessageBox.Show("CHR en la linea " + j + " debe contener un valor numérico.");
                             RebootList();
                             button1_Click(sender, e);
                         }
                     }
                 }
             }
-
+            return;
+        }
+        private void SpliterTOKEN(string[] Linea, object sender, EventArgs e)
+        {
+            for (int i = 0; i < Linea.Length; i++)
+            {
+                Linea[i] = Linea[i].Replace(" ", "").Replace("\t", "");
+                if (Linea.Count() > 2)
+                {
+                    if (!Linea[1].StartsWith("'") || !Linea[2].EndsWith("'"))
+                    {
+                        MessageBox.Show("Luego de " + Linea[i] + " debe iniciar y finalizar con comillas.");
+                        RebootList();
+                        button1_Click(sender, e);
+                    }
+                }
+            }
+            try
+            {
+                string[] SplitToken = Linea[0].Split(new string[] { "TOKEN" }, StringSplitOptions.None);//Buscar el TOKEN de la linea
+                if (!(int.TryParse(SplitToken[1], out int x)))
+                {
+                    MessageBox.Show("Luego de " + Linea[0] + " debe ir un valor numérico.");
+                    RebootList();
+                    button1_Click(sender, e);
+                }
+                string[] splitComillas = SplitToken[1].Split(new string[] { "'" }, StringSplitOptions.None);//Buscar las comillas del TOKEN
+                if ((splitComillas.Count() % 2) == 0)//Count MOD 2, usado para buscar irregularidades en comillas(cantida de comillas impares)
+                {
+                    MessageBox.Show("En " + Linea[0] + "\ndebe empezar y terminar con comillas.");
+                    RebootList();
+                    button1_Click(sender, e);
+                }
+            }
+            catch (IndexOutOfRangeException)
+            {
+                MessageBox.Show("TOKEN no se encuentra bien escrito\no no se encuentra.");
+                RebootList();
+                button1_Click(sender, e);
+            }
         }
     }
 }
