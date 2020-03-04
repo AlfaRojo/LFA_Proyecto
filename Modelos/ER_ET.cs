@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows.Forms;
 using LFA_Proyecto.Help;
 using LFA_Proyecto.Arbol;
@@ -21,17 +22,23 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                 for (int i = 0; i < Datos.Instance.eTOKEN.Count(); i++)
                 {
                     string TokenActual = Datos.Instance.eTOKEN.ElementAt(i);//Obtener TOKEN actual
-                    if (TokenActual == Datos.Instance.listaSets.First(X => X.Contains(TokenActual)))//Sii el Token es SIMBOLO TERMINAL(SETS)
+                    try
                     {
-                        var Ensamblando = new ArbolB//Se convierte en arbol
+                        if (TokenActual == Datos.Instance.listaSets.First(X => X.Contains(TokenActual)))//Sii el Token es SIMBOLO TERMINAL(SETS)
                         {
-                            Valores = ""
-                        };
-                        Datos.Instance.PilaS.Push(Ensamblando);//Se hace Push con el nuevo arbol generado
+                            var Ensamblando = new ArbolB//Se convierte en arbol
+                            {
+                                Valores = ""
+                            };
+                            Datos.Instance.PilaS.Push(Ensamblando);//Se hace Push con el nuevo arbol generado
+                        }
                     }
-                    else if (TokenActual == "(")//Sii TOKEN es (
+                    catch (InvalidOperationException)
                     {
-                        Datos.Instance.PilaT.Push(TokenActual);//Hacer Push a con el TOKEN (
+                        if (TokenActual == "(")//Sii TOKEN es (
+                        {
+                            Datos.Instance.PilaT.Push(TokenActual);//Hacer Push a con el TOKEN (
+                        }
                     }
                     if (TokenActual == ")")//Sii TOKEN es (
                     {
@@ -41,10 +48,12 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                             if (Datos.Instance.PilaT.Count() == 0)//Sii la longitud de la pila es 0
                             {
                                 MessageBox.Show("Existe un error, faltan operadores");//Error
+                                return;
                             }
                             if (Datos.Instance.PilaS.Count() < 1)//Sii la longitud de la pila es menor a 2
                             {
                                 MessageBox.Show("Existe un error, faltan operadores");//Error
+                                return;
                             }
                             var EnsamblandoTemp = new ArbolB
                             {
@@ -61,6 +70,13 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                         string[] auxiliar = Datos.Instance.Metacaracteres.First(X => X.Contains("."));//Para usarlo luego
                         for (int j = 0; j < Datos.Instance.Unarios.Count; j++)//Se comprueba en toda la lista de Unarios
                         {
+                            int eTOK = GetImport(Datos.Instance.eTOKEN.ElementAt(i));
+                            int ePEEK = GetImport(Datos.Instance.PilaT.Peek());
+                            if (eTOK == 0 || ePEEK == 0)
+                            {
+                                MessageBox.Show("Existe un error, faltan operadores");//Error
+                                return;
+                            }
                             if (auxiliar == Datos.Instance.Unarios[j])//Sii el Metacaracter es Unario
                             {
                                 var Ensamblando = new ArbolB//Crearle un nodo
@@ -70,11 +86,12 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                                 if (Datos.Instance.PilaS.Count() < 0)//Si la pila está vacia
                                 {
                                     MessageBox.Show("Existe un error, faltan operadores");//Error
+                                    return;
                                 }
                                 Ensamblando.HijoIzquierdo = Datos.Instance.PilaS.Pop();
                                 Datos.Instance.PilaS.Push(Ensamblando);
                             }
-                            else if (Datos.Instance.PilaT.Count() != 0 && Datos.Instance.PilaT.Peek() != "(")// &TOKEN es menor a ultimo op en T - Datos.Instance.eTOKEN.ElementAt(i-1) < Datos.Instance.PilaT.Peek()
+                            else if (Datos.Instance.PilaT.Count() != 0 && Datos.Instance.PilaT.Peek() != "(" && eTOK < ePEEK)// &TOKEN es menor a ultimo op en T - Datos.Instance.eTOKEN.ElementAt(i-1) < Datos.Instance.PilaT.Peek()
                             {
                                 var Temporal = new ArbolB
                                 {
@@ -83,6 +100,7 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                                 if (Datos.Instance.PilaS.Count() < 2)
                                 {
                                     MessageBox.Show("Existe un error, faltan operadores");//Error
+                                    return;
                                 }
                                 Temporal.HijoDerecho = Datos.Instance.PilaS.Pop();//Agregar hijo Derecho
                                 Temporal.HijoIzquierdo = Datos.Instance.PilaS.Pop();//Agregar hijo Derecho
@@ -97,6 +115,7 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                     else
                     {
                         MessageBox.Show("Error! No es un Token reconocido");//Error
+                        return;
                     }
                 }
             }
@@ -109,10 +128,12 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                 if (Temp.Valores == "(")
                 {
                     MessageBox.Show("Existe un error, faltan operadores");//Error
+                    return;
                 }
                 if (Datos.Instance.PilaS.Count() != 0)
                 {
                     MessageBox.Show("Existe un error, faltan operadores");//Error
+                    return;
                 }
                 Temp.HijoDerecho = Datos.Instance.PilaS.Pop();
                 Temp.HijoIzquierdo = Datos.Instance.PilaS.Pop();
@@ -121,8 +142,29 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
             if (Datos.Instance.PilaS.Count() != 1)
             {
                 MessageBox.Show("Existe un error, faltan operadores");//Error
+                return;
             }
             Datos.Instance.PilaS.Pop();//Arbol final
+        }
+        private int GetImport(string eFormato)
+        {
+            if (eFormato == "(" || eFormato == ")")
+            {
+                return 4;
+            }
+            if (eFormato == "*" || eFormato == "?" || eFormato == "+")
+            {
+                return 3;
+            }
+            if (eFormato == ".")
+            {
+                return 2;
+            }
+            if (eFormato == "|")
+            {
+                return 1;
+            }
+            return 0;
         }
     }
 }

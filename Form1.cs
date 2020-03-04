@@ -342,7 +342,9 @@ namespace LFA_Proyecto
             }
             rutaLabel.Text = rutaArchivo;
             miDato.Visible = true;
-            MessageBox.Show("Archivo leido correctamente", rutaArchivo, MessageBoxButtons.OK);//Solo confirmación visual
+            MessageBox.Show("Archivo leido correctamente", rutaArchivo);//Solo confirmación visual
+            ER_ET CODMOI = new ER_ET();
+            CODMOI.CodMoe();
         }
         String ComprobarString(string myString)
         {
