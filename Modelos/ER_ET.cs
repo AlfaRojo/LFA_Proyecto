@@ -24,7 +24,8 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                     string TokenActual = Datos.Instance.eTOKEN.ElementAt(i);//Obtener TOKEN actual
                     try
                     {
-                        if (TokenActual == Datos.Instance.listaSets.First(X => X.Contains(TokenActual)))//Sii el Token es SIMBOLO TERMINAL(SETS)
+                        var test = Datos.Instance.SimbolosTerminales.Find(x => x.Contains(TokenActual));
+                        if (TokenActual == Datos.Instance.SimbolosTerminales.Find(x=>x.Contains(TokenActual)))//Sii el Token es SIMBOLO TERMINAL(SETS)
                         {
                             var Ensamblando = new ArbolB//Se convierte en arbol
                             {

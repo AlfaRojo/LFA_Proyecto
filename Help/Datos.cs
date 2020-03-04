@@ -29,6 +29,7 @@ namespace LFA_Proyecto.Help
         public List<string> listaToken = new List<string>();//Almacena todo de TOKENS
         public List<string> listaAction = new List<string>();//Almacena todo de ACTIONS/RESERVADAS()
         public List<string> listaError = new List<string>();//Almacena todo de ERROR
+        public List<string> SimbolosTerminales = new List<string>();//Almacena los simbolos terminales
 
         public List<string[]> Metacaracteres = new List<string[]>();
         public List<string[]> Unarios = new List<string[]>();

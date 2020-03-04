@@ -145,6 +145,8 @@ namespace LFA_Proyecto
                                         SpliterMas(Delimitado, sender, e);
                                     }
                                     this.miDato.Rows.Add(i, Datos.Instance.listaSets.ElementAt(i).Replace(" ", "").Trim(Delimitadores), "SETS");
+                                    string[] toList = Datos.Instance.listaSets.ElementAt(i).Split('=');
+                                    Datos.Instance.SimbolosTerminales.Add(toList[1].Replace("'",""));
                                 }
                             }
                             #endregion
@@ -203,6 +205,11 @@ namespace LFA_Proyecto
                                         }
                                         //Agregar la comprobación de expresión regular
                                         this.miDato.Rows.Add(i, myText, "TOKENS");
+                                        if (myText.Contains("'"))
+                                        {
+                                            string[] toList = myText.Split('=');
+                                            Datos.Instance.SimbolosTerminales.Add(toList[1].Replace("'",""));
+                                        }
                                     }
                                     catch (ArgumentOutOfRangeException)
                                     {
