@@ -60,4 +60,4 @@ RESERVADAS()
 	38 = 'BREAK'
 	39 = 'DOWNTO'
 }
-ERROR = 54
+ERROR = 5

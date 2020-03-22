@@ -24,14 +24,17 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                     string TokenActual = Datos.Instance.eTOKEN.ElementAt(i);//Obtener TOKEN actual
                     try
                     {
-                        var test = Datos.Instance.SimbolosTerminales.Find(x => x.Contains(TokenActual));
-                        if (TokenActual == Datos.Instance.SimbolosTerminales.Find(x=>x.Contains(TokenActual)))//Sii el Token es SIMBOLO TERMINAL(SETS)
+                        for (int z = 0; z < Datos.Instance.SimbolosTerminales.Count(); z++)
                         {
-                            var Ensamblando = new ArbolB//Se convierte en arbol
+                            if (TokenActual == Datos.Instance.SimbolosTerminales.ElementAt(z))//Sii el Token es SIMBOLO TERMINAL(SETS)
                             {
-                                Valores = ""
-                            };
-                            Datos.Instance.PilaS.Push(Ensamblando);//Se hace Push con el nuevo arbol generado
+                                var Ensamblando = new ArbolB//Se convierte en arbol
+                                {
+                                    Valores = ""
+                                };
+                                Datos.Instance.PilaS.Push(Ensamblando);//Se hace Push con el nuevo arbol generado
+                                break;
+                            }
                         }
                     }
                     catch (InvalidOperationException)

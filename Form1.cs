@@ -7,6 +7,7 @@ using System.IO;
 using System.Windows.Forms;
 using LFA_Proyecto.Help;
 using LFA_Proyecto.Modelos;
+using System.Text;
 
 namespace LFA_Proyecto
 {
@@ -18,7 +19,8 @@ namespace LFA_Proyecto
         string resACTIONS = "";
         string resERROR = "";
         char[] Delimitadores = { ' ', '\t', '\n', '\r' };
-        char[] AlfabetoMayuscula = Enumerable.Range('A', 26).Select(x => (char)x).ToArray();
+        char[] AlfabetoMinuscula;
+        char[] AlfabetoMayuscula;
         #endregion
 
         public Form1()
@@ -146,7 +148,11 @@ namespace LFA_Proyecto
                                     }
                                     this.miDato.Rows.Add(i, Datos.Instance.listaSets.ElementAt(i).Replace(" ", "").Trim(Delimitadores), "SETS");
                                     string[] toList = Datos.Instance.listaSets.ElementAt(i).Split('=');
-                                    Datos.Instance.SimbolosTerminales.Add(toList[1].Replace("'",""));
+                                    Datos.Instance.SimbolosTerminales.Add(toList[0].Replace("\t", "").Replace(" ", ""));
+                                    if (Datos.Instance.SimbolosTerminales.ElementAt(i) == "LETRA")
+                                    {
+                                        GetLETRA(Datos.Instance.listaSets.ElementAt(i));
+                                    }
                                 }
                             }
                             #endregion
@@ -208,7 +214,7 @@ namespace LFA_Proyecto
                                         if (myText.Contains("'"))
                                         {
                                             string[] toList = myText.Split('=');
-                                            Datos.Instance.SimbolosTerminales.Add(toList[1].Replace("'",""));
+                                            Datos.Instance.SimbolosTerminales.Add(toList[1].Replace("'", ""));
                                         }
                                     }
                                     catch (ArgumentOutOfRangeException)
@@ -350,8 +356,6 @@ namespace LFA_Proyecto
             rutaLabel.Text = rutaArchivo;
             miDato.Visible = true;
             MessageBox.Show("Archivo leido correctamente", rutaArchivo);//Solo confirmación visual
-            ER_ET CODMOI = new ER_ET();
-            CODMOI.CodMoe();
         }
         String ComprobarString(string myString)
         {
@@ -381,8 +385,13 @@ namespace LFA_Proyecto
             string thisTOKEN = ER_TOKEN.Text;
             for (int i = 0; i < thisTOKEN.Length; i++)
             {
+                if (i == 0)
+                {
+                    Datos.Instance.eTOKEN.Add("(");
+                }
                 Datos.Instance.eTOKEN.Add(ER_TOKEN.Text.Substring(i, 1));//Guarda caracter por caracter para la ER_ET
             }
+            Datos.Instance.eTOKEN.Add(").#");
             Prioridades myPrior = new Prioridades();
             myPrior.OperER();
             myPrior.Metacaracteres();
@@ -531,6 +540,57 @@ namespace LFA_Proyecto
                 RebootList();
                 button1_Click(sender, e);
             }
+        }
+        private void GetLETRA(string Linea)
+        {
+            string[] SplitInicial = Linea.Split('=');
+            string[] Mas = SplitInicial[1].Split('+');
+            if ((Mas.Length % 2) != 0)
+            {
+                for (int i = 0; i < Mas.Length; i++)
+                {
+                    string[] Puntos = Mas[i].Split(new string[] { ".." }, StringSplitOptions.None);
+                    byte[] Inicial;
+                    byte[] Final;
+                    int Rango;
+                    if ((Puntos.Length % 2) == 0)
+                    {
+                        Puntos[0] = Puntos[0].Replace("'", "").Replace(" ", "");
+                        Puntos[1] = Puntos[1].Replace("'", "").Replace(" ", "");
+                        Inicial = Encoding.ASCII.GetBytes(Puntos[0]);
+                        Final = Encoding.ASCII.GetBytes(Puntos[1]);
+                        Rango = Final[0] - Inicial[0] + 1;
+                    }
+                    else
+                    {
+                        Puntos[0] = Puntos[0].Replace("'", "").Replace(" ", "");
+                        Inicial = Encoding.ASCII.GetBytes(Puntos[0]);
+                        Final = Encoding.ASCII.GetBytes(Puntos[0]);
+                        Rango = Final[0] - Inicial[0] + 1;
+                    }
+                    if (Inicial[0] >= 65 && Final[0] <= 90)
+                    {
+                        AlfabetoMayuscula = Enumerable.Range(Inicial[0], Rango).Select(x => (char)x).ToArray();
+                    }
+                    else if (Inicial[0] >= 97 && Final[0] <= 122)
+                    {
+                        AlfabetoMinuscula = Enumerable.Range(Inicial[0], Rango).Select(x => (char)x).ToArray();
+                    }
+                }
+            }
+        }//Obtiene alfabetos
+        private void miDato_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+        private void Generar_Click(object sender, EventArgs e)
+        {
+            TextBoxER.Clear();
+            for (int i = 0; i < Datos.Instance.SimbolosTerminales.Count; i++)
+            {
+                TextBoxER.Text = TextBoxER.Text + " " + Datos.Instance.SimbolosTerminales.ElementAt(i);
+            }
+            TransicionesData.Visible = true;
         }
     }
 }
