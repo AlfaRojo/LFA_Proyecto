@@ -148,15 +148,14 @@ namespace LFA_Proyecto
                                     }
                                     this.miDato.Rows.Add(i, Datos.Instance.listaSets.ElementAt(i).Replace(" ", "").Trim(Delimitadores), "SETS");
                                     string[] toList = Datos.Instance.listaSets.ElementAt(i).Split('=');
-                                    Datos.Instance.SimbolosTerminales.Add(toList[0].Replace("\t", "").Replace(" ", ""));
-                                    if (Datos.Instance.SimbolosTerminales.ElementAt(i) == "LETRA")
+                                    if (Datos.Instance.listaSets.ElementAt(i) == "LETRA")
                                     {
                                         GetLETRA(Datos.Instance.listaSets.ElementAt(i));
                                     }
                                 }
                             }
                             #endregion
-                            #region All TOKENS Sintaxis //Falta comprobar la expresion regular(F)
+                            #region All TOKENS Sintaxis //COMPLETO
                             if (lecturaAux.ToString().Replace("( |\t)", "").Replace(" ", "") == "TOKENS")
                             {
                                 while ((lecturaAux = reader.ReadLine()) != resTOKENS)
@@ -213,8 +212,13 @@ namespace LFA_Proyecto
                                         this.miDato.Rows.Add(i, myText, "TOKENS");
                                         if (myText.Contains("'"))
                                         {
+                                            if (Datos.Instance.SimbolosTerminales.Count() == 0)
+                                            {
+                                                Datos.Instance.SimbolosTerminales.Add("(");
+                                            }
                                             string[] toList = myText.Split('=');
                                             Datos.Instance.SimbolosTerminales.Add(toList[1].Replace("'", ""));
+                                            Datos.Instance.SimbolosTerminales.Add(".");
                                         }
                                     }
                                     catch (ArgumentOutOfRangeException)
@@ -356,6 +360,9 @@ namespace LFA_Proyecto
             rutaLabel.Text = rutaArchivo;
             miDato.Visible = true;
             MessageBox.Show("Archivo leido correctamente", rutaArchivo);//Solo confirmación visual
+            var ArbolExpresiones = new ER_ET();
+            Datos.Instance.SimbolosTerminales.Add(").#");
+            ArbolExpresiones.CrearArbol(Datos.Instance.SimbolosTerminales);
         }
         String ComprobarString(string myString)
         {
