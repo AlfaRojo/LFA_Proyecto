@@ -35,8 +35,6 @@
             this.Fila = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.VALOR = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TIPO = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.button2 = new System.Windows.Forms.Button();
-            this.ER_TOKEN = new System.Windows.Forms.Label();
             this.SETlabel = new System.Windows.Forms.Label();
             this.TOKENlabel = new System.Windows.Forms.Label();
             this.ACTIONlabel = new System.Windows.Forms.Label();
@@ -121,37 +119,12 @@
             this.TIPO.Name = "TIPO";
             this.TIPO.Width = 69;
             // 
-            // button2
-            // 
-            this.button2.BackColor = System.Drawing.Color.Transparent;
-            this.button2.Enabled = false;
-            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Font = new System.Drawing.Font("Modern No. 20", 18F, System.Drawing.FontStyle.Bold);
-            this.button2.ForeColor = System.Drawing.Color.Lime;
-            this.button2.Location = new System.Drawing.Point(786, 517);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(227, 86);
-            this.button2.TabIndex = 8;
-            this.button2.Text = "Modificar Expresión";
-            this.button2.UseVisualStyleBackColor = false;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // ER_TOKEN
-            // 
-            this.ER_TOKEN.AutoSize = true;
-            this.ER_TOKEN.ForeColor = System.Drawing.Color.Lime;
-            this.ER_TOKEN.Location = new System.Drawing.Point(9, 589);
-            this.ER_TOKEN.Name = "ER_TOKEN";
-            this.ER_TOKEN.Size = new System.Drawing.Size(178, 17);
-            this.ER_TOKEN.TabIndex = 9;
-            this.ER_TOKEN.Text = "<ID>.\" \"*.\"=\".\" \"*.\"\'\".<c>.\"\'\".#";
-            // 
             // SETlabel
             // 
             this.SETlabel.AutoSize = true;
             this.SETlabel.BackColor = System.Drawing.Color.Transparent;
             this.SETlabel.ForeColor = System.Drawing.Color.Lime;
-            this.SETlabel.Location = new System.Drawing.Point(193, 541);
+            this.SETlabel.Location = new System.Drawing.Point(12, 538);
             this.SETlabel.Name = "SETlabel";
             this.SETlabel.Size = new System.Drawing.Size(82, 17);
             this.SETlabel.TabIndex = 3;
@@ -163,7 +136,7 @@
             this.TOKENlabel.AutoSize = true;
             this.TOKENlabel.BackColor = System.Drawing.Color.Transparent;
             this.TOKENlabel.ForeColor = System.Drawing.Color.Lime;
-            this.TOKENlabel.Location = new System.Drawing.Point(193, 558);
+            this.TOKENlabel.Location = new System.Drawing.Point(12, 555);
             this.TOKENlabel.Name = "TOKENlabel";
             this.TOKENlabel.Size = new System.Drawing.Size(103, 17);
             this.TOKENlabel.TabIndex = 4;
@@ -175,7 +148,7 @@
             this.ACTIONlabel.AutoSize = true;
             this.ACTIONlabel.BackColor = System.Drawing.Color.Transparent;
             this.ACTIONlabel.ForeColor = System.Drawing.Color.Lime;
-            this.ACTIONlabel.Location = new System.Drawing.Point(193, 575);
+            this.ACTIONlabel.Location = new System.Drawing.Point(12, 572);
             this.ACTIONlabel.Name = "ACTIONlabel";
             this.ACTIONlabel.Size = new System.Drawing.Size(115, 17);
             this.ACTIONlabel.TabIndex = 5;
@@ -187,7 +160,7 @@
             this.ERRORlabel.AutoSize = true;
             this.ERRORlabel.BackColor = System.Drawing.Color.Transparent;
             this.ERRORlabel.ForeColor = System.Drawing.Color.Lime;
-            this.ERRORlabel.Location = new System.Drawing.Point(193, 592);
+            this.ERRORlabel.Location = new System.Drawing.Point(12, 589);
             this.ERRORlabel.Name = "ERRORlabel";
             this.ERRORlabel.Size = new System.Drawing.Size(105, 17);
             this.ERRORlabel.TabIndex = 7;
@@ -242,7 +215,7 @@
             this.Generar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Generar.Font = new System.Drawing.Font("Modern No. 20", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Generar.ForeColor = System.Drawing.Color.Lime;
-            this.Generar.Location = new System.Drawing.Point(638, 553);
+            this.Generar.Location = new System.Drawing.Point(871, 553);
             this.Generar.Name = "Generar";
             this.Generar.Size = new System.Drawing.Size(142, 50);
             this.Generar.TabIndex = 11;
@@ -268,8 +241,6 @@
             this.Controls.Add(this.TextBoxER);
             this.Controls.Add(this.Generar);
             this.Controls.Add(this.TransicionesData);
-            this.Controls.Add(this.ER_TOKEN);
-            this.Controls.Add(this.button2);
             this.Controls.Add(this.ERRORlabel);
             this.Controls.Add(this.ACTIONlabel);
             this.Controls.Add(this.TOKENlabel);
@@ -293,11 +264,9 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label rutaLabel;
         private System.Windows.Forms.DataGridView miDato;
-        private System.Windows.Forms.Button button2;
         private System.Windows.Forms.DataGridViewTextBoxColumn Fila;
         private System.Windows.Forms.DataGridViewTextBoxColumn VALOR;
         private System.Windows.Forms.DataGridViewTextBoxColumn TIPO;
-        private System.Windows.Forms.Label ER_TOKEN;
         private System.Windows.Forms.Label SETlabel;
         private System.Windows.Forms.Label TOKENlabel;
         private System.Windows.Forms.Label ACTIONlabel;

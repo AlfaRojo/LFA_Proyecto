@@ -148,6 +148,7 @@ namespace LFA_Proyecto
                                     }
                                     this.miDato.Rows.Add(i, Datos.Instance.listaSets.ElementAt(i).Replace(" ", "").Trim(Delimitadores), "SETS");
                                     string[] toList = Datos.Instance.listaSets.ElementAt(i).Split('=');
+                                    Datos.Instance.TiposSETS.Add(toList[0].Replace("\t", "").Replace(" ", ""));
                                     if (Datos.Instance.listaSets.ElementAt(i) == "LETRA")
                                     {
                                         GetLETRA(Datos.Instance.listaSets.ElementAt(i));
@@ -210,22 +211,58 @@ namespace LFA_Proyecto
                                         }
                                         //Agregar la comprobación de expresión regular
                                         this.miDato.Rows.Add(i, myText, "TOKENS");
+                                        if (Datos.Instance.SimbolosTerminales.Count() == 0)
+                                        {
+                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "("));
+                                        }
                                         if (myText.Contains("'"))
                                         {
-                                            if (Datos.Instance.SimbolosTerminales.Count() == 0)
+                                            string[] toList = myText.Split(new char[] { '=' }, 2);
+                                            if (toList[1].Length > 4 && !(toList[1].Contains("DIGITO")) && !(toList[1].Contains("LETRA")) && !(toList[1].Contains("CHARSET")))
                                             {
-                                                Datos.Instance.SimbolosTerminales.Add("(");
+                                                var listaAuxiliar = new List<string>();
+                                                for (int j = 0; j < toList[1].Length; j++)
+                                                {
+                                                    listaAuxiliar.Add(toList[1].Substring(j, 1));//Guarda caracter por caracteres
+                                                }
+                                                var txtAgregado = myText.Split('=');
+                                                var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
+                                                int numAgregado = Int32.Parse(numero);
+                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, listaAuxiliar[1].Replace("'", "") + "." + listaAuxiliar[4].Replace("'", "")));
                                             }
-                                            string[] toList = myText.Split('=');
-                                            Datos.Instance.SimbolosTerminales.Add(toList[1].Replace("'", ""));
-                                            Datos.Instance.SimbolosTerminales.Add(".");
+                                            else
+                                            {
+                                                var txtAgregado = myText.Split('=');
+                                                var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
+                                                int numAgregado = Int32.Parse(numero);
+                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, toList[1].Replace("'", "")));
+                                                //Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "."));
+                                            }
                                         }
+                                        else
+                                        {
+                                            for (int x = 0; x < Datos.Instance.listaError.Count; x++)
+                                            {
+                                                if (!(myText.Contains(Datos.Instance.listaError.ElementAt(x))))
+                                                {
+                                                    MessageBox.Show(myText + "\nNo se encuentra enlistado en SETS");
+                                                    RebootList();
+                                                    button1_Click(sender, e);
+                                                }
+                                            }
+                                            var txtAgregado = myText.Split('=');
+                                            var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
+                                            int numAgregado = Int32.Parse(numero);
+                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1]));
+                                        }
+                                        //Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "."));
                                     }
                                     catch (ArgumentOutOfRangeException)
                                     {
                                         i = i - 2;
                                     }
                                 }
+                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, ").#"));
                             }
                             #endregion
                             #region All ACTIONS Sintaxis //COMPLETO
@@ -360,9 +397,8 @@ namespace LFA_Proyecto
             rutaLabel.Text = rutaArchivo;
             miDato.Visible = true;
             MessageBox.Show("Archivo leido correctamente", rutaArchivo);//Solo confirmación visual
-            var ArbolExpresiones = new ER_ET();
-            Datos.Instance.SimbolosTerminales.Add(").#");
-            ArbolExpresiones.CrearArbol(Datos.Instance.SimbolosTerminales);
+            //var ArbolExpresiones = new ER_ET();
+            //ArbolExpresiones.CrearArbol(Datos.Instance.SimbolosTerminales);
         }
         String ComprobarString(string myString)
         {
@@ -372,42 +408,18 @@ namespace LFA_Proyecto
             }
             return " se encuentra en el archivo";
         }
-        private void AgregarDiccionario()//Para que un usuario lo pueda editar posteriormente
-        {
-            if (Datos.Instance.diccionarioColeccion.Count != 0)
-            {
-                return;
-            }
-            else
-            {
-                Datos.Instance.diccionarioColeccion.Add("SETS", "SETS");
-                Datos.Instance.diccionarioColeccion.Add("TOKENS", "TOKENS");
-                Datos.Instance.diccionarioColeccion.Add("ACTIONS", "ACTIONS");
-                Datos.Instance.diccionarioColeccion.Add("ERROR", "ERROR");
-                return;
-            }
-        }
         private void Form1_Load(object sender, EventArgs e)//Expresiones Regulares generadas manualmente
         {
-            string thisTOKEN = ER_TOKEN.Text;
-            for (int i = 0; i < thisTOKEN.Length; i++)
-            {
-                if (i == 0)
-                {
-                    Datos.Instance.eTOKEN.Add("(");
-                }
-                Datos.Instance.eTOKEN.Add(ER_TOKEN.Text.Substring(i, 1));//Guarda caracter por caracter para la ER_ET
-            }
-            Datos.Instance.eTOKEN.Add(").#");
-            Prioridades myPrior = new Prioridades();
-            myPrior.OperER();
-            myPrior.Metacaracteres();
-            myPrior.Unarios();
-        }
-        private void button2_Click(object sender, EventArgs e)//Poder cambiar la Expresión Regular manualmente(NO USAR)
-        {
-            Expresion Expresion = new Expresion();
-            Expresion.Show();
+            //string thisTOKEN = ER_TOKEN.Text;
+            //for (int i = 0; i < thisTOKEN.Length; i++)
+            //{
+            //    if (i == 0)
+            //    {
+            //        Datos.Instance.eTOKEN.Add("(");
+            //    }
+            //    Datos.Instance.eTOKEN.Add(ER_TOKEN.Text.Substring(i, 1));//Guarda caracter por caracter para la ER_ET
+            //}
+            //Datos.Instance.eTOKEN.Add(").#");
         }
         private static IEnumerable<string> GetWordList(string linea)
         {
@@ -593,10 +605,10 @@ namespace LFA_Proyecto
         private void Generar_Click(object sender, EventArgs e)
         {
             TextBoxER.Clear();
-            for (int i = 0; i < Datos.Instance.SimbolosTerminales.Count; i++)
-            {
-                TextBoxER.Text = TextBoxER.Text + " " + Datos.Instance.SimbolosTerminales.ElementAt(i);
-            }
+            var newLista = Datos.Instance.SimbolosTerminales;
+            var results = from x in newLista
+                          group new { x.IntegerData, x.StringData } by x.IntegerData;
+            var test = results.ToList();
             TransicionesData.Visible = true;
         }
     }

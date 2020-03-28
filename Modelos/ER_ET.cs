@@ -35,15 +35,16 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
             }
             return 0;
         }
-        public ArbolB CrearArbol(List<string> listaToken)
+        public ArbolB CrearArbol(List<Datos.AllData> listaToken)
         {
-            foreach (var item in listaToken)
+            foreach (var item in listaToken[0].StringData)
             {
-                if (item == "(")
+                MessageBox.Show("Actual - " + item);
+                if (item.ToString() == "(")
                 {
-                    Datos.Instance.PilaT.Push(item);
+                    Datos.Instance.PilaT.Push(item.ToString());
                 }
-                else if (item == ")")
+                else if (item.ToString() == ")")
                 {
                     while (Datos.Instance.PilaT.Count > 0 && Datos.Instance.PilaT.Peek() != "(")
                     {
@@ -65,12 +66,12 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                     }
                     Datos.Instance.PilaT.Pop();
                 }
-                else if (item == "." || item == "*" || item == "?" || item == "+" || item == "|")
+                else if (item.ToString() == "." || item.ToString() == "*" || item.ToString() == "?" || item.ToString() == "+" || item.ToString() == "|")
                 {
-                    if (item == "*" || item == "?" || item == "+")
+                    if (item.ToString() == "*" || item.ToString() == "?" || item.ToString() == "+")
                     {
                         var nodoTemp = new ArbolB();
-                        nodoTemp.Valores = item;
+                        nodoTemp.Valores = item.ToString();
                         if (Datos.Instance.PilaS.Count < 0)
                         {
                             Console.WriteLine("Error, faltan operandos");
@@ -81,12 +82,12 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                     }
                     else if (Datos.Instance.PilaT.Count != 0 && Datos.Instance.PilaT.Peek() != "(")
                     {
-                        var eTok = GetImport(item);
+                        var eTok = GetImport(item.ToString());
                         var ePila = GetImport(Datos.Instance.PilaT.Peek());
                         if (eTok <= ePila)
                         {
                             var nodoTemp = new ArbolB();
-                            nodoTemp.Valores = item;
+                            nodoTemp.Valores = item.ToString();
                             if (Datos.Instance.PilaS.Count < 2)
                             {
                                 Console.WriteLine("Error, faltan operandos");
@@ -97,15 +98,15 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                             Datos.Instance.PilaS.Push(nodoTemp);
                         }
                     }
-                    else if (item == "." || item == "|")
+                    else if (item.ToString() == "." || item.ToString() == "|")
                     {
-                        Datos.Instance.PilaT.Push(item);
+                        Datos.Instance.PilaT.Push(item.ToString());
                     }
                 }
                 else
                 {
                     var nodoTemp = new ArbolB();
-                    nodoTemp.Valores = item;
+                    nodoTemp.Valores = item.ToString();
                     Datos.Instance.PilaS.Push(nodoTemp);
                 }
             }
