@@ -14,6 +14,7 @@ namespace LFA_Proyecto
     public partial class Form1 : Form
     {
         #region Valores
+        int Max;
         string resSETS = "";
         string resTOKENS = "";
         string resACTIONS = "";
@@ -235,6 +236,14 @@ namespace LFA_Proyecto
                                                 var txtAgregado = myText.Split('=');
                                                 var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
                                                 int numAgregado = Int32.Parse(numero);
+                                                if (numAgregado < Max)
+                                                {
+                                                    Max = numAgregado;
+                                                }
+                                                else
+                                                {
+                                                    Max = numAgregado;
+                                                }
                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, toList[1].Replace("'", "")));
                                                 //Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "."));
                                             }
@@ -262,7 +271,7 @@ namespace LFA_Proyecto
                                         i = i - 2;
                                     }
                                 }
-                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, ").#"));
+                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(Max + 1, ").#"));
                             }
                             #endregion
                             #region All ACTIONS Sintaxis //COMPLETO
@@ -397,8 +406,6 @@ namespace LFA_Proyecto
             rutaLabel.Text = rutaArchivo;
             miDato.Visible = true;
             MessageBox.Show("Archivo leido correctamente", rutaArchivo);//Solo confirmación visual
-            //var ArbolExpresiones = new ER_ET();
-            //ArbolExpresiones.CrearArbol(Datos.Instance.SimbolosTerminales);
         }
         String ComprobarString(string myString)
         {
@@ -604,11 +611,15 @@ namespace LFA_Proyecto
         }
         private void Generar_Click(object sender, EventArgs e)
         {
+            var ArbolExpresiones = new ER_ET();
+            ArbolExpresiones.CrearArbol(Datos.Instance.SimbolosTerminales);
             TextBoxER.Clear();
             var newLista = Datos.Instance.SimbolosTerminales;
-            var results = from x in newLista
-                          group new { x.IntegerData, x.StringData } by x.IntegerData;
-            var test = results.ToList();
+            List<Datos.AllData> SortedList = newLista.OrderBy(o => o.IntegerData).ToList();
+            for (int i = 0; i < SortedList.Count; i++)
+            {
+                TextBoxER.Text = TextBoxER.Text + SortedList[i].StringData;
+            }
             TransicionesData.Visible = true;
         }
     }

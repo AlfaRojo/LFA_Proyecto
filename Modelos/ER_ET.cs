@@ -50,12 +50,12 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                     {
                         if (Datos.Instance.PilaT.Count == 0)
                         {
-                            Console.WriteLine("Error, faltan operandos");
+                            MessageBox.Show("Error, faltan operandos");
                             break;
                         }
                         if (Datos.Instance.PilaS.Count < 2)
                         {
-                            Console.WriteLine("Error, faltan operandos");
+                            MessageBox.Show("Error, faltan operandos");
                             break;
                         }
                         var nodoTemp = new ArbolB();
@@ -74,7 +74,7 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                         nodoTemp.Valores = item.ToString();
                         if (Datos.Instance.PilaS.Count < 0)
                         {
-                            Console.WriteLine("Error, faltan operandos");
+                            MessageBox.Show("Error, faltan operandos");
                             break;
                         }
                         nodoTemp.HijoIzquierdo = Datos.Instance.PilaS.Pop();
@@ -90,7 +90,7 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                             nodoTemp.Valores = item.ToString();
                             if (Datos.Instance.PilaS.Count < 2)
                             {
-                                Console.WriteLine("Error, faltan operandos");
+                                MessageBox.Show("Error, faltan operandos");
                                 break;
                             }
                             nodoTemp.HijoDerecho = Datos.Instance.PilaS.Pop();
@@ -116,12 +116,12 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                 nodoTemp.Valores = Datos.Instance.PilaT.Pop();
                 if (nodoTemp.Valores == "(")
                 {
-                    Console.WriteLine("Error, faltan operandos");
+                    MessageBox.Show("Error, faltan operandos");
                     return null;
                 }
                 if (Datos.Instance.PilaS.Count < 2)
                 {
-                    Console.WriteLine("Error, faltan operandos");
+                    MessageBox.Show("Error, faltan operandos");
                     return null;
                 }
                 nodoTemp.HijoDerecho = Datos.Instance.PilaS.Pop();
@@ -130,7 +130,7 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
             }
             if (Datos.Instance.PilaS.Count != 1)
             {
-                Console.WriteLine("Error, faltan operandos");
+                MessageBox.Show("Error, faltan operandos");
                 return null;
             }
             MessageBox.Show("PilaS");
