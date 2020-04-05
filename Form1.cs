@@ -229,14 +229,21 @@ namespace LFA_Proyecto
                                                 var txtAgregado = myText.Split('=');
                                                 var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
                                                 int numAgregado = Int32.Parse(numero);
-                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, listaAuxiliar[1].Replace("'", "") + "." + listaAuxiliar[4].Replace("'", "")));
+                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, listaAuxiliar[1].Replace("'", "") + "." + listaAuxiliar[4].Replace("'", "") + "."));
                                             }
                                             else
                                             {
                                                 var txtAgregado = myText.Split('=');
                                                 var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
                                                 int numAgregado = Int32.Parse(numero);
-                                                if (numAgregado < Max)
+                                                if (txtAgregado[1].Contains("|"))
+                                                {
+                                                    var txtAuxiliar = txtAgregado[1].Split('|');
+                                                    txtAuxiliar[0] = txtAuxiliar[0].Replace("'\"'" , "\"");
+                                                    txtAuxiliar[1] = txtAuxiliar[1].Replace("'''", "'");
+                                                    txtAgregado[1] = txtAuxiliar[0] + "|" + txtAuxiliar[1];
+                                                }
+                                                if (numAgregado < Max)//Para el ultimo Simbolo Terminal
                                                 {
                                                     Max = numAgregado;
                                                 }
@@ -244,27 +251,17 @@ namespace LFA_Proyecto
                                                 {
                                                     Max = numAgregado;
                                                 }
-                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, toList[1].Replace("'", "")));
-                                                //Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "."));
+                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1].Replace("'", "") + "."));
                                             }
                                         }
                                         else
                                         {
-                                            for (int x = 0; x < Datos.Instance.listaError.Count; x++)
-                                            {
-                                                if (!(myText.Contains(Datos.Instance.listaError.ElementAt(x))))
-                                                {
-                                                    MessageBox.Show(myText + "\nNo se encuentra enlistado en SETS");
-                                                    RebootList();
-                                                    button1_Click(sender, e);
-                                                }
-                                            }
+                                            //Buscar existencia de SETS
                                             var txtAgregado = myText.Split('=');
                                             var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
                                             int numAgregado = Int32.Parse(numero);
-                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1]));
+                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1] + "."));
                                         }
-                                        //Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "."));
                                     }
                                     catch (ArgumentOutOfRangeException)
                                     {
@@ -611,8 +608,8 @@ namespace LFA_Proyecto
         }
         private void Generar_Click(object sender, EventArgs e)
         {
-            var ArbolExpresiones = new ER_ET();
-            ArbolExpresiones.CrearArbol(Datos.Instance.SimbolosTerminales);
+            //var ArbolExpresiones = new ER_ET();
+            //ArbolExpresiones.CrearArbol(Datos.Instance.SimbolosTerminales);
             TextBoxER.Clear();
             var newLista = Datos.Instance.SimbolosTerminales;
             List<Datos.AllData> SortedList = newLista.OrderBy(o => o.IntegerData).ToList();

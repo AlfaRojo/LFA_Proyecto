@@ -56,7 +56,7 @@
     </Compile>
     <Compile Include="Help\Datos.cs" />
     <Compile Include="Modelos\ER_ET.cs" />
-    <Compile Include="Modelos\Valores.cs" />
+    <Compile Include="Modelos\Utilities.cs" />
     <Compile Include="PostOrden.cs">
       <SubType>Form</SubType>
     </Compile>
