@@ -45,6 +45,7 @@
             this.Null = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Generar = new System.Windows.Forms.Button();
             this.TextBoxER = new System.Windows.Forms.TextBox();
+            this.txtTime = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.miDato)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TransicionesData)).BeginInit();
             this.SuspendLayout();
@@ -91,7 +92,7 @@
             this.miDato.Name = "miDato";
             this.miDato.RowHeadersWidth = 51;
             this.miDato.RowTemplate.Height = 24;
-            this.miDato.Size = new System.Drawing.Size(776, 150);
+            this.miDato.Size = new System.Drawing.Size(611, 150);
             this.miDato.TabIndex = 2;
             this.miDato.Visible = false;
             // 
@@ -232,12 +233,24 @@
             this.TextBoxER.TabIndex = 12;
             this.TextBoxER.Text = "ExpresionRegular";
             // 
+            // txtTime
+            // 
+            this.txtTime.AutoEllipsis = true;
+            this.txtTime.AutoSize = true;
+            this.txtTime.ForeColor = System.Drawing.Color.Lime;
+            this.txtTime.Location = new System.Drawing.Point(179, 45);
+            this.txtTime.Name = "txtTime";
+            this.txtTime.Size = new System.Drawing.Size(112, 17);
+            this.txtTime.TabIndex = 13;
+            this.txtTime.Text = "Timpo Ejecución";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.ClientSize = new System.Drawing.Size(1025, 615);
+            this.Controls.Add(this.txtTime);
             this.Controls.Add(this.TextBoxER);
             this.Controls.Add(this.Generar);
             this.Controls.Add(this.TransicionesData);
@@ -277,6 +290,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Null;
         private System.Windows.Forms.Button Generar;
         private System.Windows.Forms.TextBox TextBoxER;
+        private System.Windows.Forms.Label txtTime;
     }
 }
 

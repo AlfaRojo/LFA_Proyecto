@@ -6,8 +6,8 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Windows.Forms;
 using LFA_Proyecto.Help;
-using LFA_Proyecto.Modelos;
 using System.Text;
+using System.Diagnostics;
 
 namespace LFA_Proyecto
 {
@@ -31,6 +31,8 @@ namespace LFA_Proyecto
 
         private void button1_Click(object sender, EventArgs e)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             RebootList();
             var contArchivo = string.Empty;
             var rutaArchivo = string.Empty;
@@ -53,59 +55,49 @@ namespace LFA_Proyecto
                         if (fileStream.Length == 0)
                         {
                             MessageBox.Show("El archivo no contiene información");
-                            RebootList();
-                            button1_Click(sender, e);
+                            return;
                         }
                         try//SETS no es obligatorio que venga en el archivo
                         {
                             resSETS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("SETS"));
-                            SETlabel.Visible = true;
                             SETlabel.Text = "SETS " + ComprobarString(resSETS);
                         }
                         catch (InvalidOperationException)
                         {
-                            SETlabel.Visible = true;
                             SETlabel.Text = "SETS " + ComprobarString(resSETS);
                         }
                         try//TOKENS es obligatorio que venga
                         {
                             resTOKENS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("TOKENS"));
-                            TOKENlabel.Visible = true;
                             TOKENlabel.Text = "TOKENS se encuentra en el archivo";
                         }
                         catch (InvalidOperationException)
                         {
                             MessageBox.Show("El archivo no contiene -TOKENS- o se encuentra mal escrito");
-                            RebootList();
-                            button1_Click(sender, e);
+                            return;
                         }
                         try//ACTIONS es obligatorio que venga
                         {
                             resACTIONS = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ACTIONS"));
-                            ACTIONlabel.Visible = true;
                             ACTIONlabel.Text = "ACTIONS se encuentra en el archivo";
                         }
                         catch (InvalidOperationException)
                         {
                             MessageBox.Show("El archivo no contiene -ACTIONS- o se encuentra mal escrito");
-                            RebootList();
-                            button1_Click(sender, e);
+                            return;
                         }
                         try//ERROR no es obligatorio que venga en el archivo
                         {
                             resERROR = File.ReadAllLines(rutaArchivo).First(X => X.Contains("ERROR"));
-                            ERRORlabel.Visible = true;
                             ERRORlabel.Text = "ERROR " + ComprobarString(resERROR);
                         }
                         catch (InvalidOperationException)
                         {
                             MessageBox.Show("El archivo no contiene almenos un -ERROR- o se encuentra mal escrito");
-                            RebootList();
-                            button1_Click(sender, e);
+                            return;
                         }
                         #endregion
                         var lecturaAux = string.Empty;
-
                         while (reader.Peek() > 0)
                         {
                             lecturaAux = reader.ReadLine();
@@ -127,8 +119,7 @@ namespace LFA_Proyecto
                                 if (Datos.Instance.listaSets.Count() < 1)//Sii existe SETS en el archivo, debe tener almenos uno
                                 {
                                     MessageBox.Show("Si el archivo contiene SETS, debe de llevar almenos un SET");
-                                    RebootList();
-                                    button1_Click(sender, e);
+                                    return;
                                 }
                                 for (int i = 0; i < Datos.Instance.listaSets.Count(); i++)//Agregar al GridView
                                 {
@@ -190,20 +181,17 @@ namespace LFA_Proyecto
                                         if (!myText.Trim(Delimitadores).Contains("TOKEN"))//Error de escritura
                                         {
                                             MessageBox.Show("TOKEN en la linea " + i + " no contiene TOKEN o se encunetra mal escrito.");
-                                            RebootList();
-                                            button1_Click(sender, e);
+                                            return;
                                         }
                                         if (myText.All(char.IsDigit))//No contiene dígito----NO FUNCIONA, REVISAR!
                                         {
                                             MessageBox.Show("TOKEN en la linea " + i + " no contiene numeración válida.");
-                                            RebootList();
-                                            button1_Click(sender, e);
+                                            return;
                                         }
                                         if (!myText.Contains("="))//Error de igualación
                                         {
                                             MessageBox.Show("TOKEN en la linea " + i + " no contiene =.");
-                                            RebootList();
-                                            button1_Click(sender, e);
+                                            return;
                                         }
                                         else//Enviar split de igual para comprobar Sintaxis
                                         {
@@ -212,14 +200,28 @@ namespace LFA_Proyecto
                                         }
                                         //Agregar la comprobación de expresión regular
                                         this.miDato.Rows.Add(i, myText, "TOKENS");
-                                        if (Datos.Instance.SimbolosTerminales.Count() == 0)
+                                        if (Datos.Instance.SimbolosTerminales.Count() == 0)//Inicio Simbolos Terminales
                                         {
                                             Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "("));
                                         }
                                         if (myText.Contains("'"))
                                         {
                                             string[] toList = myText.Split(new char[] { '=' }, 2);
-                                            if (toList[1].Length > 4 && !(toList[1].Contains("DIGITO")) && !(toList[1].Contains("LETRA")) && !(toList[1].Contains("CHARSET")))
+                                            if (toList[1].Contains("="))
+                                            {
+                                                toList[1] = toList[1].Trim('\'');
+                                                if (toList[1].Contains("'"))
+                                                {
+                                                    var txtAuxiliar = toList[1].Split('\'');
+                                                    var aux = txtAuxiliar[0] + '.';
+                                                    aux = aux + txtAuxiliar[2];
+                                                    toList[1] = aux;
+                                                }
+                                                var numero = Regex.Match(toList[0], @"\d+").Value;
+                                                int numAgregado = Int32.Parse(numero);
+                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, toList[1].Replace("'", "") + "."));
+                                            }
+                                            else if (toList[1].Length > 4 && !(toList[1].Contains("DIGITO")) && !(toList[1].Contains("LETRA")) && !(toList[1].Contains("CHARSET")))
                                             {
                                                 var listaAuxiliar = new List<string>();
                                                 for (int j = 0; j < toList[1].Length; j++)
@@ -239,7 +241,7 @@ namespace LFA_Proyecto
                                                 if (txtAgregado[1].Contains("|"))
                                                 {
                                                     var txtAuxiliar = txtAgregado[1].Split('|');
-                                                    txtAuxiliar[0] = txtAuxiliar[0].Replace("'\"'" , "\"");
+                                                    txtAuxiliar[0] = txtAuxiliar[0].Replace("'\"'", "\"");
                                                     txtAuxiliar[1] = txtAuxiliar[1].Replace("'''", "'");
                                                     txtAgregado[1] = txtAuxiliar[0] + "|" + txtAuxiliar[1];
                                                 }
@@ -256,8 +258,27 @@ namespace LFA_Proyecto
                                         }
                                         else
                                         {
-                                            //Buscar existencia de SETS
+                                            var listaSETS = new List<string>();
+                                            for (int z = 0; z < Datos.Instance.listaSets.Count; z++)
+                                            {
+                                                var spliter = Datos.Instance.listaSets.ElementAt(z).Split('=');
+                                                listaSETS.Add(spliter[0].Replace("\t","").Replace(" ", ""));
+                                            }
                                             var txtAgregado = myText.Split('=');
+                                            bool Contains = false;
+                                            for (int z = 0; z < listaSETS.Count; z++)
+                                            {
+                                                if (txtAgregado[1].Contains(listaSETS.ElementAt(z)))
+                                                {
+                                                    Contains = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (!Contains)
+                                            {
+                                                MessageBox.Show(myText + "\nNo se encuentra definido en SETS");
+                                                return;
+                                            }
                                             var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
                                             int numAgregado = Int32.Parse(numero);
                                             Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1] + "."));
@@ -268,7 +289,7 @@ namespace LFA_Proyecto
                                         i = i - 2;
                                     }
                                 }
-                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(Max + 1, ").#"));
+                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(Max + 1, ").#"));//Fin de SimbolosTerminales
                             }
                             #endregion
                             #region All ACTIONS Sintaxis //COMPLETO
@@ -292,8 +313,7 @@ namespace LFA_Proyecto
                                                 if (Datos.Instance.listaAction.Last().Replace(" ", "").Replace("\t", "") != "}")//Sii el ultimo no es de cerrar llave }
                                                 {
                                                     MessageBox.Show("ACTIONS debe finalizar en -}-");
-                                                    RebootList();
-                                                    button1_Click(sender, e);
+                                                    return;
                                                 }
                                                 Datos.Instance.listaAction.RemoveAt(Datos.Instance.listaAction.Count() - 1);//Sii lo contiene, se elimina, inesesario
                                                 break;
@@ -312,21 +332,18 @@ namespace LFA_Proyecto
                                                 if (!(int.TryParse(compERROR[0], out int x)))
                                                 {
                                                     MessageBox.Show("ACTIONS en la linea " + i + " no inicia con valor numérico");
-                                                    RebootList();
-                                                    button1_Click(sender, e);
+                                                    return;
                                                 }
                                                 if (!(compERROR[1].StartsWith("'")) && !(compERROR[1].EndsWith("'")))
                                                 {
                                                     MessageBox.Show("ACTIONS en la linea " + i + " no inicia o finaliza correctamente");
-                                                    RebootList();
-                                                    button1_Click(sender, e);
+                                                    return;
                                                 }
                                             }
                                             catch (IndexOutOfRangeException)
                                             {
                                                 MessageBox.Show("ACTIONS en la linea " + i + " no inicia correctamente");
-                                                RebootList();
-                                                button1_Click(sender, e);
+                                                return;
                                             }
                                             this.miDato.Rows.Add(i, Datos.Instance.listaAction.ElementAt(i), "ACTIONS");
                                         }
@@ -335,14 +352,13 @@ namespace LFA_Proyecto
                                     {
                                         MessageBox.Show("ACTIONS debe iniciar en -{-");
                                         RebootList();
-                                        button1_Click(sender, e);
+                                        return;
                                     }
                                 }
                                 else//Sintaxis incorrecto entre ACTIONS & RESERVADAS()
                                 {
                                     MessageBox.Show("ACTIONS debe de ir seguido de RESERVADAS()");
-                                    RebootList();
-                                    button1_Click(sender, e);
+                                    return;
                                 }
                             }
                             #endregion
@@ -357,8 +373,7 @@ namespace LFA_Proyecto
                                         if (Datos.Instance.listaError.Count() < 1)
                                         {
                                             MessageBox.Show("Archivo debe contener almenos un ERROR");
-                                            RebootList();
-                                            button1_Click(sender, e);
+                                            return;
                                         }
                                         break;
                                     }
@@ -376,21 +391,18 @@ namespace LFA_Proyecto
                                         if (!(compERROR[0].Contains("ERROR")))
                                         {
                                             MessageBox.Show("ERROR en la linea " + i + " no inicia correctamente");
-                                            RebootList();
-                                            button1_Click(sender, e);
+                                            return;
                                         }
                                         if (!(int.TryParse(compERROR[1], out int x)))
                                         {
                                             MessageBox.Show("ERROR en la linea " + i + " no contiene valor numérico");
-                                            RebootList();
-                                            button1_Click(sender, e);
+                                            return;
                                         }
                                     }
                                     catch (IndexOutOfRangeException)
                                     {
                                         MessageBox.Show("ERROR en la linea " + i + " no inicia correctamente");
-                                        RebootList();
-                                        button1_Click(sender, e);
+                                        return;
                                     }
                                     this.miDato.Rows.Add(i, Datos.Instance.listaError.ElementAt(i), "ERROR");
                                 }
@@ -400,8 +412,16 @@ namespace LFA_Proyecto
                     }
                 }
             }
+            #region Labels
             rutaLabel.Text = rutaArchivo;
             miDato.Visible = true;
+            SETlabel.Visible = true;
+            TOKENlabel.Visible = true;
+            ACTIONlabel.Visible = true;
+            ERRORlabel.Visible = true;
+#endregion
+            sw.Stop();
+            txtTime.Text = "Tiempo de ejeccion en lectura de Archivo: " + sw.Elapsed.ToString("hh\\:mm\\:ss\\.fff");
             MessageBox.Show("Archivo leido correctamente", rutaArchivo);//Solo confirmación visual
         }
         String ComprobarString(string myString)
@@ -610,6 +630,8 @@ namespace LFA_Proyecto
         {
             //var ArbolExpresiones = new ER_ET();
             //ArbolExpresiones.CrearArbol(Datos.Instance.SimbolosTerminales);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             TextBoxER.Clear();
             var newLista = Datos.Instance.SimbolosTerminales;
             List<Datos.AllData> SortedList = newLista.OrderBy(o => o.IntegerData).ToList();
@@ -618,6 +640,8 @@ namespace LFA_Proyecto
                 TextBoxER.Text = TextBoxER.Text + SortedList[i].StringData;
             }
             TransicionesData.Visible = true;
+            sw.Stop();
+            txtTime.Text = "Tiempo de ejeccion en creación del arbol y ER: " + sw.Elapsed.ToString("hh\\:mm\\:ss\\.fff");
         }
     }
 }

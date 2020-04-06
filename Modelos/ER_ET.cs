@@ -1,6 +1,4 @@
 ﻿using System.Windows.Forms;
-using LFA_Proyecto.Help;
-using LFA_Proyecto.Arbol;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,7 +13,7 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
 
     class ER_ET
     {
-		#region Arbol Emma
+		#region Arbol Expresiones
 		class Node
 		{
 			public Node Left { get; set; }
