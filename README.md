@@ -7,7 +7,7 @@ Creación de un proyecto en lenguaje C# Windows Forms, que consta de la lectura 
 * Fase II - Generador de Scanner
 
 ### Requisitos
-Programado en Visual Studio 2019(https://visualstudio.microsoft.com/es/) 
+Programado en [Visual Studio 2019](https://visualstudio.microsoft.com/es/) 
 
 * .Desarrollo de ASP.NET  y web
 * Desarrollo de Escritorio de .Net
@@ -21,7 +21,7 @@ Posteriormente se hace click en el botón "Generar" que generará toda la Expres
 Se creará el árbol de Expresión con dichos TOKENs y de esta forma se obtienen FIRST, LAST, FOLLOW
 
 ## Versionamiento
-Usé Github(https://github.com/) como almacenamiento de versiones. Para ver, porfavor visita los commits(https://github.com/AlfaRojo/LFA_Proyecto/commits/master)
+Usé [Github](https://github.com/) como almacenamiento de versiones. Para ver, porfavor visita los [commits](https://github.com/AlfaRojo/LFA_Proyecto/commits/master)
 
 ## Autor
-Kevin Andrés Ortiz Ramírez
+Kevin Andrés Ortiz Ramírez, Guatemala
