@@ -226,7 +226,6 @@
             // 
             // TextBoxER
             // 
-            this.TextBoxER.Enabled = false;
             this.TextBoxER.Location = new System.Drawing.Point(179, 12);
             this.TextBoxER.Name = "TextBoxER";
             this.TextBoxER.Size = new System.Drawing.Size(834, 22);

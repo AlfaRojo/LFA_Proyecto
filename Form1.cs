@@ -262,15 +262,30 @@ namespace LFA_Proyecto
                                             for (int z = 0; z < Datos.Instance.listaSets.Count; z++)
                                             {
                                                 var spliter = Datos.Instance.listaSets.ElementAt(z).Split('=');
-                                                listaSETS.Add(spliter[0].Replace("\t","").Replace(" ", ""));
+                                                listaSETS.Add(spliter[0].Replace("\t", "").Replace(" ", ""));
                                             }
                                             var txtAgregado = myText.Split('=');
+                                            var txtAuxiliar = Datos.Instance.listaToken.ElementAt(i);
+                                            var splitauxiliar = txtAuxiliar.Split('=');
                                             bool Contains = false;
-                                            for (int z = 0; z < listaSETS.Count; z++)
+                                            string tipo = string.Empty;
+                                            int total = 0;
+                                            var final = string.Empty;
+                                            for (int z = 0; z < listaSETS.Count; z++)//Comprueba sii existe la palabra en el área SETs
                                             {
-                                                if (txtAgregado[1].Contains(listaSETS.ElementAt(z)))
+                                                if (txtAgregado[1].Contains(listaSETS.ElementAt(z)))//Confirma que se encuentra
                                                 {
                                                     Contains = true;
+                                                    tipo = listaSETS.ElementAt(z);
+                                                    total = Regex.Matches(myText, tipo).Count;
+                                                    if (splitauxiliar[1].EndsWith("*") || splitauxiliar[1].EndsWith("+"))
+                                                    {
+                                                        final = "*";
+                                                        if (splitauxiliar[1].EndsWith("+"))
+                                                        {
+                                                            final = "+";
+                                                        }
+                                                    }
                                                     break;
                                                 }
                                             }
@@ -278,6 +293,21 @@ namespace LFA_Proyecto
                                             {
                                                 MessageBox.Show(myText + "\nNo se encuentra definido en SETS");
                                                 return;
+                                            }
+                                            if (total == 1)
+                                            {
+                                                txtAgregado[1] = tipo + final;
+                                            }
+                                            else
+                                            {
+                                                txtAgregado[1] = string.Empty;
+                                                for (int z = 0; z < total; z++)
+                                                {
+                                                    txtAgregado[1] = txtAgregado[1] + tipo + " ";
+                                                }
+                                                txtAgregado[1] = txtAgregado[1].TrimEnd();
+                                                txtAgregado[1] = txtAgregado[1] + final;
+                                                txtAgregado[1] = txtAgregado[1].Replace(" ", ".");
                                             }
                                             var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
                                             int numAgregado = Int32.Parse(numero);
@@ -419,7 +449,7 @@ namespace LFA_Proyecto
             TOKENlabel.Visible = true;
             ACTIONlabel.Visible = true;
             ERRORlabel.Visible = true;
-#endregion
+            #endregion
             sw.Stop();
             txtTime.Text = "Tiempo de ejeccion en lectura de Archivo: " + sw.Elapsed.ToString("hh\\:mm\\:ss\\.fff");
             MessageBox.Show("Archivo leido correctamente", rutaArchivo);//Solo confirmación visual
@@ -434,16 +464,7 @@ namespace LFA_Proyecto
         }
         private void Form1_Load(object sender, EventArgs e)//Expresiones Regulares generadas manualmente
         {
-            //string thisTOKEN = ER_TOKEN.Text;
-            //for (int i = 0; i < thisTOKEN.Length; i++)
-            //{
-            //    if (i == 0)
-            //    {
-            //        Datos.Instance.eTOKEN.Add("(");
-            //    }
-            //    Datos.Instance.eTOKEN.Add(ER_TOKEN.Text.Substring(i, 1));//Guarda caracter por caracter para la ER_ET
-            //}
-            //Datos.Instance.eTOKEN.Add(").#");
+
         }
         private static IEnumerable<string> GetWordList(string linea)
         {
