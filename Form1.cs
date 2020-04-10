@@ -9,13 +9,14 @@ using LFA_Proyecto.Help;
 using System.Text;
 using System.Diagnostics;
 using LFA_Proyecto.Modelos;
+using LFA_Proyecto.Arbol;
 
 namespace LFA_Proyecto
 {
     public partial class Form1 : Form
     {
         #region Valores
-        int Max;
+        int Max = int.MaxValue;
         string resSETS = "";
         string resTOKENS = "";
         string resACTIONS = "";
@@ -24,7 +25,6 @@ namespace LFA_Proyecto
         char[] AlfabetoMinuscula;
         char[] AlfabetoMayuscula;
         #endregion
-
         public Form1()
         {
             InitializeComponent();
@@ -141,7 +141,6 @@ namespace LFA_Proyecto
                                     }
                                     this.miDato.Rows.Add(i, Datos.Instance.listaSets.ElementAt(i).Replace(" ", "").Trim(Delimitadores), "SETS");
                                     string[] toList = Datos.Instance.listaSets.ElementAt(i).Split('=');
-                                    Datos.Instance.TiposSETS.Add(toList[0].Replace("\t", "").Replace(" ", ""));
                                     if (Datos.Instance.listaSets.ElementAt(i) == "LETRA")
                                     {
                                         GetLETRA(Datos.Instance.listaSets.ElementAt(i));
@@ -221,7 +220,7 @@ namespace LFA_Proyecto
                                                 var numero = Regex.Match(toList[0], @"\d+").Value;
                                                 int numAgregado = Int32.Parse(numero);
                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, toList[1]));
-                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0,"|"));
+                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
                                             }
                                             else if (toList[1].Length > 4 && !(toList[1].Contains("DIGITO")) && !(toList[1].Contains("LETRA")) && !(toList[1].Contains("CHARSET")))
                                             {
@@ -249,10 +248,7 @@ namespace LFA_Proyecto
                                                 var txtAgregado = myText.Split('=');
                                                 var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
                                                 int numAgregado = Int32.Parse(numero);
-                                                if (numAgregado > Max)//Para el ultimo Simbolo Terminal
-                                                {
-                                                    Max = numAgregado;
-                                                }
+                                                Max = numAgregado;
                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1]));
                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
                                             }
@@ -313,7 +309,7 @@ namespace LFA_Proyecto
                                                 MessageBox.Show(myText + "\nNo se encuentra definido en SETS");
                                                 return;
                                             }
-                                            if ((a && !b && !c )|| (!a && b && !c )||( !a && !b && c))
+                                            if ((a && !b && !c) || (!a && b && !c) || (!a && !b && c))
                                             {
                                                 if (totalLETRA == 1)
                                                 {
@@ -679,17 +675,23 @@ namespace LFA_Proyecto
         }
         private void Generar_Click(object sender, EventArgs e)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             TextBoxER.Clear();
             var newLista = Datos.Instance.SimbolosTerminales;
             List<Datos.AllData> SortedList = newLista.OrderBy(o => o.IntegerData).ToList();
-            for (int i = 1; i < SortedList.Count; i++)
+            foreach (var item in SortedList)
             {
-                TextBoxER.Text = TextBoxER.Text + SortedList[i].StringData + " | ";
+                if (item.IntegerData != 0)
+                {
+                    TextBoxER.Text = TextBoxER.Text + item.StringData + " | ";
+                }
             }
+            TextBoxER.Text.Remove(TextBoxER.TextLength - 4);
             ER_ET ArbolExpresiones = new ER_ET();
-            ArbolExpresiones.CrearArbol(Datos.Instance.SimbolosTerminales);
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+            ArbolExpresiones.PruebaArbol(Datos.Instance.SimbolosTerminales);
+            var Transiciones = new Transiciones();
+            Transiciones.GenerarTransiciones();
             TransicionesData.Visible = true;
             sw.Stop();
             txtTime.Text = "Tiempo de ejeccion en creación del arbol y ER: " + sw.Elapsed.ToString("hh\\:mm\\:ss\\.fff");

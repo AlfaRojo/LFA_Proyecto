@@ -6,245 +6,85 @@ using LFA_Proyecto.Arbol;
 
 namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
 {
-    //  Entradas
-    //1.	Tokens de la expresión regular(Símbolos terminales “st”, meta caracteres operadores incluyendo la concatenación “op”)
-    //2.	Pila de Tokens llamada “T”
-    //3.	Pila de árboles llamada “S”
-    //  Salidas
-    //1.	Árbol de expresión con el símbolo terminal extendido #
-
+    /// <summary>
+    ///   <para>Entradas:</para>
+    /// <para>Tokens de la expresión regular</para>
+    /// <para>Pila de Tokens</para>
+    /// <para>Pila de árboles</para>
+    /// <para>Salidas:</para>
+    ///	<returns>Árbol de expresión</returns>
+    /// </summary>
     class ER_ET
     {
-        #region Arbol Expresiones
-        public class Node
+        private int lastPrecedence = int.MaxValue;
+        private void GetLastPrecedence(string token)
         {
-            public Node Left { get; set; }
-            public Node Right { get; set; }
-            string item { get; set; }
-            public bool Leaf => (this.Left == null && this.Right == null);
-            public bool Full => (this.Left != null && this.Right != null);
-            public Node() { }
-            public Node(string value) : this(value, null, null) { }
-            public Node(string value, Node Left, Node Right)
+            if (token == "(" || token == ")")
             {
-                this.item = value;
-                this.Left = Left;
-                this.Right = Right;
+                lastPrecedence = 4;
+            }
+            else if (token == "*" || token == "+" || token == "?")
+            {
+                lastPrecedence = 3;
+            }
+            else if (token == ".")
+            {
+                lastPrecedence = 2;
+            }
+            else if (token == "|")
+            {
+                lastPrecedence = 1;
             }
         }
-        public class ExpressionTree
+        /// <summary>
+        /// <para>Algoritmo creado por Moises Alonso</para>
+        /// Algoritmo de creación de árbol de expresion a traves de Expresión Regular
+        /// </summary>
+        /// <param name="RE"></param>
+        public void PruebaArbol(List<Datos.AllData> RE)
         {
-            public Node Root { get; set; }
-            private Stack<string> PilaT = new Stack<string>();
-            private Stack<ExpressionTree> PilaS = new Stack<ExpressionTree>();
-            private int lastPrecedence = int.MaxValue;
-            private void GetLastPrecedence(string token)
+            foreach (var item in RE)
             {
-                if (token == "(" || token == ")")
-                {
-                    lastPrecedence = 4;
-                }
-                else if (token == "*" || token == "+" || token == "?")
-                {
-                    lastPrecedence = 3;
-                }
-                else if (token == ".")
-                {
-                    lastPrecedence = 2;
-                }
-                else if (token == "|")
-                {
-                    lastPrecedence = 1;
-                }
-            }
-            public ExpressionTree()
-            {
-
-            }
-            /// <summary>
-            /// Algoritmo creado por Moises Alonso
-            /// Algoritmo de creacion de arbol de expresion a traves de expresion regular
-            /// </summary>
-            /// <param name="RE"></param>
-            public void CreateTree(List<Datos.AllData> RE)
-            {
-                foreach (var item in RE)
-                {
-                    int lstPrcdnc = 0;
-                    if (item.StringData == "(")
-                    {
-                        PilaT.Push(item.StringData.ToString());
-                        GetLastPrecedence(item.StringData);
-                    }
-                    else if (item.StringData == ")")
-                    {
-                        while (PilaT.Count > 0 && PilaT.Peek() != "(")
-                        {
-                            if (PilaT.Count == 0)
-                            {
-                                MessageBox.Show("Faltan operadores");
-                                return;
-                            }
-                            if (PilaS.Count < 2)
-                            {
-                                MessageBox.Show("Faltan operadores");
-                                return;
-                            }
-                            ExpressionTree temp = new ExpressionTree();
-                            temp.Root = new Node(PilaT.Pop());
-                            ExpressionTree Right = PilaS.Pop();
-                            temp.Root.Right = Right.Root;
-                            ExpressionTree Left = PilaS.Pop();
-                            temp.Root.Left = Left.Root;
-                            PilaS.Push(temp);
-                        }
-                        if (PilaT.Count == 0)
-                        {
-                            MessageBox.Show("Faltan operadores");
-                            return;
-                        }
-                        PilaT.Pop();
-                        GetLastPrecedence(")");
-                    }
-                    else if (Utilities.Op.Contains(item.StringData))
-                    {
-                        if (item.StringData == "?" || item.StringData == "*" || item.StringData == "+")
-                        {
-                            ExpressionTree temp = new ExpressionTree();
-                            temp.Root = new Node(item.StringData.ToString());
-                            if (PilaS.Count == 0)
-                            {
-                                MessageBox.Show("Faltan operadores");
-                                return;
-                            }
-                            ExpressionTree Left = new ExpressionTree();
-                            Left = PilaS.Pop();
-                            temp.Root.Left = Left.Root;
-                            PilaS.Push(temp);
-                            GetLastPrecedence(item.StringData.ToString());
-                        }
-                        else if (PilaT.Count > 0 && PilaT.Peek() != "(")
-                        {
-                            lstPrcdnc = this.lastPrecedence;
-                            GetLastPrecedence(item.StringData);
-
-                            if (this.lastPrecedence < lstPrcdnc)
-                            {
-                                ExpressionTree temp = new ExpressionTree();
-                                temp.Root = new Node(PilaT.Pop().ToString());
-                                if (PilaS.Count() < 2)
-                                {
-                                    MessageBox.Show("Faltan operadores");
-                                    return; ;
-                                }
-                                ExpressionTree ctree = PilaS.Pop();
-                                temp.Root.Right = ctree.Root;
-                                ctree = PilaS.Pop();
-                                temp.Root.Left = ctree.Root;
-                                PilaS.Push(temp);
-                            }
-                        }
-                        if (item.StringData == "|" || item.StringData == ".")
-                        {
-                            PilaT.Push(item.StringData);
-                            GetLastPrecedence(item.StringData);
-                        }
-                    }
-                    else
-                    {
-                        ExpressionTree temp = new ExpressionTree();
-                        temp.Root = new Node(item.StringData);
-                        PilaS.Push(temp);
-                    }
-                    while (PilaT.Count > 0)
-                    {
-                        string op = PilaT.Pop();
-                        if (op == "(" || PilaS.Count < 2)
-                        {
-                            MessageBox.Show("Faltan operadores");
-                            return;
-                        }
-                        ExpressionTree temp = new ExpressionTree();
-                        temp.Root = new Node(op);
-                        ExpressionTree ctree = new ExpressionTree();
-                        ctree = PilaS.Pop();
-                        temp.Root.Right = ctree.Root;
-                        ctree = PilaS.Pop();
-                        temp.Root.Left = ctree.Root;
-                        PilaS.Push(temp);
-                    }
-                    if (PilaS.Count != 1)
-                    {
-                        MessageBox.Show("Faltan operadores");
-                        return;
-                    }
-                    ExpressionTree result = PilaS.Pop();
-                    this.Root = result.Root;
-                }
-            }
-        }
-        #endregion
-
-
-
-        private int GetImport(string eFormato)
-        {
-            if (eFormato == "(" || eFormato == ")")
-            {
-                return 4;
-            }
-            if (eFormato == "*" || eFormato == "?" || eFormato == "+")
-            {
-                return 3;
-            }
-            if (eFormato == ".")
-            {
-                return 2;
-            }
-            if (eFormato == "|")
-            {
-                return 1;
-            }
-            return 0;
-        }
-        public ArbolB CrearArbol(List<Datos.AllData> listaToken)
-        {
-            foreach (var item in listaToken)
-            {
-                var listaAuxiliar = new List<string>();
-                listaAuxiliar.Add(item.StringData.Substring(0, 1));
+                int lstPrcdnc = 0;
                 if (item.StringData == "(")
                 {
-                    Datos.Instance.PilaT.Push(item.StringData.ToString());
+                    Datos.Instance.PilaT.Push(item.StringData);
+                    GetLastPrecedence(item.StringData);
                 }
-                else if (item.StringData.Contains(")"))
+                else if (item.StringData == ")")
                 {
                     while (Datos.Instance.PilaT.Count > 0 && Datos.Instance.PilaT.Peek() != "(")
                     {
                         if (Datos.Instance.PilaT.Count == 0)
                         {
-                            MessageBox.Show("Error, faltan operandos");
-                            break;
+                            MessageBox.Show("Faltan operadores");
+                            return;
                         }
                         if (Datos.Instance.PilaS.Count < 2)
                         {
-                            MessageBox.Show("Error, faltan operandos");
-                            break;
+                            MessageBox.Show("Faltan operadores");
+                            return;
                         }
                         var nodoTemp = new ArbolB();
-                        nodoTemp.Valores = Datos.Instance.PilaT.Pop();
+                        nodoTemp.Dato = Datos.Instance.PilaT.Pop();
                         nodoTemp.HijoDerecho = Datos.Instance.PilaS.Pop();
                         nodoTemp.HijoIzquierdo = Datos.Instance.PilaS.Pop();
                         Datos.Instance.PilaS.Push(nodoTemp);
                     }
+                    if (Datos.Instance.PilaT.Count == 0)
+                    {
+                        MessageBox.Show("Faltan operadores");
+                        return;
+                    }
                     Datos.Instance.PilaT.Pop();
+                    GetLastPrecedence(")");
                 }
-                else if (item.StringData == "." || item.StringData == "*" || item.StringData == "?" || item.StringData == "+" || item.StringData == "|")
+                else if (Utilities.Op.Contains(item.StringData))
                 {
-                    if (item.StringData.Contains("*") || item.StringData.Contains("?") || item.StringData.Contains("+"))
+                    if (item.StringData == "?" || item.StringData == "*" || item.StringData == "+")
                     {
                         var nodoTemp = new ArbolB();
-                        nodoTemp.Valores = item.StringData;
+                        nodoTemp.Dato = item.StringData;
                         if (Datos.Instance.PilaS.Count <= 0)
                         {
                             MessageBox.Show("Error, faltan operandos");
@@ -252,50 +92,47 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                         }
                         nodoTemp.HijoIzquierdo = Datos.Instance.PilaS.Pop();
                         Datos.Instance.PilaS.Push(nodoTemp);
+                        GetLastPrecedence(item.StringData);
                     }
-                    else if (Datos.Instance.PilaT.Count != 0 && !(Datos.Instance.PilaT.Peek().Contains("(")))
+                    else if (Datos.Instance.PilaT.Count > 0 && Datos.Instance.PilaT.Peek() != "(")
                     {
-                        var eTok = GetImport(item.StringData);
-                        var ePila = GetImport(Datos.Instance.PilaT.Peek());
-                        if (eTok <= ePila)
+                        lstPrcdnc = this.lastPrecedence;
+                        GetLastPrecedence(item.StringData);
+                        if (this.lastPrecedence < lstPrcdnc)
                         {
                             var nodoTemp = new ArbolB();
-                            nodoTemp.Valores = item.StringData;
-                            if (Datos.Instance.PilaS.Count < 2)
+                            nodoTemp.Dato = item.StringData;
+                            if (Datos.Instance.PilaS.Count() < 2)
                             {
-                                MessageBox.Show("Error, faltan operandos");
-                                break;
+                                MessageBox.Show("Faltan operadores");
+                                return;
                             }
                             nodoTemp.HijoDerecho = Datos.Instance.PilaS.Pop();
                             nodoTemp.HijoIzquierdo = Datos.Instance.PilaS.Pop();
                             Datos.Instance.PilaS.Push(nodoTemp);
                         }
                     }
-                    else if (item.StringData.Contains(".") || item.StringData.Contains("|"))
+                    if (item.StringData == "|" || item.StringData == ".")
                     {
-                        Datos.Instance.PilaT.Push(item.StringData.ToString());
+                        Datos.Instance.PilaT.Push(item.StringData);
+                        GetLastPrecedence(item.StringData);
                     }
                 }
                 else
                 {
                     var nodoTemp = new ArbolB();
-                    nodoTemp.Valores = item.StringData.ToString();
+                    nodoTemp.Dato = item.StringData;
                     Datos.Instance.PilaS.Push(nodoTemp);
                 }
             }
-            while (Datos.Instance.PilaT.Count > 0)
+            while (Datos.Instance.PilaT.Count > 1)
             {
                 var nodoTemp = new ArbolB();
-                nodoTemp.Valores = Datos.Instance.PilaT.Pop();
-                if (nodoTemp.Valores == "(")
+                nodoTemp.Dato = Datos.Instance.PilaT.Pop();
+                if (nodoTemp.Dato == "(" || Datos.Instance.PilaS.Count < 2)
                 {
-                    MessageBox.Show("Error, faltan operandos");
-                    return null;
-                }
-                if (Datos.Instance.PilaS.Count < 2)
-                {
-                    MessageBox.Show("Error, faltan operandos");
-                    return null;
+                    MessageBox.Show("Faltan operadores");
+                    return;
                 }
                 nodoTemp.HijoDerecho = Datos.Instance.PilaS.Pop();
                 nodoTemp.HijoIzquierdo = Datos.Instance.PilaS.Pop();
@@ -303,13 +140,13 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
             }
             if (Datos.Instance.PilaS.Count != 1)
             {
-                MessageBox.Show("Error, faltan operandos");
-                return null;
+                MessageBox.Show("Faltan operadores");
+                return;
             }
             MessageBox.Show("PilaS");
-            return Datos.Instance.PilaS.Pop();
         }
     }
 }
+
 
 
