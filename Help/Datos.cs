@@ -24,7 +24,6 @@ namespace LFA_Proyecto.Help
         public List<string> listaAction = new List<string>();//Almacena todo de ACTIONS/RESERVADAS()
         public List<string> listaError = new List<string>();//Almacena todo de ERROR
 
-        public List<string> TiposSETS = new List<string>();
         public List<AllData> SimbolosTerminales = new List<AllData>();//Almacena los simbolos terminales
         //Agregar
         public struct AllData
