@@ -239,9 +239,9 @@
             this.txtTime.ForeColor = System.Drawing.Color.Lime;
             this.txtTime.Location = new System.Drawing.Point(179, 45);
             this.txtTime.Name = "txtTime";
-            this.txtTime.Size = new System.Drawing.Size(112, 17);
+            this.txtTime.Size = new System.Drawing.Size(120, 17);
             this.txtTime.TabIndex = 13;
-            this.txtTime.Text = "Timpo Ejecución";
+            this.txtTime.Text = "Tiempo Ejecución";
             // 
             // Form1
             // 
