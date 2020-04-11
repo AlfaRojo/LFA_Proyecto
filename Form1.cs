@@ -169,6 +169,12 @@ namespace LFA_Proyecto
                                 }
                                 for (int i = 0; i < Datos.Instance.listaToken.Count(); i++)//Agregar al GridView y comprobar sintaxis
                                 {
+                                    var listaSETS = new List<string>();
+                                    for (int z = 0; z < Datos.Instance.listaSets.Count; z++)
+                                    {
+                                        var spliter = Datos.Instance.listaSets.ElementAt(z).Split('=');
+                                        listaSETS.Add(spliter[0].Replace("\t", "").Replace(" ", ""));
+                                    }
                                     try
                                     {
                                         var Delimitador = Datos.Instance.listaToken.ElementAt(i).Trim(Delimitadores);
@@ -204,6 +210,7 @@ namespace LFA_Proyecto
                                         {
                                             Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "("));
                                         }
+                                        bool did = false;
                                         if (myText.Contains("'"))
                                         {
                                             string[] toList = myText.Split(new char[] { '=' }, 2);
@@ -243,24 +250,41 @@ namespace LFA_Proyecto
                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1]));
                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
                                             }
-                                            else
+                                            else if (toList[1].Contains("DIGITO") || toList[1].Contains("LETRA") || toList[1].Contains("CHARSET"))
                                             {
                                                 var txtAgregado = myText.Split('=');
+                                                bool Contains = false;
+                                                for (int z = 0; z < listaSETS.Count; z++)
+                                                {
+                                                    if (txtAgregado[1].Contains(listaSETS.ElementAt(z)))
+                                                    {
+                                                        Contains = true;
+                                                        break;
+                                                    }
+                                                }
+                                                if (!Contains)
+                                                {
+                                                    MessageBox.Show(myText + "\nNo se encuentra definido en SETS");
+                                                    return;
+                                                }
                                                 var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
                                                 int numAgregado = Int32.Parse(numero);
                                                 Max = numAgregado;
                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1]));
                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
                                             }
+                                            else
+                                            {
+                                                var txtAgregado = myText.Split('=');                                               
+                                                var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
+                                                int numAgregado = Int32.Parse(numero);
+                                                Max = numAgregado;
+                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1].Replace("'",string.Empty)));
+                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
+                                            }
                                         }
                                         else
                                         {
-                                            var listaSETS = new List<string>();
-                                            for (int z = 0; z < Datos.Instance.listaSets.Count; z++)
-                                            {
-                                                var spliter = Datos.Instance.listaSets.ElementAt(z).Split('=');
-                                                listaSETS.Add(spliter[0].Replace("\t", "").Replace(" ", ""));
-                                            }
                                             var txtAgregado = myText.Split('=');
                                             var txtAuxiliar = Datos.Instance.listaToken.ElementAt(i);
                                             var splitauxiliar = txtAuxiliar.Split('=');
@@ -268,9 +292,9 @@ namespace LFA_Proyecto
                                             string tipo = string.Empty;
                                             int totalLETRA = 0;
                                             var final = string.Empty;
-                                            bool a = false;
-                                            bool b = false;
-                                            bool c = false;
+                                            string a = string.Empty;
+                                            string b = string.Empty;
+                                            string c = string.Empty;
                                             for (int z = 0; z < listaSETS.Count; z++)//Comprueba sii existe la palabra en el área SETs
                                             {
                                                 if (txtAgregado[1].Contains(listaSETS.ElementAt(z)))//Confirma que se encuentra
@@ -280,17 +304,17 @@ namespace LFA_Proyecto
                                                     int LETRA = Regex.Matches(myText, "LETRA").Count;
                                                     if (LETRA > 0)
                                                     {
-                                                        a = true;
+                                                        a = "LETRA";
                                                     }
                                                     int DIGITO = Regex.Matches(myText, "DIGITO").Count;
                                                     if (DIGITO > 0)
                                                     {
-                                                        b = true;
+                                                        b = "DIGITO";
                                                     }
                                                     int CHARSET = Regex.Matches(myText, "CHARSET").Count;
                                                     if (CHARSET > 0)
                                                     {
-                                                        c = true;
+                                                        c = "CHARSET";
                                                     }
                                                     totalLETRA = LETRA + DIGITO + CHARSET;
                                                     if (splitauxiliar[1].EndsWith("*") || splitauxiliar[1].EndsWith("+"))
@@ -309,7 +333,7 @@ namespace LFA_Proyecto
                                                 MessageBox.Show(myText + "\nNo se encuentra definido en SETS");
                                                 return;
                                             }
-                                            if ((a && !b && !c) || (!a && b && !c) || (!a && !b && c))
+                                            if ((a == "LETRA" && b!= "DIGITO" && c != "CHARSET") || (a != "LETRA" && b == "DIGITO" && c != "CHARSET") || (a != "LETRA" && b != "DIGITO" && c == "CHARSET"))
                                             {
                                                 if (totalLETRA == 1)
                                                 {
@@ -327,12 +351,41 @@ namespace LFA_Proyecto
                                                     txtAgregado[1] = txtAgregado[1].Replace(" ", ".");
                                                 }
                                             }
-                                            txtAgregado[1] = txtAgregado[1].Replace("{RESERVADAS()}", string.Empty);
-                                            txtAgregado[1] = txtAgregado[1].TrimEnd();
-                                            var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
-                                            int numAgregado = Int32.Parse(numero);
-                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1]));
-                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
+                                            else
+                                            {
+                                                txtAgregado[1] = txtAgregado[1].Replace("{RESERVADAS()}", string.Empty);
+                                                var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
+                                                int numAgregado = Int32.Parse(numero);
+                                                string[] splitAux = new string[] { "(",")"};
+                                                splitAux = txtAgregado[1].Split(splitAux, StringSplitOptions.None);
+                                                for (int z = 0; z < splitAux.Length; z++)
+                                                {
+                                                    bool flag = false;
+                                                    if (splitAux[z].Contains("|"))
+                                                    {
+                                                        string[] otherspliter = splitAux[z].Split('|');
+                                                        for (int k = 0; k < otherspliter.Length; k++)
+                                                        {
+                                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, otherspliter[k]));
+                                                        }
+                                                        flag = true;
+                                                    }
+                                                    if (!flag)
+                                                    {
+                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, splitAux[z]));
+                                                    }
+                                                }
+                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
+                                                did = true;
+                                            }
+                                            if (!did)
+                                            {
+                                                txtAgregado[1] = txtAgregado[1].TrimEnd();
+                                                var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
+                                                int numAgregado = Int32.Parse(numero);
+                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1]));
+                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
+                                            }
                                         }
                                     }
                                     catch (ArgumentOutOfRangeException)
