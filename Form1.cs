@@ -206,6 +206,10 @@ namespace LFA_Proyecto
                                         }
                                         //Agregar la comprobación de expresión regular
                                         this.miDato.Rows.Add(i, myText, "TOKENS");
+                                        if (Datos.Instance.SimbolosTerminales.Count() == 0)
+                                        {
+                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "("));
+                                        }
                                         bool did = false;
                                         if (myText.Contains("'"))
                                         {
@@ -530,6 +534,10 @@ namespace LFA_Proyecto
                                     {
                                         i = i - 2;
                                     }
+                                }
+                                if (Datos.Instance.SimbolosTerminales.Last().StringData == "|")
+                                {
+                                    Datos.Instance.SimbolosTerminales.RemoveAt(Datos.Instance.SimbolosTerminales.Count - 1);
                                 }
                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(Max + 1, "."));//Fin de SimbolosTerminales
                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(Max + 1, "#"));//Fin de SimbolosTerminales
