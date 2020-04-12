@@ -43,9 +43,9 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
         /// <param name="RE"></param>
         public void PruebaArbol(List<Datos.AllData> RE)
         {
+            int lstPrcdnc = 0;
             foreach (var item in RE)
             {
-                int lstPrcdnc = 0;
                 if (item.StringData == "(")
                 {
                     Datos.Instance.PilaT.Push(item.StringData);
@@ -85,7 +85,7 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                     {
                         var nodoTemp = new ArbolB();
                         nodoTemp.Dato = item.StringData;
-                        if (Datos.Instance.PilaS.Count <= 0)
+                        if (Datos.Instance.PilaS.Count == 0)
                         {
                             MessageBox.Show("Error, faltan operandos");
                             break;
@@ -101,7 +101,7 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                         if (this.lastPrecedence < lstPrcdnc)
                         {
                             var nodoTemp = new ArbolB();
-                            nodoTemp.Dato = item.StringData;
+                            nodoTemp.Dato = Datos.Instance.PilaT.Pop();
                             if (Datos.Instance.PilaS.Count() < 2)
                             {
                                 MessageBox.Show("Faltan operadores");

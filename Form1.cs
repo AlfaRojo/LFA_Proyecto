@@ -167,14 +167,14 @@ namespace LFA_Proyecto
                                 {
                                     Datos.Instance.listaToken.RemoveAll(X => X == "");
                                 }
+                                var listaSETS = new List<string>();
+                                for (int z = 0; z < Datos.Instance.listaSets.Count; z++)//Para obtener y comparar los SETs existentes
+                                {
+                                    var spliter = Datos.Instance.listaSets.ElementAt(z).Split('=');
+                                    listaSETS.Add(spliter[0].Replace("\t", "").Replace(" ", ""));
+                                }
                                 for (int i = 0; i < Datos.Instance.listaToken.Count(); i++)//Agregar al GridView y comprobar sintaxis
                                 {
-                                    var listaSETS = new List<string>();
-                                    for (int z = 0; z < Datos.Instance.listaSets.Count; z++)
-                                    {
-                                        var spliter = Datos.Instance.listaSets.ElementAt(z).Split('=');
-                                        listaSETS.Add(spliter[0].Replace("\t", "").Replace(" ", ""));
-                                    }
                                     try
                                     {
                                         var Delimitador = Datos.Instance.listaToken.ElementAt(i).Trim(Delimitadores);
@@ -206,31 +206,52 @@ namespace LFA_Proyecto
                                         }
                                         //Agregar la comprobación de expresión regular
                                         this.miDato.Rows.Add(i, myText, "TOKENS");
-                                        if (Datos.Instance.SimbolosTerminales.Count() == 0)//Inicio Simbolos Terminales
-                                        {
-                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "("));
-                                        }
                                         bool did = false;
                                         if (myText.Contains("'"))
                                         {
                                             string[] toList = myText.Split(new char[] { '=' }, 2);
                                             if (toList[1].Contains("="))
                                             {
-                                                toList[1] = toList[1].Trim('\'');
-                                                if (toList[1].Contains("'"))
-                                                {
-                                                    var txtAuxiliar = toList[1].Split('\'');
-                                                    var aux = txtAuxiliar[0] + '.';
-                                                    aux = aux + txtAuxiliar[2];
-                                                    toList[1] = aux;
-                                                }
                                                 var numero = Regex.Match(toList[0], @"\d+").Value;
                                                 int numAgregado = Int32.Parse(numero);
-                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, toList[1]));
+                                                if (toList[1].Length <= 3)
+                                                {
+                                                    Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, toList[1]));
+                                                }
+                                                else
+                                                {
+                                                    toList[1] = toList[1].Replace("''", ".");
+                                                    var listaAuxiliar = new List<string>();
+                                                    for (int k = 0; k < toList[1].Length; k++)
+                                                    {
+                                                        listaAuxiliar.Add(toList[1].Substring(k, 1));
+                                                    }
+                                                    int primero = 0;
+                                                    foreach (var item in listaAuxiliar)
+                                                    {
+                                                        if (item != "'")
+                                                        {
+                                                            if (primero == 0)
+                                                            {
+                                                                string final = item;
+                                                                final = "'" + final + "'";
+                                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, final));
+                                                                primero++;
+                                                            }
+                                                            else
+                                                            {
+                                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, item));
+                                                                primero--;
+                                                            }
+                                                        }
+                                                    }
+                                                }
                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
+                                                Max = numAgregado;
                                             }
                                             else if (toList[1].Length > 4 && !(toList[1].Contains("DIGITO")) && !(toList[1].Contains("LETRA")) && !(toList[1].Contains("CHARSET")))
                                             {
+                                                toList[1] = toList[1].Replace("\''", ".");
                                                 var listaAuxiliar = new List<string>();
                                                 for (int j = 0; j < toList[1].Length; j++)
                                                 {
@@ -239,26 +260,79 @@ namespace LFA_Proyecto
                                                 var txtAgregado = myText.Split('=');
                                                 var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
                                                 int numAgregado = Int32.Parse(numero);
-                                                try
+                                                int primero = 0;
+                                                foreach (var item in listaAuxiliar)
                                                 {
-                                                    txtAgregado[1] = listaAuxiliar[1] + "." + listaAuxiliar[4] + "." + listaAuxiliar[7];
+                                                    if (item != "'")
+                                                    {
+                                                        if (primero == 0)
+                                                        {
+                                                            string final = item;
+                                                            final = "'" + final + "'";
+                                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, final));
+                                                            primero++;
+                                                        }
+                                                        else
+                                                        {
+                                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, item));
+                                                            primero--;
+                                                        }
+                                                    }
                                                 }
-                                                catch (Exception)
-                                                {
-                                                    txtAgregado[1] = listaAuxiliar[1] + "." + listaAuxiliar[4];
-                                                }
-                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1]));
                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
+                                                Max = numAgregado;
                                             }
                                             else if (toList[1].Contains("DIGITO") || toList[1].Contains("LETRA") || toList[1].Contains("CHARSET"))
                                             {
                                                 var txtAgregado = myText.Split('=');
                                                 bool Contains = false;
+                                                var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
+                                                int numAgregado = Int32.Parse(numero);
+                                                bool isAlready = false;
                                                 for (int z = 0; z < listaSETS.Count; z++)
                                                 {
                                                     if (txtAgregado[1].Contains(listaSETS.ElementAt(z)))
                                                     {
                                                         Contains = true;
+                                                        if (txtAgregado[1].Contains("|"))
+                                                        {
+                                                            var spliterAuxiliar = txtAgregado[1].Replace(" ", string.Empty).Split(new string[] { listaSETS.ElementAt(z), "|" }, StringSplitOptions.None);
+                                                            for (int x = 0; x < spliterAuxiliar.Length; x++)
+                                                            {
+                                                                var splitercomillas = spliterAuxiliar[x].Split('\'');
+                                                                if ((splitercomillas.Count() % 2) != 0)
+                                                                {
+                                                                    if ((x % 2) == 0)
+                                                                    {
+                                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, splitercomillas[1]));
+                                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "."));
+                                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, listaSETS.ElementAt(z)));
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "."));
+                                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, splitercomillas[1]));
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    if ((x % 2) == 0)
+                                                                    {
+                                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "|"));
+                                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "'"));
+                                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "."));
+                                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, listaSETS.ElementAt(z)));
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "."));
+                                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "'"));
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "|"));
+                                                        isAlready = true;
                                                         break;
                                                     }
                                                 }
@@ -267,11 +341,12 @@ namespace LFA_Proyecto
                                                     MessageBox.Show(myText + "\nNo se encuentra definido en SETS");
                                                     return;
                                                 }
-                                                var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
-                                                int numAgregado = Int32.Parse(numero);
+                                                if (!isAlready)
+                                                {
+                                                    Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1]));
+                                                    Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
+                                                }
                                                 Max = numAgregado;
-                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1]));
-                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
                                             }
                                             else
                                             {
@@ -358,14 +433,14 @@ namespace LFA_Proyecto
                                                             var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
                                                             int numAgregado = Int32.Parse(numero);
                                                             var getLast = string.Empty;
-                                                            if ((r%2) != 0)
+                                                            if ((r % 2) != 0)
                                                             {
                                                                 string[] splitaux;
                                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "."));
                                                                 if (spliterAuxiliar[r].Contains("*") || spliterAuxiliar[r].Contains("?") || spliterAuxiliar[r].Contains("+") || spliterAuxiliar[r].Contains("|"))
                                                                 {
                                                                     getLast = spliterAuxiliar[r].Substring(spliterAuxiliar[r].Length - 1);
-                                                                    splitaux = spliterAuxiliar[r].Split(new string[] { "*", "?", "+", "|" } , StringSplitOptions.None);
+                                                                    splitaux = spliterAuxiliar[r].Split(new string[] { "*", "?", "+", "|" }, StringSplitOptions.None);
                                                                     Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, splitaux[0]));
                                                                 }
                                                                 else
@@ -378,6 +453,7 @@ namespace LFA_Proyecto
                                                             {
                                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, spliterAuxiliar[r]));
                                                             }
+                                                            Max = numAgregado;
                                                         }
                                                         flag = true;
                                                     }
@@ -386,6 +462,7 @@ namespace LFA_Proyecto
                                                         var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
                                                         int numAgregado = Int32.Parse(numero);
                                                         Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1]));
+                                                        Max = numAgregado;
                                                     }
                                                     did = true;
                                                     Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
@@ -406,21 +483,33 @@ namespace LFA_Proyecto
                                                         string[] otherspliter = splitAux[z].Split('|');
                                                         for (int k = 0; k < otherspliter.Length; k++)
                                                         {
-                                                            if ((k%2) != 0)
+                                                            if ((k % 2) != 0)
                                                             {
                                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "|"));
                                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, otherspliter[k]));
+                                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, ")"));
                                                             }
                                                             else
                                                             {
+                                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "("));
                                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, otherspliter[k]));
                                                             }
+                                                            Max = numAgregado;
                                                         }
                                                         flag = true;
                                                     }
                                                     if (!flag)
                                                     {
-                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, splitAux[z]));
+                                                        if (Utilities.Op.Contains(splitAux[z]))
+                                                        {
+                                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, splitAux[z]));
+                                                        }
+                                                        else
+                                                        {
+                                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, splitAux[z]));
+                                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "."));
+                                                        }
+                                                        Max = numAgregado;
                                                     }
                                                 }
                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
@@ -431,6 +520,7 @@ namespace LFA_Proyecto
                                                 txtAgregado[1] = txtAgregado[1].TrimEnd();
                                                 var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
                                                 int numAgregado = Int32.Parse(numero);
+                                                Max = numAgregado;
                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1]));
                                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(0, "|"));
                                             }
@@ -441,7 +531,8 @@ namespace LFA_Proyecto
                                         i = i - 2;
                                     }
                                 }
-                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(Max + 1, ").#"));//Fin de SimbolosTerminales
+                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(Max + 1, "."));//Fin de SimbolosTerminales
+                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(Max + 1, "#"));//Fin de SimbolosTerminales
                             }
                             #endregion
                             #region All ACTIONS Sintaxis //COMPLETO
@@ -788,7 +879,6 @@ namespace LFA_Proyecto
                     TextBoxER.Text = TextBoxER.Text + item.StringData + " | ";
                 }
             }
-            TextBoxER.Text.Remove(TextBoxER.TextLength - 4);
             ER_ET ArbolExpresiones = new ER_ET();
             ArbolExpresiones.PruebaArbol(Datos.Instance.SimbolosTerminales);
             var Transiciones = new Transiciones();
