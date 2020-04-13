@@ -1,20 +1,21 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 
 namespace LFA_Proyecto.Arbol
 {
-    class ArbolB
+    class ArbolB : IEnumerable
     {
         public string Dato { get; set; }
         public ArbolB HijoDerecho { get; set; }
         public ArbolB HijoIzquierdo { get; set; }
-        public object Root { get; internal set; }
 
         public int Value;
-        public string First;
-        public string Last;
-        public string Follow;
+        public List<int> First = new List<int>();
+        public List<int> Follow= new List<int>();
+        public List<int> Last = new List<int>();
+
         public bool Nuller;//? and *
 
         #region DrawTree
@@ -43,6 +44,7 @@ namespace LFA_Proyecto.Arbol
             }
             private set { _Cambio = value; }
         }
+
         static ArbolB()
         {
             var g = Graphics.FromImage(_NodoBolsa);
@@ -104,7 +106,7 @@ namespace LFA_Proyecto.Arbol
             var str = Dato.ToString();
             g.DrawImage(_NodoBolsa, izquierdaSize.Width - _NodoBolsa.Width / 2 + _LiberarEspacio.Width / 2 + (2 + (str.Length == 1 ? 10 : str.Length == 2 ? 5 : 0)) * Coef, _NodoBolsa.Height / 2f - 12 * Coef);
 
-            Centro = izquierdaSize.Width + _LiberarEspacio.Width / 2;
+            Centro = izquierdaSize.Width + (_LiberarEspacio.Width / 2);
             var pen = new Pen(Brushes.White, 1.0f * Coef)
             {
                 EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor,
@@ -146,6 +148,11 @@ namespace LFA_Proyecto.Arbol
             _Imagen = ArbolTotal;
             _InicioImagenNodo = Centro;
             return ArbolTotal;
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            throw new NotImplementedException();
         }
     }
 }

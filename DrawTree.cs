@@ -1,7 +1,6 @@
 ﻿using LFA_Proyecto.Arbol;
 using LFA_Proyecto.Help;
 using System;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace LFA_Proyecto
@@ -19,7 +18,7 @@ namespace LFA_Proyecto
         private ArbolB _tree;
         void PaintTree()
         {
-            if (Datos.Instance.PilaS.Peek() == null)
+            if (Datos.Instance.PilaS.Count == 0)
             {
                 return;
             }

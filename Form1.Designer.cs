@@ -40,14 +40,19 @@
             this.ACTIONlabel = new System.Windows.Forms.Label();
             this.ERRORlabel = new System.Windows.Forms.Label();
             this.TransicionesData = new System.Windows.Forms.DataGridView();
+            this.TOKEN = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.First = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Last = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Null = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Follow = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Nuller = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Generar = new System.Windows.Forms.Button();
             this.TextBoxER = new System.Windows.Forms.TextBox();
             this.txtTime = new System.Windows.Forms.Label();
+            this.EstadoData = new System.Windows.Forms.DataGridView();
+            this.Estado = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.miDato)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TransicionesData)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.EstadoData)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -92,7 +97,7 @@
             this.miDato.Name = "miDato";
             this.miDato.RowHeadersWidth = 51;
             this.miDato.RowTemplate.Height = 24;
-            this.miDato.Size = new System.Drawing.Size(611, 150);
+            this.miDato.Size = new System.Drawing.Size(604, 150);
             this.miDato.TabIndex = 2;
             this.miDato.Visible = false;
             // 
@@ -177,17 +182,26 @@
             this.TransicionesData.BackgroundColor = System.Drawing.Color.Black;
             this.TransicionesData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.TransicionesData.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.TOKEN,
             this.First,
             this.Last,
-            this.Null});
+            this.Follow,
+            this.Nuller});
             this.TransicionesData.GridColor = System.Drawing.Color.Lime;
             this.TransicionesData.Location = new System.Drawing.Point(12, 241);
             this.TransicionesData.Name = "TransicionesData";
             this.TransicionesData.RowHeadersWidth = 51;
             this.TransicionesData.RowTemplate.Height = 24;
-            this.TransicionesData.Size = new System.Drawing.Size(776, 150);
+            this.TransicionesData.Size = new System.Drawing.Size(604, 150);
             this.TransicionesData.TabIndex = 10;
             this.TransicionesData.Visible = false;
+            // 
+            // TOKEN
+            // 
+            this.TOKEN.HeaderText = "TOKEN";
+            this.TOKEN.MinimumWidth = 6;
+            this.TOKEN.Name = "TOKEN";
+            this.TOKEN.Width = 85;
             // 
             // First
             // 
@@ -203,12 +217,19 @@
             this.Last.Name = "Last";
             this.Last.Width = 64;
             // 
-            // Null
+            // Follow
             // 
-            this.Null.HeaderText = "Null";
-            this.Null.MinimumWidth = 6;
-            this.Null.Name = "Null";
-            this.Null.Width = 61;
+            this.Follow.HeaderText = "Follow";
+            this.Follow.MinimumWidth = 6;
+            this.Follow.Name = "Follow";
+            this.Follow.Width = 76;
+            // 
+            // Nuller
+            // 
+            this.Nuller.HeaderText = "Nuller";
+            this.Nuller.MinimumWidth = 6;
+            this.Nuller.Name = "Nuller";
+            this.Nuller.Width = 74;
             // 
             // Generar
             // 
@@ -243,12 +264,36 @@
             this.txtTime.TabIndex = 13;
             this.txtTime.Text = "Tiempo Ejecución";
             // 
+            // EstadoData
+            // 
+            this.EstadoData.AllowUserToAddRows = false;
+            this.EstadoData.AllowUserToDeleteRows = false;
+            this.EstadoData.BackgroundColor = System.Drawing.Color.Black;
+            this.EstadoData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.EstadoData.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Estado});
+            this.EstadoData.Location = new System.Drawing.Point(623, 85);
+            this.EstadoData.Name = "EstadoData";
+            this.EstadoData.RowHeadersWidth = 51;
+            this.EstadoData.RowTemplate.Height = 24;
+            this.EstadoData.Size = new System.Drawing.Size(390, 150);
+            this.EstadoData.TabIndex = 14;
+            this.EstadoData.Visible = false;
+            // 
+            // Estado
+            // 
+            this.Estado.HeaderText = "Estado";
+            this.Estado.MinimumWidth = 6;
+            this.Estado.Name = "Estado";
+            this.Estado.Width = 125;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.ClientSize = new System.Drawing.Size(1025, 615);
+            this.Controls.Add(this.EstadoData);
             this.Controls.Add(this.txtTime);
             this.Controls.Add(this.TextBoxER);
             this.Controls.Add(this.Generar);
@@ -266,6 +311,7 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.miDato)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.TransicionesData)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.EstadoData)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -284,12 +330,16 @@
         private System.Windows.Forms.Label ACTIONlabel;
         private System.Windows.Forms.Label ERRORlabel;
         private System.Windows.Forms.DataGridView TransicionesData;
-        private System.Windows.Forms.DataGridViewTextBoxColumn First;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Last;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Null;
         private System.Windows.Forms.Button Generar;
         private System.Windows.Forms.TextBox TextBoxER;
         private System.Windows.Forms.Label txtTime;
+        private System.Windows.Forms.DataGridViewTextBoxColumn TOKEN;
+        private System.Windows.Forms.DataGridViewTextBoxColumn First;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Last;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Follow;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Nuller;
+        private System.Windows.Forms.DataGridView EstadoData;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Estado;
     }
 }
 

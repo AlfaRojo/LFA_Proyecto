@@ -1,161 +1,315 @@
 ﻿using LFA_Proyecto.Help;
 using LFA_Proyecto.Modelos;
-using System;
-using System.Drawing;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace LFA_Proyecto.Arbol
 {
     class Transiciones
     {
-        private int Value = 1;
+        public static int enumeracion = 0;
+        public static Dictionary<int, List<int>> dictionaryFollows = new Dictionary<int, List<int>>();
+        public static List<ArbolB> ListaST = new List<ArbolB>();
         public void GenerarTransiciones()
         {
-            try
+            if (Datos.Instance.PilaS.Count != 1)
             {
-                var miArbol = new ArbolB();
-                miArbol = Datos.Instance.PilaS.Pop();
-                GetValue(miArbol);
-                GetNuller(miArbol);
-                GetFirst(miArbol);
-                GetLast(miArbol);
-                GetFollow(miArbol);
-                Datos.Instance.PilaS.Push(miArbol);
-            }
-            catch (System.Exception)
-            {
-                MessageBox.Show("No se ha cargado ningun dato");//Solo confirmación visual
                 return;
             }
+            var miArbol = new ArbolB();
+            miArbol = Datos.Instance.PilaS.Pop();
+            EnumerarHojas(miArbol);
+            RegresarHojas(miArbol);
+            IdentificarNulos(miArbol);
+            IdentificarFirst(miArbol);
+            IdentificarLast(miArbol);
+            IdentificarFollows(miArbol);
+            CrearTrans(miArbol);
+            Datos.Instance.PilaS.Push(miArbol);
+
         }
-        private void GetNuller(ArbolB ArbolER)
+        public static Dictionary<int, List<int>> GetFollow(ArbolB parent)
         {
-            if (ArbolER != null)
+            if (parent != null)
             {
-                GetNuller(ArbolER.HijoIzquierdo);
-                GetNuller(ArbolER.HijoDerecho);
-                if (ArbolER.HijoDerecho == null && ArbolER.HijoIzquierdo == null)
+                GetFollow(parent.HijoIzquierdo);
+                GetFollow(parent.HijoDerecho);
+                if (parent.Dato == "." || parent.Dato == "*" || parent.Dato == "+")
                 {
-                    ArbolER.Nuller = false;
-                }
-                if (ArbolER.Dato == "|")
-                {
-                    if (ArbolER.HijoIzquierdo.Nuller == true || ArbolER.HijoDerecho.Nuller == true)
+                    if (parent.Dato == ".")
                     {
-                        ArbolER.Nuller = true;
-                    }
-                }
-                if (ArbolER.Dato == ".")
-                {
-                    if (ArbolER.HijoIzquierdo.Nuller == true && ArbolER.HijoDerecho.Nuller == true)
-                    {
-                        ArbolER.Nuller = true;
-                    }
-                }
-                if (ArbolER.Dato == "*" || ArbolER.Dato == "+" || ArbolER.Dato == "?")
-                {
-                    ArbolER.Nuller = true;
-                }
-            }
-        }
-        private void GetFollow(ArbolB ArbolER)
-        {
-            if (ArbolER != null)
-            {
-                GetFollow(ArbolER.HijoIzquierdo);
-                GetFollow(ArbolER.HijoDerecho);
-                if (ArbolER.Dato == "." || ArbolER.Dato == "*" || ArbolER.Dato == "+")
-                {
-                    if (ArbolER.Dato == ".")
-                    {
-                        foreach (var item in ArbolER.HijoIzquierdo.Last)
+                        foreach (var item in parent.HijoIzquierdo.Last)
                         {
-                            ArbolER.Follow = ArbolER.HijoDerecho.First + ",";
+                            if (dictionaryFollows.ContainsKey(item))
+                            {
+                                var listaParcial = dictionaryFollows[item];
+                                listaParcial.AddRange(parent.HijoDerecho.First);
+                                List<int> uniqueList = listaParcial.Distinct().ToList();
+                                dictionaryFollows[item] = uniqueList;
+                            }
+                            else
+                            {
+                                dictionaryFollows.Add(item, parent.HijoDerecho.First);
+                            }
                         }
                     }
                     else
                     {
-                        foreach (var item in ArbolER.HijoIzquierdo.Last)
+                        foreach (var item in parent.HijoIzquierdo.Last)
                         {
-                            ArbolER.Follow = ArbolER.HijoIzquierdo.First + ",";
+                            if (dictionaryFollows.ContainsKey(item))
+                            {
+                                var listaParcial = dictionaryFollows[item];
+                                listaParcial.AddRange(parent.HijoIzquierdo.First);
+                                List<int> uniqueList = listaParcial.Distinct().ToList();
+                                dictionaryFollows[item] = uniqueList;
+                            }
+                            else
+                            {
+                                dictionaryFollows.Add(item, parent.HijoIzquierdo.First);
+                            }
                         }
                     }
                 }
             }
+            return dictionaryFollows;
         }
-        private void GetLast(ArbolB ArbolER)
+
+        #region Allan
+        public static int EnumerarHojas(ArbolB tree)
         {
-            if (ArbolER != null)
+            if (tree != null)
             {
-                GetLast(ArbolER.HijoIzquierdo);
-                GetLast(ArbolER.HijoDerecho);
-                if (ArbolER.Dato == "|")
+                EnumerarHojas(tree.HijoIzquierdo);
+                EnumerarHojas(tree.HijoDerecho);
+                if (tree.HijoIzquierdo == null && tree.HijoDerecho == null)
                 {
-                    ArbolER.Last = ArbolER.HijoIzquierdo.Last + "," + ArbolER.HijoDerecho.Last;
+                    enumeracion++;
+                    tree.Value = enumeracion;
                 }
-                if (ArbolER.Dato == ".")
+            }
+            return enumeracion;
+        }
+        public static void RegresarHojas(ArbolB tree)
+        {
+            if (tree != null)
+            {
+                RegresarHojas(tree.HijoIzquierdo);
+                RegresarHojas(tree.HijoDerecho);
+                if (tree.HijoIzquierdo == null && tree.HijoDerecho == null)
                 {
-                    if (ArbolER.HijoDerecho.Nuller == true)
+                    ListaST.Add(tree);
+                }
+            }
+        }
+        public static void IdentificarNulos(ArbolB tree)
+        {
+            if (tree != null)
+            {
+                IdentificarNulos(tree.HijoIzquierdo);
+                IdentificarNulos(tree.HijoDerecho);
+                if (tree.HijoIzquierdo == null && tree.HijoDerecho == null)
+                {
+                    tree.Nuller = false;
+                }
+                if (tree.Dato == "*" || tree.Dato == "?")
+                {
+                    tree.Nuller = true;
+                }
+                else if (tree.Dato == "|" || tree.Dato == "." || tree.Dato == "+")
+                {
+                    if (tree.Dato == "|")
                     {
-                        ArbolER.Last = ArbolER.HijoIzquierdo.Last + "," + ArbolER.HijoDerecho.Last;
+                        if (tree.HijoIzquierdo.Nuller == true || tree.HijoDerecho.Nuller == true)
+                        {
+                            tree.Nuller = true;
+                        }
+                        else
+                        {
+                            tree.Nuller = false;
+                        }
+                    }
+                    else if (tree.Dato == ".")
+                    {
+                        if (tree.HijoIzquierdo.Nuller == true && tree.HijoDerecho.Nuller == true)
+                        {
+                            tree.Nuller = true;
+                        }
+                        else
+                        {
+                            tree.Nuller = false;
+                        }
+                    }
+                    else if (tree.Dato == "+")
+                    {
+                        tree.Nuller = false;
+                    }
+                }
+            }
+        }
+        public static void IdentificarFirst(ArbolB tree)
+        {
+            if (tree != null)
+            {
+                IdentificarFirst(tree.HijoIzquierdo);
+                IdentificarFirst(tree.HijoDerecho);
+                if (tree.HijoIzquierdo == null && tree.HijoDerecho == null)
+                {
+                    tree.First.Add(tree.Value);
+                }
+                if (tree.Dato == ".")
+                {
+                    if (tree.HijoIzquierdo.Nuller == true)
+                    {
+                        tree.First.AddRange(tree.HijoIzquierdo.First);
+                        tree.First.AddRange(tree.HijoDerecho.First);
                     }
                     else
                     {
-                        ArbolER.Last = ArbolER.HijoDerecho.Last;
+                        tree.First.AddRange(tree.HijoIzquierdo.First);
                     }
                 }
-                if (ArbolER.Dato == "*" || ArbolER.Dato == "+" || ArbolER.Dato == "?")
+                else if (tree.Dato == "|")
                 {
-                    ArbolER.Last = ArbolER.HijoIzquierdo.Last;
+                    tree.First.AddRange(tree.HijoIzquierdo.First);
+                    tree.First.AddRange(tree.HijoDerecho.First);
+                }
+                else if (tree.Dato == "*" || tree.Dato == "+" || tree.Dato == "?")
+                {
+                    tree.First.AddRange(tree.HijoIzquierdo.First);
                 }
             }
         }
-        private void GetFirst(ArbolB ArbolER)
+        public static void IdentificarLast(ArbolB tree)
         {
-            if (ArbolER != null)
+            if (tree != null)
             {
-                GetFirst(ArbolER.HijoIzquierdo);
-                GetFirst(ArbolER.HijoDerecho);
-                if (ArbolER.Dato == "|")
+                IdentificarLast(tree.HijoIzquierdo);
+                IdentificarLast(tree.HijoDerecho);
+                if (tree.HijoIzquierdo == null && tree.HijoDerecho == null)
                 {
-                    ArbolER.First = ArbolER.HijoIzquierdo.First + "," + ArbolER.HijoDerecho.First;
+                    tree.Last.Add(tree.Value);
                 }
-                if (ArbolER.Dato == ".")
+                if (tree.Dato == ".")
                 {
-                    if (ArbolER.HijoIzquierdo.Nuller == true)
+                    if (tree.HijoDerecho.Nuller == true)
                     {
-                        ArbolER.First = ArbolER.HijoIzquierdo.First + "," + ArbolER.HijoDerecho.First;
+                        tree.Last.AddRange(tree.HijoIzquierdo.Last);
+                        tree.Last.AddRange(tree.HijoDerecho.Last);
                     }
                     else
                     {
-                        ArbolER.First = ArbolER.HijoIzquierdo.First;
+                        tree.Last.AddRange(tree.HijoDerecho.Last);
                     }
                 }
-                if (ArbolER.Dato == "*" || ArbolER.Dato == "+" || ArbolER.Dato == "?")
+                else if (tree.Dato == "|")
                 {
-                    ArbolER.First = ArbolER.HijoIzquierdo.First;
+                    tree.Last.AddRange(tree.HijoIzquierdo.Last);
+                    tree.Last.AddRange(tree.HijoDerecho.Last);
+                }
+                else if (tree.Dato == "*" || tree.Dato == "+" || tree.Dato == "?")
+                {
+                    tree.Last.AddRange(tree.HijoIzquierdo.Last);
                 }
             }
         }
-        private void GetValue(ArbolB ArbolER)
+        public static Dictionary<int, List<int>> IdentificarFollows(ArbolB tree)
         {
-            if (ArbolER != null)
+            if (tree != null)
             {
-                GetValue(ArbolER.HijoIzquierdo);
-                GetValue(ArbolER.HijoDerecho);
-                if (Utilities.Nullers.Contains(ArbolER.Dato))
+                IdentificarFollows(tree.HijoIzquierdo);
+                IdentificarFollows(tree.HijoDerecho);
+                if (tree.Dato == "." || tree.Dato == "*" || tree.Dato == "+")
                 {
-                    ArbolER.Nuller = true;
-                }
-                if (!(Utilities.Op.Contains(ArbolER.Dato)))
-                {
-                    ArbolER.Value = Value;//Asignar
-                    ArbolER.First = Value.ToString();
-                    ArbolER.Last = Value.ToString();
-                    Value++;
+                    if (tree.Dato == ".")
+                    {
+                        foreach (var item in tree.HijoIzquierdo.Last)
+                        {
+                            if (dictionaryFollows.ContainsKey(item))
+                            {
+                                var listaParcial = dictionaryFollows[item];
+                                listaParcial.AddRange(tree.HijoDerecho.First);
+                                List<int> uniqueList = listaParcial.Distinct().ToList();
+                                dictionaryFollows[item] = uniqueList;
+                            }
+                            else
+                            {
+                                dictionaryFollows.Add(item, tree.HijoDerecho.First);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (var item in tree.HijoIzquierdo.Last)
+                        {
+                            if (dictionaryFollows.ContainsKey(item))
+                            {
+                                var listaParcial = dictionaryFollows[item];
+                                listaParcial.AddRange(tree.HijoIzquierdo.First);
+                                List<int> uniqueList = listaParcial.Distinct().ToList();
+                                dictionaryFollows[item] = uniqueList;
+                            }
+                            else
+                            {
+                                dictionaryFollows.Add(item, tree.HijoIzquierdo.First);
+                            }
+                        }
+                    }
                 }
             }
+            return dictionaryFollows;
         }
+        public void CrearTrans(ArbolB tree)//Dictionary<int, List<int>> dictionarioFollows,
+        {
+            var firstRaiz = tree.First;
+            RegresarHojas(tree);
+            var diccionarioTrans = new Dictionary<int, List<int>>();
+            var diccionarioAux = new Dictionary<int, List<int>>();
+            var transicionesActuales = firstRaiz;
+            var hojas = string.Empty;
+            if (diccionarioTrans.Count == 0)
+            {
+                diccionarioTrans.Add(tree.Value, tree.First);
+            }
+            while (diccionarioAux != diccionarioTrans)
+            {
+                foreach (var item in transicionesActuales)
+                {
+                    var listaParcial = new List<int>();
+                    foreach (var Nodo in ListaST)
+                    {
+                        if (Nodo.Value == item)
+                        {
+                            if (dictionaryFollows.ContainsKey(item))
+                            {
+                                var follower = dictionaryFollows[item];
+                                if (listaParcial.Count > 0)
+                                {
+                                    for (int i = 0; i < follower.Count; i++)
+                                    {
+                                        for (int j = 0; j < listaParcial.Count; j++)
+                                        {
+                                            if (listaParcial.ElementAt(j) == follower[i])
+                                            {
+                                                follower.RemoveAt(i);
+                                            }
+                                        }
+                                    }
+                                }
+                                listaParcial.AddRange(follower);
+                            }
+                        }
+                    }
+                    diccionarioTrans.Add(item, listaParcial);
+                }
+
+                diccionarioAux = diccionarioTrans;
+                var uniqueValues = diccionarioTrans.GroupBy(pair => pair.Value)
+                                         .Select(group => group.First())
+                                         .ToDictionary(pair => pair.Key, pair => pair.Value);
+            }
+        }
+        #endregion
     }
 }

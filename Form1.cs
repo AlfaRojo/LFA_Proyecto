@@ -374,28 +374,32 @@ namespace LFA_Proyecto
                                             string a = string.Empty;
                                             string b = string.Empty;
                                             string c = string.Empty;
+                                            int LETRA = 0;
+                                            string aux = txtAgregado[1].Replace("{RESERVADAS()}", string.Empty);
                                             for (int z = 0; z < listaSETS.Count; z++)//Comprueba sii existe la palabra en el área SETs
                                             {
-                                                if (txtAgregado[1].Contains(listaSETS.ElementAt(z)))//Confirma que se encuentra
+                                                if (aux.Contains(listaSETS.ElementAt(z)))//Confirma que se encuentra
                                                 {
                                                     Contains = true;
                                                     tipo = listaSETS.ElementAt(z);
-                                                    int LETRA = Regex.Matches(myText, "LETRA").Count;
-                                                    if (LETRA > 0)
+                                                    if (Regex.Matches(myText, listaSETS.ElementAt(z)).Count > 0 && aux.Contains(listaSETS.ElementAt(z)))
                                                     {
-                                                        a = "LETRA";
+                                                        LETRA = Regex.Matches(myText, listaSETS.ElementAt(z)).Count;
+                                                        aux = aux.Replace(listaSETS.ElementAt(z), string.Empty);
+                                                        if (listaSETS.ElementAt(z) == "LETRA")
+                                                        {
+                                                            a = "LETRA";
+                                                        }
+                                                        else if (listaSETS.ElementAt(z) == "DIGITO")
+                                                        {
+                                                            b = "DIGITO";
+                                                        }
+                                                        else if (listaSETS.ElementAt(z) == "CHARSET")
+                                                        {
+                                                            c = "CHARSET";
+                                                        }
                                                     }
-                                                    int DIGITO = Regex.Matches(myText, "DIGITO").Count;
-                                                    if (DIGITO > 0)
-                                                    {
-                                                        b = "DIGITO";
-                                                    }
-                                                    int CHARSET = Regex.Matches(myText, "CHARSET").Count;
-                                                    if (CHARSET > 0)
-                                                    {
-                                                        c = "CHARSET";
-                                                    }
-                                                    totalLETRA = LETRA + DIGITO + CHARSET;
+                                                    totalLETRA = totalLETRA + LETRA;
                                                     if (splitauxiliar[1].EndsWith("*") || splitauxiliar[1].EndsWith("+"))
                                                     {
                                                         final = "*";
@@ -404,13 +408,24 @@ namespace LFA_Proyecto
                                                             final = "+";
                                                         }
                                                     }
-                                                    break;//Fin ciclo
+                                                    if (aux.Length == 0)
+                                                    {
+                                                        break;
+                                                    }
                                                 }
                                             }
                                             if (!Contains)
                                             {
                                                 MessageBox.Show(myText + "\nNo se encuentra definido en SETS");
                                                 return;
+                                            }
+                                            for (int q = 0; q < aux.Length; q++)
+                                            {
+                                                if (aux.Length != 0 && !Utilities.Car.Contains(aux.Substring(q, 1)))
+                                                {
+                                                    MessageBox.Show(myText + "\nNo se encuentra definido en SETS");
+                                                    return;
+                                                }
                                             }
                                             if ((a == "LETRA" && b != "DIGITO" && c != "CHARSET") || (a != "LETRA" && b == "DIGITO" && c != "CHARSET") || (a != "LETRA" && b != "DIGITO" && c == "CHARSET"))
                                             {
@@ -539,6 +554,7 @@ namespace LFA_Proyecto
                                 {
                                     Datos.Instance.SimbolosTerminales.RemoveAt(Datos.Instance.SimbolosTerminales.Count - 1);
                                 }
+                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(Max + 1, ")"));//Fin de SimbolosTerminales
                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(Max + 1, "."));//Fin de SimbolosTerminales
                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(Max + 1, "#"));//Fin de SimbolosTerminales
                             }
@@ -875,27 +891,44 @@ namespace LFA_Proyecto
         }
         private void Generar_Click(object sender, EventArgs e)//Generar ArbolExpresines & First,Last,Follow
         {
+            if (Datos.Instance.SimbolosTerminales.Count == 0)
+            {
+                MessageBox.Show("No se ha cargado ningún archivo.");
+                return;
+            }
             Stopwatch sw = new Stopwatch();
             sw.Start();
             TextBoxER.Clear();
-            var newLista = Datos.Instance.SimbolosTerminales;
-            List<Datos.AllData> SortedList = newLista.OrderBy(o => o.IntegerData).ToList();
-            foreach (var item in SortedList)
+            foreach (var item in Datos.Instance.SimbolosTerminales)
             {
-                if (item.IntegerData != 0)
-                {
-                    TextBoxER.Text = TextBoxER.Text + item.StringData + " | ";
-                }
+                TextBoxER.Text = TextBoxER.Text + item.StringData;
             }
             ER_ET ArbolExpresiones = new ER_ET();
             ArbolExpresiones.PruebaArbol(Datos.Instance.SimbolosTerminales);
             var Transiciones = new Transiciones();
             Transiciones.GenerarTransiciones();
+            ArbolB _tree = new ArbolB();
+            _tree = Datos.Instance.PilaS.Pop();
+            GenerarPostOrden(_tree);
             TransicionesData.Visible = true;
+            EstadoData.Visible = true;
+            Datos.Instance.PilaS.Push(_tree);
             sw.Stop();
             txtTime.Text = "Tiempo de ejeccion en creación del arbol y ER: " + sw.Elapsed.ToString("hh\\:mm\\:ss\\.fff");
-            DrawTree tree = new DrawTree();
-            tree.Show();
+            DrawTree drawMyTree = new DrawTree();
+            drawMyTree.Show();
         }
+        private void GenerarPostOrden(ArbolB tree)//Imprime First, Last, Follows, Nullers
+        {
+            if (tree != null)
+            {
+                GenerarPostOrden(tree.HijoIzquierdo);
+                GenerarPostOrden(tree.HijoDerecho);
+                this.TransicionesData.Rows.Add(tree.Dato, tree.First, tree.Last, tree.Follow, tree.Nuller);
+            }
+        }
+        Dictionary<int, int> ListaST = new Dictionary<int, int>();
+        List<int> ListaEstados = new List<int>();
+        List<List<int>> ListaCont = new List<List<int>>();
     }
 }

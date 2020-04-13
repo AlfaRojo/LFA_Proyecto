@@ -125,7 +125,7 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                     Datos.Instance.PilaS.Push(nodoTemp);
                 }
             }
-            while (Datos.Instance.PilaT.Count > 1)
+            while (Datos.Instance.PilaT.Count > 0)
             {
                 var nodoTemp = new ArbolB();
                 nodoTemp.Dato = Datos.Instance.PilaT.Pop();
