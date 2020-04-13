@@ -217,50 +217,70 @@ namespace LFA_Proyecto.Arbol
         }
         public void CrearTrans(ArbolB tree)//Dictionary<int, List<int>> dictionarioFollows,
         {
-            var firstRaiz = tree.First;
             RegresarHojas(tree);
             var diccionarioTrans = new Dictionary<int, List<int>>();
-            diccionarioTrans = Auxiliar;
             //var uniqueValues = new Dictionary<int, List<int>>();
-            var transicionesActuales = firstRaiz;
+            var listaTrans = new Dictionary<int, List<int>>();
             if (diccionarioTrans.Count == 0)
             {
                 diccionarioTrans.Add(tree.Value, tree.First);
+                listaTrans.Add(tree.Value, tree.First);
             }
-            foreach (var item in transicionesActuales)
+
+            for (int j = 0; j < listaTrans.Count; j++)
             {
-                var listaParcial = new List<int>();
                 foreach (var Nodo in ListaST)
                 {
-                    if (Nodo.Value == item)
+                    for (int i = 0; i < listaTrans.ElementAt(j).Value.Count; i++)
                     {
-                        if (dictionaryFollows.ContainsKey(item))
+                        if (Nodo.Value == listaTrans.ElementAt(j).Value[i])
                         {
-                            var follower = dictionaryFollows[item];
-                            if (listaParcial.Count > 0)//Eliminar elementos repetido de la listsa
+                            if (!diccionarioTrans.ContainsKey(Nodo.Value) && dictionaryFollows.ContainsKey(listaTrans.ElementAt(j).Value[i]))
                             {
-                                for (int i = 0; i < follower.Count; i++)
-                                {
-                                    for (int j = 0; j < listaParcial.Count; j++)
-                                    {
-                                        if (listaParcial.ElementAt(j) == follower[i])
-                                        {
-                                            follower.RemoveAt(i);
-                                        }
-                                    }
-                                }
-                            }
-                            listaParcial.AddRange(follower);//Agregar elementos *NO* repetidos
+                                var follower = dictionaryFollows[listaTrans.ElementAt(j).Value[i]];
+                                diccionarioTrans.Add(Nodo.Value, follower);
+                                listaTrans.Add(Nodo.Value, follower);
+                            } 
                         }
                     }
                 }
-                diccionarioTrans.Add(item, listaParcial);
             }
+
+            //foreach (var item in transicionesActuales)
+            //{
+            //    var listaParcial = new List<int>();
+            //    foreach (var Nodo in ListaST)
+            //    {
+            //        if (Nodo.Value == item)
+            //        {
+            //            if (dictionaryFollows.ContainsKey(item))
+            //            {
+            //                var follower = dictionaryFollows[item];
+            //                if (listaParcial.Count > 0)//Eliminar elementos repetido de la listsa
+            //                {
+            //                    for (int i = 0; i < follower.Count; i++)
+            //                    {
+            //                        for (int j = 0; j < listaParcial.Count; j++)
+            //                        {
+            //                            if (listaParcial.ElementAt(j) == follower[i])
+            //                            {
+            //                                follower.RemoveAt(i);
+            //                            }
+            //                        }
+            //                    }
+            //                }
+            //                listaParcial.AddRange(follower);//Agregar elementos *NO* repetidos
+            //            }
+            //        }
+            //    }
+            //    diccionarioTrans.Add(item, listaParcial);
+            //}
             //uniqueValues = diccionarioTrans.GroupBy(pair => pair.Value)
             //                         .Select(group => group.First())
             //                         .ToDictionary(pair => pair.Key, pair => pair.Value);//Obtiene elementos no repetidos en diccionario
             Auxiliar = diccionarioTrans;
         }
+
         #endregion
     }
 }
