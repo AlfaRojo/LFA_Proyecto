@@ -913,6 +913,7 @@ namespace LFA_Proyecto
             TransicionesData.Visible = true;
             EstadoData.Visible = true;
             Datos.Instance.PilaS.Push(_tree);
+            GenerarTrans();
             sw.Stop();
             txtTime.Text = "Tiempo de ejeccion en creación del arbol y ER: " + sw.Elapsed.ToString("hh\\:mm\\:ss\\.fff");
             DrawTree drawMyTree = new DrawTree();
@@ -931,7 +932,7 @@ namespace LFA_Proyecto
                     {
                         First = First + tree.First[i].ToString() + ",";
                     }
-                    First = First.Remove(First.Length - 1); 
+                    First = First.Remove(First.Length - 1);
                 }
 
                 var Last = string.Empty;
@@ -941,10 +942,23 @@ namespace LFA_Proyecto
                     {
                         Last = Last + tree.Last[i].ToString() + ",";
                     }
-                    Last = Last.Remove(Last.Length - 1); 
+                    Last = Last.Remove(Last.Length - 1);
                 }
                 this.TransicionesData.Rows.Add(tree.Dato, First, Last, tree.Nuller);
 
+            }
+        }
+        private void GenerarTrans()
+        {
+            foreach (var item in Datos.Instance.DiccTrans)
+            {
+                var Final = string.Empty;
+                var trans = item.Value;
+                for (int i = 0; i < trans.Count; i++)
+                {
+                    Final = Final + trans.ElementAt(i).ToString() + ",";
+                }
+                this.EstadoData.Rows.Add(Final);
             }
         }
     }

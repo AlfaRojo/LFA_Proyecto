@@ -44,7 +44,7 @@ namespace LFA_Proyecto.Help
         /// <summary>
         /// Almacena las tablas de transicion para ser imprimidas luego
         /// </summary>
-        public Dictionary<int, List<int>> DicTrans = new Dictionary<int, List<int>>();
+        public Dictionary<int, List<int>> DiccTrans = new Dictionary<int, List<int>>();
         /// <summary>
         /// Almacena los valores Follow para ser impresos
         /// </summary>

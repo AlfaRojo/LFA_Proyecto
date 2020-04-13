@@ -10,6 +10,7 @@ namespace LFA_Proyecto.Arbol
     {
         public static int enumeracion = 0;
         public static Dictionary<int, List<int>> dictionaryFollows = new Dictionary<int, List<int>>();
+        public static Dictionary<int, List<int>> Auxiliar = new Dictionary<int, List<int>>();
         public static List<ArbolB> ListaST = new List<ArbolB>();
         public void GenerarTransiciones()
         {
@@ -28,6 +29,7 @@ namespace LFA_Proyecto.Arbol
             CrearTrans(miArbol);
             Datos.Instance.PilaS.Push(miArbol);
             Datos.Instance.DicFollow = dictionaryFollows;
+            Datos.Instance.DiccTrans = Auxiliar;
         }
         #region Transiciones
         public static int EnumerarHojas(ArbolB tree)
@@ -218,51 +220,46 @@ namespace LFA_Proyecto.Arbol
             var firstRaiz = tree.First;
             RegresarHojas(tree);
             var diccionarioTrans = new Dictionary<int, List<int>>();
-            var diccionarioAux = new Dictionary<int, List<int>>();
+            diccionarioTrans = Auxiliar;
+            //var uniqueValues = new Dictionary<int, List<int>>();
             var transicionesActuales = firstRaiz;
-            var hojas = string.Empty;
             if (diccionarioTrans.Count == 0)
             {
                 diccionarioTrans.Add(tree.Value, tree.First);
             }
-            while (diccionarioAux != diccionarioTrans)
+            foreach (var item in transicionesActuales)
             {
-                foreach (var item in transicionesActuales)
+                var listaParcial = new List<int>();
+                foreach (var Nodo in ListaST)
                 {
-                    var listaParcial = new List<int>();
-                    foreach (var Nodo in ListaST)
+                    if (Nodo.Value == item)
                     {
-                        if (Nodo.Value == item)
+                        if (dictionaryFollows.ContainsKey(item))
                         {
-                            if (dictionaryFollows.ContainsKey(item))
+                            var follower = dictionaryFollows[item];
+                            if (listaParcial.Count > 0)//Eliminar elementos repetido de la listsa
                             {
-                                var follower = dictionaryFollows[item];
-                                if (listaParcial.Count > 0)
+                                for (int i = 0; i < follower.Count; i++)
                                 {
-                                    for (int i = 0; i < follower.Count; i++)
+                                    for (int j = 0; j < listaParcial.Count; j++)
                                     {
-                                        for (int j = 0; j < listaParcial.Count; j++)
+                                        if (listaParcial.ElementAt(j) == follower[i])
                                         {
-                                            if (listaParcial.ElementAt(j) == follower[i])
-                                            {
-                                                follower.RemoveAt(i);
-                                            }
+                                            follower.RemoveAt(i);
                                         }
                                     }
                                 }
-                                listaParcial.AddRange(follower);
                             }
+                            listaParcial.AddRange(follower);//Agregar elementos *NO* repetidos
                         }
                     }
-                    diccionarioTrans.Add(item, listaParcial);
                 }
-
-                diccionarioAux = diccionarioTrans;
-                var uniqueValues = diccionarioTrans.GroupBy(pair => pair.Value)
-                                         .Select(group => group.First())
-                                         .ToDictionary(pair => pair.Key, pair => pair.Value);
+                diccionarioTrans.Add(item, listaParcial);
             }
-            Datos.Instance.DicFollow = diccionarioTrans;
+            //uniqueValues = diccionarioTrans.GroupBy(pair => pair.Value)
+            //                         .Select(group => group.First())
+            //                         .ToDictionary(pair => pair.Key, pair => pair.Value);//Obtiene elementos no repetidos en diccionario
+            Auxiliar = diccionarioTrans;
         }
         #endregion
     }
