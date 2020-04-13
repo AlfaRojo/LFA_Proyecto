@@ -143,7 +143,6 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
                 MessageBox.Show("Faltan operadores");
                 return;
             }
-            MessageBox.Show("PilaS");
         }
     }
 }

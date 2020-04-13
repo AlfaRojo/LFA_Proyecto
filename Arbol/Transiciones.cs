@@ -1,6 +1,9 @@
 ﻿using LFA_Proyecto.Help;
 using LFA_Proyecto.Modelos;
+using System;
+using System.Drawing;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace LFA_Proyecto.Arbol
 {
@@ -9,14 +12,22 @@ namespace LFA_Proyecto.Arbol
         private int Value = 1;
         public void GenerarTransiciones()
         {
-            var miArbol = new ArbolB();
-            miArbol = Datos.Instance.PilaS.Pop();
-            GetValue(miArbol);
-            GetNuller(miArbol);
-            GetFirst(miArbol);
-            GetLast(miArbol);
-            GetFollow(miArbol);
-            Datos.Instance.PilaS.Push(miArbol);
+            try
+            {
+                var miArbol = new ArbolB();
+                miArbol = Datos.Instance.PilaS.Pop();
+                GetValue(miArbol);
+                GetNuller(miArbol);
+                GetFirst(miArbol);
+                GetLast(miArbol);
+                GetFollow(miArbol);
+                Datos.Instance.PilaS.Push(miArbol);
+            }
+            catch (System.Exception)
+            {
+                MessageBox.Show("No se ha cargado ningun dato");//Solo confirmación visual
+                return;
+            }
         }
         private void GetNuller(ArbolB ArbolER)
         {
@@ -48,23 +59,28 @@ namespace LFA_Proyecto.Arbol
                 }
             }
         }
-        private void GetFollow(ArbolB ArbolER)//Incompleto
+        private void GetFollow(ArbolB ArbolER)
         {
             if (ArbolER != null)
             {
                 GetFollow(ArbolER.HijoIzquierdo);
                 GetFollow(ArbolER.HijoDerecho);
-                if (ArbolER.Dato == "|" || ArbolER.Dato == "?")
+                if (ArbolER.Dato == "." || ArbolER.Dato == "*" || ArbolER.Dato == "+")
                 {
-                    ArbolER.Follow = null;
-                }
-                if (ArbolER.Dato == ".")
-                {
-
-                }
-                if (ArbolER.Dato == "*" || ArbolER.Dato == "+")
-                {
-
+                    if (ArbolER.Dato == ".")
+                    {
+                        foreach (var item in ArbolER.HijoIzquierdo.Last)
+                        {
+                            ArbolER.Follow = ArbolER.HijoDerecho.First + ",";
+                        }
+                    }
+                    else
+                    {
+                        foreach (var item in ArbolER.HijoIzquierdo.Last)
+                        {
+                            ArbolER.Follow = ArbolER.HijoIzquierdo.First + ",";
+                        }
+                    }
                 }
             }
         }

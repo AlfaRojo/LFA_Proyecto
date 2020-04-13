@@ -873,7 +873,7 @@ namespace LFA_Proyecto
         {
 
         }
-        private void Generar_Click(object sender, EventArgs e)
+        private void Generar_Click(object sender, EventArgs e)//Generar ArbolExpresines & First,Last,Follow
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -894,6 +894,8 @@ namespace LFA_Proyecto
             TransicionesData.Visible = true;
             sw.Stop();
             txtTime.Text = "Tiempo de ejeccion en creación del arbol y ER: " + sw.Elapsed.ToString("hh\\:mm\\:ss\\.fff");
+            DrawTree tree = new DrawTree();
+            tree.Show();
         }
     }
 }
