@@ -924,11 +924,28 @@ namespace LFA_Proyecto
             {
                 GenerarPostOrden(tree.HijoIzquierdo);
                 GenerarPostOrden(tree.HijoDerecho);
-                this.TransicionesData.Rows.Add(tree.Dato, tree.First, tree.Last, tree.Follow, tree.Nuller);
+                var First = string.Empty;
+                if (tree.First.Count > 0)
+                {
+                    for (int i = 0; i < tree.First.Count; i++)
+                    {
+                        First = First + tree.First[i].ToString() + ",";
+                    }
+                    First = First.Remove(First.Length - 1); 
+                }
+
+                var Last = string.Empty;
+                if (tree.Last.Count > 0)
+                {
+                    for (int i = 0; i < tree.Last.Count; i++)
+                    {
+                        Last = Last + tree.Last[i].ToString() + ",";
+                    }
+                    Last = Last.Remove(Last.Length - 1); 
+                }
+                this.TransicionesData.Rows.Add(tree.Dato, First, Last, tree.Nuller);
+
             }
         }
-        Dictionary<int, int> ListaST = new Dictionary<int, int>();
-        List<int> ListaEstados = new List<int>();
-        List<List<int>> ListaCont = new List<List<int>>();
     }
 }

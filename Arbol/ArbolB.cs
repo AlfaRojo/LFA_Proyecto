@@ -13,7 +13,6 @@ namespace LFA_Proyecto.Arbol
 
         public int Value;
         public List<int> First = new List<int>();
-        public List<int> Follow= new List<int>();
         public List<int> Last = new List<int>();
 
         public bool Nuller;//? and *

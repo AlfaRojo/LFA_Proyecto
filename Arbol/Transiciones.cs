@@ -27,56 +27,9 @@ namespace LFA_Proyecto.Arbol
             IdentificarFollows(miArbol);
             CrearTrans(miArbol);
             Datos.Instance.PilaS.Push(miArbol);
-
+            Datos.Instance.DicFollow = dictionaryFollows;
         }
-        public static Dictionary<int, List<int>> GetFollow(ArbolB parent)
-        {
-            if (parent != null)
-            {
-                GetFollow(parent.HijoIzquierdo);
-                GetFollow(parent.HijoDerecho);
-                if (parent.Dato == "." || parent.Dato == "*" || parent.Dato == "+")
-                {
-                    if (parent.Dato == ".")
-                    {
-                        foreach (var item in parent.HijoIzquierdo.Last)
-                        {
-                            if (dictionaryFollows.ContainsKey(item))
-                            {
-                                var listaParcial = dictionaryFollows[item];
-                                listaParcial.AddRange(parent.HijoDerecho.First);
-                                List<int> uniqueList = listaParcial.Distinct().ToList();
-                                dictionaryFollows[item] = uniqueList;
-                            }
-                            else
-                            {
-                                dictionaryFollows.Add(item, parent.HijoDerecho.First);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        foreach (var item in parent.HijoIzquierdo.Last)
-                        {
-                            if (dictionaryFollows.ContainsKey(item))
-                            {
-                                var listaParcial = dictionaryFollows[item];
-                                listaParcial.AddRange(parent.HijoIzquierdo.First);
-                                List<int> uniqueList = listaParcial.Distinct().ToList();
-                                dictionaryFollows[item] = uniqueList;
-                            }
-                            else
-                            {
-                                dictionaryFollows.Add(item, parent.HijoIzquierdo.First);
-                            }
-                        }
-                    }
-                }
-            }
-            return dictionaryFollows;
-        }
-
-        #region Allan
+        #region Transiciones
         public static int EnumerarHojas(ArbolB tree)
         {
             if (tree != null)
@@ -309,6 +262,7 @@ namespace LFA_Proyecto.Arbol
                                          .Select(group => group.First())
                                          .ToDictionary(pair => pair.Key, pair => pair.Value);
             }
+            Datos.Instance.DicFollow = diccionarioTrans;
         }
         #endregion
     }
