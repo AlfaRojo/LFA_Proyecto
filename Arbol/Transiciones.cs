@@ -219,14 +219,13 @@ namespace LFA_Proyecto.Arbol
         {
             RegresarHojas(tree);
             var diccionarioTrans = new Dictionary<int, List<int>>();
-            //var uniqueValues = new Dictionary<int, List<int>>();
+            var uniqueValues = new Dictionary<int, List<int>>();
             var listaTrans = new Dictionary<int, List<int>>();
             if (diccionarioTrans.Count == 0)
             {
                 diccionarioTrans.Add(tree.Value, tree.First);
                 listaTrans.Add(tree.Value, tree.First);
             }
-
             for (int j = 0; j < listaTrans.Count; j++)
             {
                 foreach (var Nodo in ListaST)
@@ -239,48 +238,15 @@ namespace LFA_Proyecto.Arbol
                             {
                                 var follower = dictionaryFollows[listaTrans.ElementAt(j).Value[i]];
                                 diccionarioTrans.Add(Nodo.Value, follower);
+                                uniqueValues = diccionarioTrans.GroupBy(pair => pair.Value).Select(group => group.First()).ToDictionary(pair => pair.Key, pair => pair.Value);
                                 listaTrans.Add(Nodo.Value, follower);
-                            } 
+                            }
                         }
                     }
                 }
             }
-
-            //foreach (var item in transicionesActuales)
-            //{
-            //    var listaParcial = new List<int>();
-            //    foreach (var Nodo in ListaST)
-            //    {
-            //        if (Nodo.Value == item)
-            //        {
-            //            if (dictionaryFollows.ContainsKey(item))
-            //            {
-            //                var follower = dictionaryFollows[item];
-            //                if (listaParcial.Count > 0)//Eliminar elementos repetido de la listsa
-            //                {
-            //                    for (int i = 0; i < follower.Count; i++)
-            //                    {
-            //                        for (int j = 0; j < listaParcial.Count; j++)
-            //                        {
-            //                            if (listaParcial.ElementAt(j) == follower[i])
-            //                            {
-            //                                follower.RemoveAt(i);
-            //                            }
-            //                        }
-            //                    }
-            //                }
-            //                listaParcial.AddRange(follower);//Agregar elementos *NO* repetidos
-            //            }
-            //        }
-            //    }
-            //    diccionarioTrans.Add(item, listaParcial);
-            //}
-            //uniqueValues = diccionarioTrans.GroupBy(pair => pair.Value)
-            //                         .Select(group => group.First())
-            //                         .ToDictionary(pair => pair.Key, pair => pair.Value);//Obtiene elementos no repetidos en diccionario
-            Auxiliar = diccionarioTrans;
+            Auxiliar = uniqueValues;
         }
-
         #endregion
     }
 }
