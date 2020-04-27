@@ -43,16 +43,20 @@
             this.TOKEN = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.First = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Last = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Follow = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Nuller = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Generar = new System.Windows.Forms.Button();
             this.TextBoxER = new System.Windows.Forms.TextBox();
             this.txtTime = new System.Windows.Forms.Label();
             this.EstadoData = new System.Windows.Forms.DataGridView();
+            this.FollowData = new System.Windows.Forms.DataGridView();
+            this.Símbolo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Estado = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Simbolo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.TransData = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.miDato)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TransicionesData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.EstadoData)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.FollowData)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -185,7 +189,6 @@
             this.TOKEN,
             this.First,
             this.Last,
-            this.Follow,
             this.Nuller});
             this.TransicionesData.GridColor = System.Drawing.Color.Lime;
             this.TransicionesData.Location = new System.Drawing.Point(12, 241);
@@ -216,13 +219,6 @@
             this.Last.MinimumWidth = 6;
             this.Last.Name = "Last";
             this.Last.Width = 64;
-            // 
-            // Follow
-            // 
-            this.Follow.HeaderText = "Follow";
-            this.Follow.MinimumWidth = 6;
-            this.Follow.Name = "Follow";
-            this.Follow.Width = 76;
             // 
             // Nuller
             // 
@@ -271,6 +267,7 @@
             this.EstadoData.BackgroundColor = System.Drawing.Color.Black;
             this.EstadoData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.EstadoData.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Símbolo,
             this.Estado});
             this.EstadoData.Location = new System.Drawing.Point(623, 85);
             this.EstadoData.Name = "EstadoData";
@@ -280,6 +277,30 @@
             this.EstadoData.TabIndex = 14;
             this.EstadoData.Visible = false;
             // 
+            // FollowData
+            // 
+            this.FollowData.AllowUserToAddRows = false;
+            this.FollowData.AllowUserToDeleteRows = false;
+            this.FollowData.BackgroundColor = System.Drawing.Color.Black;
+            this.FollowData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.FollowData.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Simbolo,
+            this.TransData});
+            this.FollowData.Location = new System.Drawing.Point(623, 241);
+            this.FollowData.Name = "FollowData";
+            this.FollowData.RowHeadersWidth = 51;
+            this.FollowData.RowTemplate.Height = 24;
+            this.FollowData.Size = new System.Drawing.Size(390, 150);
+            this.FollowData.TabIndex = 15;
+            this.FollowData.Visible = false;
+            // 
+            // Símbolo
+            // 
+            this.Símbolo.HeaderText = "Símbolo";
+            this.Símbolo.MinimumWidth = 6;
+            this.Símbolo.Name = "Símbolo";
+            this.Símbolo.Width = 125;
+            // 
             // Estado
             // 
             this.Estado.HeaderText = "Estado";
@@ -287,12 +308,27 @@
             this.Estado.Name = "Estado";
             this.Estado.Width = 125;
             // 
+            // Simbolo
+            // 
+            this.Simbolo.HeaderText = "Simbolo";
+            this.Simbolo.MinimumWidth = 6;
+            this.Simbolo.Name = "Simbolo";
+            this.Simbolo.Width = 125;
+            // 
+            // TransData
+            // 
+            this.TransData.HeaderText = "Follow";
+            this.TransData.MinimumWidth = 6;
+            this.TransData.Name = "TransData";
+            this.TransData.Width = 125;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.ClientSize = new System.Drawing.Size(1025, 615);
+            this.Controls.Add(this.FollowData);
             this.Controls.Add(this.EstadoData);
             this.Controls.Add(this.txtTime);
             this.Controls.Add(this.TextBoxER);
@@ -312,6 +348,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.miDato)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.TransicionesData)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.EstadoData)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.FollowData)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -333,13 +370,16 @@
         private System.Windows.Forms.Button Generar;
         private System.Windows.Forms.TextBox TextBoxER;
         private System.Windows.Forms.Label txtTime;
+        private System.Windows.Forms.DataGridView EstadoData;
         private System.Windows.Forms.DataGridViewTextBoxColumn TOKEN;
         private System.Windows.Forms.DataGridViewTextBoxColumn First;
         private System.Windows.Forms.DataGridViewTextBoxColumn Last;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Follow;
         private System.Windows.Forms.DataGridViewTextBoxColumn Nuller;
-        private System.Windows.Forms.DataGridView EstadoData;
+        private System.Windows.Forms.DataGridView FollowData;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Símbolo;
         private System.Windows.Forms.DataGridViewTextBoxColumn Estado;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Simbolo;
+        private System.Windows.Forms.DataGridViewTextBoxColumn TransData;
     }
 }
 

@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using LFA_Proyecto.Arbol;
+﻿using LFA_Proyecto.Arbol;
+using System.Collections.Generic;
 
 namespace LFA_Proyecto.Help
 {
@@ -56,7 +56,7 @@ namespace LFA_Proyecto.Help
             {
                 IntegerData = intValue;
                 StringData = strValue;
-            }   
+            }
             public int IntegerData { get; private set; }
             public string StringData { get; private set; }
         }
