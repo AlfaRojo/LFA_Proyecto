@@ -218,17 +218,150 @@ namespace LFA_Proyecto
                                         int numAgregado = Int32.Parse(numero);
                                         if (txtAgregado[1].StartsWith("'") && txtAgregado[1].EndsWith("'"))
                                         {
-                                            Start_End(numAgregado, txtAgregado[1], listaSETS);
+                                            //Start_End(numAgregado, txtAgregado[1], listaSETS);
+                                            txtAgregado[1] = txtAgregado[1].TrimStart();
+                                            var tamCiclo = txtAgregado[1].Length;
+                                            bool SETonTOKEN = false;
+                                            foreach (var item in listaSETS)
+                                            {
+                                                if (txtAgregado[1].Contains(item))
+                                                {
+                                                    SETonTOKEN = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (txtAgregado[1].Length <= 3 && !SETonTOKEN)//TOKENs Individuales
+                                            {
+                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txtAgregado[1]));
+                                            }
+                                            else if (!SETonTOKEN)
+                                            {
+                                                txtAgregado[1] = txtAgregado[1].Replace("''", ".");
+                                                txtAgregado[1] = txtAgregado[1].TrimStart('\'').TrimEnd('\'');
+                                                var listaAuxiliar = new List<string>();
+                                                for (int k = 0; k < txtAgregado[1].Length; k++)
+                                                {
+                                                    listaAuxiliar.Add(txtAgregado[1].Substring(k, 1));
+                                                }
+                                                int primero = 0;
+                                                int comillas = 0;
+                                                foreach (var item in listaAuxiliar)
+                                                {
+                                                    if (item != "'")
+                                                    {
+                                                        comillas = 0;
+                                                        if (primero == 0)
+                                                        {
+                                                            string final = item;
+                                                            final = "'" + final + "'";
+                                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, final));
+                                                            primero++;
+                                                        }
+                                                        else
+                                                        {
+                                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, item));
+                                                            primero--;
+                                                        }
+                                                    }
+                                                    else if (item == "'")//Al llegar a 3 significa que contiene comilla como TOKEN
+                                                    {
+                                                        comillas++;
+                                                    }
+                                                    if (comillas == 3)
+                                                    {
+                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, item));
+                                                        comillas = 0;//Reiniciar conteo
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var listaAuxiliar = new List<string>();
+                                                int inicio = 0;
+                                                string txt = string.Empty;
+                                                string previo = string.Empty;
+                                                txtAgregado[1] = txtAgregado[1].Trim();
+                                                for (int k = 0; k < txtAgregado[1].Length; k++)
+                                                {
+                                                    string actual = txtAgregado[1].Substring(k, 1);
+                                                    if (actual == "'")//Utilizado para indicar inicios y finales entre comillas
+                                                    {
+                                                        inicio++;
+                                                    }
+                                                    else//Y guardar lo que está enmedio
+                                                    {
+                                                        txt = txt + txtAgregado[1].Substring(k, 1);
+                                                    }
+                                                    if (inicio == 2 || Utilities.Ter.Contains(actual))
+                                                    {
+                                                        if (Utilities.Ter.Contains(actual))
+                                                        {
+                                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, actual));
+                                                            txt = string.Empty;
+                                                            inicio = 0;
+                                                        }
+                                                        else
+                                                        {
+                                                            txt = "'" + txt + "'";
+                                                            if (txt == "''")
+                                                            {
+                                                                txt = txt.Replace("''", "'''");
+                                                            }
+                                                            string next = txtAgregado[1].Substring(k + 1, 1);
+                                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txt));
+                                                            if (!Utilities.Car.Contains(next) || next == "'")//Sii es distinto a simbolos no concatenables o 3er comilla
+                                                            {
+                                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "."));
+                                                            }
+                                                            //Concatenacion
+                                                            txt = string.Empty;
+                                                            inicio = 0;
+                                                        }
+                                                    }
+                                                    else if (txt.Length > 4)//Se comprueba que no pertenezca al área e SETs
+                                                    {
+                                                        bool isHere = false;
+                                                        foreach (var item in listaSETS)
+                                                        {
+                                                            if (txt == item)
+                                                            {
+                                                                isHere = true;
+                                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txt));
+                                                                string next = txtAgregado[1].Substring(k + 1, 1);
+                                                                if (Utilities.Car.Contains(next))
+                                                                {
+                                                                    Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "."));
+                                                                }
+                                                                txt = string.Empty;
+                                                                inicio = 0;
+                                                                break;
+                                                            }
+                                                        }
+                                                        if (!isHere && actual == "'")
+                                                        {
+                                                            MessageBox.Show(txt + "\nNo se encuentra declarado en área SET");
+                                                            return;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            if (Datos.Instance.SimbolosTerminales.Last().StringData == ".")//Sii se buscaba concatenar mas se elimina
+                                            {
+                                                Datos.Instance.SimbolosTerminales.RemoveAt(Datos.Instance.SimbolosTerminales.Count - 1);
+                                            }
+                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "|"));
                                         }
                                         else
                                         {
                                             var actual = txtAgregado[1].Replace("{RESERVADAS()}", string.Empty);
+                                            bool isHere = false;
                                             for (int o = 0; o < txtAgregado[1].Length; o++)
                                             {
                                                 foreach (var item in listaSETS)
                                                 {
                                                     if (actual.StartsWith(item))
                                                     {
+                                                        isHere = true;
                                                         while (actual.StartsWith(item))
                                                         {
                                                             Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, item));
@@ -243,6 +376,7 @@ namespace LFA_Proyecto
                                                     var next = actual.Substring(0, 1);
                                                     if (Utilities.Car.Contains(next))
                                                     {
+                                                        isHere = true;
                                                         Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, next));
                                                         actual = actual.Remove(0, next.Length);
                                                     }
@@ -263,6 +397,11 @@ namespace LFA_Proyecto
                                                 if (actual.Length == 0)
                                                 {
                                                     break;
+                                                }
+                                                if (!isHere)
+                                                {
+                                                    MessageBox.Show(txtAgregado[1] + "\nNo se encuentra declarado en área SET");
+                                                    return;
                                                 }
                                             }
                                             Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "|"));
@@ -721,10 +860,12 @@ namespace LFA_Proyecto
                     }
                     else if (txt.Length > 4)//Se comprueba que no pertenezca al área e SETs
                     {
+                        bool isHere = false;
                         foreach (var item in listaSETS)
                         {
                             if (txt == item)
                             {
+                                isHere = true;
                                 Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, txt));
                                 string next = Actual.Substring(k + 1, 1);
                                 if (Utilities.Car.Contains(next))
@@ -735,6 +876,11 @@ namespace LFA_Proyecto
                                 inicio = 0;
                                 break;
                             }
+                        }
+                        if (!isHere)
+                        {
+                            MessageBox.Show(txt + "\nNo se encuentra declarado en área SET");
+                            return;
                         }
                     }
                 }
