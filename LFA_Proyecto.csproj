@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arbol\ArbolB.cs" />
+    <Compile Include="Arbol\Estados.cs" />
     <Compile Include="Arbol\Transiciones.cs" />
     <Compile Include="DrawTree.cs">
       <SubType>Form</SubType>

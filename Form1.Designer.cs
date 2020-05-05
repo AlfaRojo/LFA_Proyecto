@@ -39,7 +39,7 @@
             this.TOKENlabel = new System.Windows.Forms.Label();
             this.ACTIONlabel = new System.Windows.Forms.Label();
             this.ERRORlabel = new System.Windows.Forms.Label();
-            this.TransicionesData = new System.Windows.Forms.DataGridView();
+            this.FLFN_Data = new System.Windows.Forms.DataGridView();
             this.TOKEN = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.First = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Last = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -48,13 +48,14 @@
             this.TextBoxER = new System.Windows.Forms.TextBox();
             this.txtTime = new System.Windows.Forms.Label();
             this.EstadoData = new System.Windows.Forms.DataGridView();
-            this.FollowData = new System.Windows.Forms.DataGridView();
             this.Símbolo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Estado = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.FollowData = new System.Windows.Forms.DataGridView();
             this.Simbolo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TransData = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Exportar = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.miDato)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.TransicionesData)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.FLFN_Data)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.EstadoData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.FollowData)).BeginInit();
             this.SuspendLayout();
@@ -177,27 +178,27 @@
             this.ERRORlabel.Text = "LABEL ERROR";
             this.ERRORlabel.Visible = false;
             // 
-            // TransicionesData
+            // FLFN_Data
             // 
-            this.TransicionesData.AllowUserToAddRows = false;
-            this.TransicionesData.AllowUserToDeleteRows = false;
-            this.TransicionesData.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-            this.TransicionesData.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
-            this.TransicionesData.BackgroundColor = System.Drawing.Color.Black;
-            this.TransicionesData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.TransicionesData.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.FLFN_Data.AllowUserToAddRows = false;
+            this.FLFN_Data.AllowUserToDeleteRows = false;
+            this.FLFN_Data.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.FLFN_Data.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
+            this.FLFN_Data.BackgroundColor = System.Drawing.Color.Black;
+            this.FLFN_Data.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.FLFN_Data.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.TOKEN,
             this.First,
             this.Last,
             this.Nuller});
-            this.TransicionesData.GridColor = System.Drawing.Color.Lime;
-            this.TransicionesData.Location = new System.Drawing.Point(12, 241);
-            this.TransicionesData.Name = "TransicionesData";
-            this.TransicionesData.RowHeadersWidth = 51;
-            this.TransicionesData.RowTemplate.Height = 24;
-            this.TransicionesData.Size = new System.Drawing.Size(604, 150);
-            this.TransicionesData.TabIndex = 10;
-            this.TransicionesData.Visible = false;
+            this.FLFN_Data.GridColor = System.Drawing.Color.Lime;
+            this.FLFN_Data.Location = new System.Drawing.Point(12, 241);
+            this.FLFN_Data.Name = "FLFN_Data";
+            this.FLFN_Data.RowHeadersWidth = 51;
+            this.FLFN_Data.RowTemplate.Height = 24;
+            this.FLFN_Data.Size = new System.Drawing.Size(604, 150);
+            this.FLFN_Data.TabIndex = 10;
+            this.FLFN_Data.Visible = false;
             // 
             // TOKEN
             // 
@@ -230,6 +231,7 @@
             // Generar
             // 
             this.Generar.BackColor = System.Drawing.Color.Transparent;
+            this.Generar.Enabled = false;
             this.Generar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Generar.Font = new System.Drawing.Font("Modern No. 20", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Generar.ForeColor = System.Drawing.Color.Lime;
@@ -277,6 +279,20 @@
             this.EstadoData.TabIndex = 14;
             this.EstadoData.Visible = false;
             // 
+            // Símbolo
+            // 
+            this.Símbolo.HeaderText = "Símbolo";
+            this.Símbolo.MinimumWidth = 6;
+            this.Símbolo.Name = "Símbolo";
+            this.Símbolo.Width = 125;
+            // 
+            // Estado
+            // 
+            this.Estado.HeaderText = "Estado";
+            this.Estado.MinimumWidth = 6;
+            this.Estado.Name = "Estado";
+            this.Estado.Width = 125;
+            // 
             // FollowData
             // 
             this.FollowData.AllowUserToAddRows = false;
@@ -294,20 +310,6 @@
             this.FollowData.TabIndex = 15;
             this.FollowData.Visible = false;
             // 
-            // Símbolo
-            // 
-            this.Símbolo.HeaderText = "Símbolo";
-            this.Símbolo.MinimumWidth = 6;
-            this.Símbolo.Name = "Símbolo";
-            this.Símbolo.Width = 125;
-            // 
-            // Estado
-            // 
-            this.Estado.HeaderText = "Estado";
-            this.Estado.MinimumWidth = 6;
-            this.Estado.Name = "Estado";
-            this.Estado.Width = 125;
-            // 
             // Simbolo
             // 
             this.Simbolo.HeaderText = "Simbolo";
@@ -322,18 +324,33 @@
             this.TransData.Name = "TransData";
             this.TransData.Width = 125;
             // 
+            // Exportar
+            // 
+            this.Exportar.BackColor = System.Drawing.Color.Transparent;
+            this.Exportar.Enabled = false;
+            this.Exportar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Exportar.Font = new System.Drawing.Font("Modern No. 20", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Exportar.ForeColor = System.Drawing.Color.Lime;
+            this.Exportar.Location = new System.Drawing.Point(723, 553);
+            this.Exportar.Name = "Exportar";
+            this.Exportar.Size = new System.Drawing.Size(142, 50);
+            this.Exportar.TabIndex = 16;
+            this.Exportar.Text = "Exportar";
+            this.Exportar.UseVisualStyleBackColor = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.ClientSize = new System.Drawing.Size(1025, 615);
+            this.Controls.Add(this.Exportar);
             this.Controls.Add(this.FollowData);
             this.Controls.Add(this.EstadoData);
             this.Controls.Add(this.txtTime);
             this.Controls.Add(this.TextBoxER);
             this.Controls.Add(this.Generar);
-            this.Controls.Add(this.TransicionesData);
+            this.Controls.Add(this.FLFN_Data);
             this.Controls.Add(this.ERRORlabel);
             this.Controls.Add(this.ACTIONlabel);
             this.Controls.Add(this.TOKENlabel);
@@ -346,7 +363,7 @@
             this.Text = "Lenguajes Formales & Autómatas";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.miDato)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.TransicionesData)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.FLFN_Data)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.EstadoData)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.FollowData)).EndInit();
             this.ResumeLayout(false);
@@ -366,7 +383,7 @@
         private System.Windows.Forms.Label TOKENlabel;
         private System.Windows.Forms.Label ACTIONlabel;
         private System.Windows.Forms.Label ERRORlabel;
-        private System.Windows.Forms.DataGridView TransicionesData;
+        private System.Windows.Forms.DataGridView FLFN_Data;
         private System.Windows.Forms.Button Generar;
         private System.Windows.Forms.TextBox TextBoxER;
         private System.Windows.Forms.Label txtTime;
@@ -380,6 +397,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Estado;
         private System.Windows.Forms.DataGridViewTextBoxColumn Simbolo;
         private System.Windows.Forms.DataGridViewTextBoxColumn TransData;
+        private System.Windows.Forms.Button Exportar;
     }
 }
 

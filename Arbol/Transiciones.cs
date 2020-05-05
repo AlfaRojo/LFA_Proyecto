@@ -1,4 +1,5 @@
 ﻿using LFA_Proyecto.Help;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,9 +8,20 @@ namespace LFA_Proyecto.Arbol
     class Transiciones
     {
         public static int enumeracion = 0;
-        public static Dictionary<int, List<int>> dictionaryFollows = new Dictionary<int, List<int>>();
-        public static Dictionary<int, List<int>> Auxiliar = new Dictionary<int, List<int>>();
+        public static int numeroHojaNumeral = 0;
+        public static Dictionary<int, List<int>> Follows = new Dictionary<int, List<int>>();
+        public static Dictionary<int, List<int>> DiccionarioTransiciones = new Dictionary<int, List<int>>();
         public static List<ArbolB> ListaST = new List<ArbolB>();
+        public static List<string> EstadosAux = new List<string>();
+        public static int contadorListaEstados = 0;
+
+        #region New
+        public List<ArbolB> RecorridoFirstLast = new List<ArbolB>();
+        private List<string> TerminalesArbol = new List<string>();
+        int ContadorTerminales = 1;
+        public Dictionary<int, List<int>> myFollows = new Dictionary<int, List<int>>();
+        #endregion
+
         public void GenerarTransiciones()
         {
             if (Datos.Instance.PilaS.Count != 1)
@@ -18,18 +30,21 @@ namespace LFA_Proyecto.Arbol
             }
             var miArbol = new ArbolB();
             miArbol = Datos.Instance.PilaS.Pop();
-            EnumerarHojas(miArbol);
+            //EnumerarHojas(miArbol);
+            //IdentificarNulos(miArbol);
+            //IdentificarFirst(miArbol);
+            //IdentificarLast(miArbol);
             RegresarHojas(miArbol);
-            IdentificarNulos(miArbol);
-            IdentificarFirst(miArbol);
-            IdentificarLast(miArbol);
-            IdentificarFollows(miArbol);
-            CrearTrans(miArbol);
+            //IdentificarEstados(miArbol);
+            RecorridoPostorden(miArbol);
+            Estados ObtenerEstados = new Estados(myFollows, ListaST, miArbol, Datos.Instance.SimbolosTerminales);
             Datos.Instance.PilaS.Push(miArbol);
-            Datos.Instance.DicFollow = dictionaryFollows;
-            Datos.Instance.DiccTrans = Auxiliar;
+            Datos.Instance.DicFollow = Follows;
+            Datos.Instance.DiccTrans = DiccionarioTransiciones;
+            //Estados NuevosEstados = new Estados(Follows, ListaST, miArbol, Datos.Instance.SimbolosTerminales);
+            //NuevosEstados.CrearEstados(miArbol);
         }
-        #region Transiciones
+        #region Old Obtener First-Last-Follow
         public static int EnumerarHojas(ArbolB tree)
         {
             if (tree != null)
@@ -167,83 +182,118 @@ namespace LFA_Proyecto.Arbol
                 }
             }
         }
-        public static Dictionary<int, List<int>> IdentificarFollows(ArbolB tree)
+        #endregion
+
+        #region Obtener First-Last-Nullers
+
+        private void RecorridoPostorden(ArbolB raiz)
         {
-            if (tree != null)
+            if (raiz != null)
             {
-                IdentificarFollows(tree.HijoIzquierdo);
-                IdentificarFollows(tree.HijoDerecho);
-                if (tree.Dato == "." || tree.Dato == "*" || tree.Dato == "+")
+                RecorridoPostorden(raiz.HijoIzquierdo);
+                RecorridoPostorden(raiz.HijoDerecho);
+                RecorridoFirstLast.Add(raiz);
+                if (raiz.Eshoja)
                 {
-                    if (tree.Dato == ".")
+                    raiz.Numero = ContadorTerminales;
+                    raiz.First.Add(ContadorTerminales);
+                    raiz.Last.Add(ContadorTerminales);
+                    // inicializo el diccionario con los simbolos de los terminales y las listas las inicializo
+                    myFollows.Add(ContadorTerminales, new List<int>());
+                    TerminalesArbol.Add(raiz.Dato);
+                    ContadorTerminales++;
+                }
+                else if (raiz.Dato == "*")
+                {
+                    raiz.Nuller = true;
+                    raiz.First = raiz.HijoIzquierdo.First;
+                    raiz.Last = raiz.HijoIzquierdo.Last;
+                    foreach (var LastC1 in raiz.HijoIzquierdo.Last)
                     {
-                        foreach (var item in tree.HijoIzquierdo.Last)
+                        foreach (var firstC1 in raiz.HijoIzquierdo.First)
                         {
-                            if (dictionaryFollows.ContainsKey(item))
+                            myFollows.TryGetValue(LastC1, out var followexistentes);
+
+                            if (!followexistentes.Contains(firstC1))
                             {
-                                var listaParcial = dictionaryFollows[item];
-                                listaParcial.AddRange(tree.HijoDerecho.First);
-                                List<int> uniqueList = listaParcial.Distinct().ToList();
-                                dictionaryFollows[item] = uniqueList;
-                            }
-                            else
-                            {
-                                dictionaryFollows.Add(item, tree.HijoDerecho.First);
+                                myFollows.FirstOrDefault(x => x.Key == LastC1).Value.Add(firstC1);
                             }
                         }
+                    }
+                }
+                else if (raiz.Dato == "+")
+                {
+                    raiz.First = raiz.HijoIzquierdo.First;
+                    raiz.Last = raiz.HijoIzquierdo.Last;
+                    foreach (var LastC1 in raiz.HijoIzquierdo.Last)
+                    {
+                        foreach (var firstC1 in raiz.HijoIzquierdo.First)
+                        {
+                            myFollows.TryGetValue(LastC1, out var followsexistentes);
+
+                            if (!followsexistentes.Contains(firstC1))
+                            {
+                                myFollows.FirstOrDefault(x => x.Key == LastC1).Value.Add(firstC1);
+                            }
+                        }
+                    }
+                }
+                else if (raiz.Dato == "?")
+                {
+                    raiz.Nuller = true;
+                    raiz.First = raiz.HijoIzquierdo.First;
+                    raiz.Last = raiz.HijoIzquierdo.Last;
+                }
+                else if (raiz.Dato == "|")
+                {
+                    if (raiz.HijoIzquierdo.Nuller == true || raiz.HijoDerecho.Nuller == true)
+                    {
+                        raiz.Nuller = true;
+                    }
+                    raiz.First.AddRange(raiz.HijoIzquierdo.First);
+                    raiz.First.AddRange(raiz.HijoDerecho.First);
+                    raiz.Last.AddRange(raiz.HijoIzquierdo.Last);
+                    raiz.Last.AddRange(raiz.HijoDerecho.Last);
+                }
+                else if (raiz.Dato == ".")
+                {
+                    if (raiz.HijoIzquierdo.Nuller == true && raiz.HijoDerecho.Nuller == true)
+                    {
+                        raiz.Nuller = true;
+                    }
+                    if (raiz.HijoIzquierdo.Nuller == true)
+                    {
+                        raiz.First.AddRange(raiz.HijoIzquierdo.First);
+                        raiz.First.AddRange(raiz.HijoDerecho.First);
                     }
                     else
                     {
-                        foreach (var item in tree.HijoIzquierdo.Last)
-                        {
-                            if (dictionaryFollows.ContainsKey(item))
-                            {
-                                var listaParcial = dictionaryFollows[item];
-                                listaParcial.AddRange(tree.HijoIzquierdo.First);
-                                List<int> uniqueList = listaParcial.Distinct().ToList();
-                                dictionaryFollows[item] = uniqueList;
-                            }
-                            else
-                            {
-                                dictionaryFollows.Add(item, tree.HijoIzquierdo.First);
-                            }
-                        }
+                        raiz.First.AddRange(raiz.HijoIzquierdo.First);
                     }
-                }
-            }
-            return dictionaryFollows;
-        }
-        public void CrearTrans(ArbolB tree)//Dictionary<int, List<int>> dictionarioFollows,
-        {
-            RegresarHojas(tree);
-            var diccionarioTrans = new Dictionary<int, List<int>>();
-            var uniqueValues = new Dictionary<int, List<int>>();
-            var listaTrans = new Dictionary<int, List<int>>();
-            if (diccionarioTrans.Count == 0)
-            {
-                diccionarioTrans.Add(tree.Value, tree.First);
-                listaTrans.Add(tree.Value, tree.First);
-            }
-            for (int j = 0; j < listaTrans.Count; j++)
-            {
-                foreach (var Nodo in ListaST)
-                {
-                    for (int i = 0; i < listaTrans.ElementAt(j).Value.Count; i++)
+                    if (raiz.HijoDerecho.Nuller == true)
                     {
-                        if (Nodo.Value == listaTrans.ElementAt(j).Value[i])
+                        raiz.Last.AddRange(raiz.HijoIzquierdo.Last);
+                        raiz.Last.AddRange(raiz.HijoDerecho.Last);
+                    }
+                    else
+                    {
+                        raiz.Last.AddRange(raiz.HijoDerecho.Last);
+                    }
+                    foreach (var LastC1 in raiz.HijoIzquierdo.Last)
+                    {
+                        foreach (var firstC2 in raiz.HijoDerecho.First)
                         {
-                            if (!diccionarioTrans.ContainsKey(Nodo.Value) && dictionaryFollows.ContainsKey(listaTrans.ElementAt(j).Value[i]))
+
+                            myFollows.TryGetValue(LastC1, out var valor);
+                            // se valido que si el count es 0 no da error al verificar si lo contine
+                            if (!valor.Contains(firstC2))
                             {
-                                var follower = dictionaryFollows[listaTrans.ElementAt(j).Value[i]];
-                                diccionarioTrans.Add(Nodo.Value, follower);
-                                uniqueValues = diccionarioTrans.GroupBy(pair => pair.Value).Select(group => group.First()).ToDictionary(pair => pair.Key, pair => pair.Value);
-                                listaTrans.Add(Nodo.Value, follower);
+                                myFollows.FirstOrDefault(x => x.Key == LastC1).Value.Add(firstC2);
                             }
                         }
                     }
                 }
             }
-            Auxiliar = uniqueValues;
         }
         #endregion
     }

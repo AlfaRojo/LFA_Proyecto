@@ -10,10 +10,13 @@ namespace LFA_Proyecto.Arbol
         public string Dato { get; set; }
         public ArbolB HijoDerecho { get; set; }
         public ArbolB HijoIzquierdo { get; set; }
+        public string Padre { get; set; }
 
         public int Value;
         public List<int> First = new List<int>();
         public List<int> Last = new List<int>();
+        public bool Eshoja => HijoDerecho == null && HijoIzquierdo == null;
+        public int Numero { get; set; }
 
         public bool Nuller;//? and *
 

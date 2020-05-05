@@ -32,22 +32,20 @@ namespace LFA_Proyecto
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            RebootList();
-            miDato.Rows.Clear();
             var contArchivo = string.Empty;
             var rutaArchivo = string.Empty;
-
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             using (OpenFileDialog actuArchivo = new OpenFileDialog())
             {
                 actuArchivo.InitialDirectory = @"~/LFA_Proyecto/PRUEBAS";
                 actuArchivo.Filter = "txt files (*.txt)|*.txt";
                 actuArchivo.FilterIndex = 2;
                 actuArchivo.RestoreDirectory = true;
-
                 if (actuArchivo.ShowDialog() == DialogResult.OK)
                 {
+
+                    RebootList();
                     rutaArchivo = actuArchivo.FileName;
                     var fileStream = actuArchivo.OpenFile();
 
@@ -542,6 +540,7 @@ namespace LFA_Proyecto
                 }
                 else
                 {
+                    sw.Stop();
                     return;
                 }
             }
@@ -552,6 +551,7 @@ namespace LFA_Proyecto
             TOKENlabel.Visible = true;
             ACTIONlabel.Visible = true;
             ERRORlabel.Visible = true;
+            Generar.Enabled = true;
             #endregion
             sw.Stop();
             txtTime.Text = "Tiempo de ejeccion en lectura de Archivo: " + sw.Elapsed.ToString("hh\\:mm\\:ss\\.fff");
@@ -580,7 +580,14 @@ namespace LFA_Proyecto
             Datos.Instance.listaSets.Clear();
             Datos.Instance.listaToken.Clear();
             Datos.Instance.SimbolosTerminales.Clear();
+            Datos.Instance.DiccTrans.Clear();
+            Datos.Instance.DicFollow.Clear();
+            Datos.Instance.PilaS.Clear();
+            Datos.Instance.PilaT.Clear();
             miDato.Rows.Clear();
+            EstadoData.Rows.Clear();
+            FollowData.Rows.Clear();
+            FLFN_Data.Rows.Clear();
         }//Reiniciar listas sin necesidad de cerrar el programa
         private void SpliterMas(string[] Linea, object sender, EventArgs e)
         {
@@ -893,38 +900,31 @@ namespace LFA_Proyecto
         }
         private void Generar_Click(object sender, EventArgs e)//Generar ArbolExpresines & First,Last,Follow
         {
-            if (Datos.Instance.SimbolosTerminales.Count == 0)
-            {
-                MessageBox.Show("No se ha cargado ningún archivo.");
-                return;
-            }
             Stopwatch sw = new Stopwatch();
             sw.Start();
             TextBoxER.Clear();
-            FollowData.Rows.Clear();
-            EstadoData.Rows.Clear();
-            TransicionesData.Rows.Clear();
             foreach (var item in Datos.Instance.SimbolosTerminales)
             {
                 TextBoxER.Text = TextBoxER.Text + item.StringData;
             }
             ER_ET ArbolExpresiones = new ER_ET();
-            ArbolExpresiones.PruebaArbol(Datos.Instance.SimbolosTerminales);
+            ArbolExpresiones.Tree(Datos.Instance.SimbolosTerminales);
             var Transiciones = new Transiciones();
             Transiciones.GenerarTransiciones();
             ArbolB _tree = new ArbolB();
             _tree = Datos.Instance.PilaS.Pop();
             GenerarPostOrden(_tree);
-            TransicionesData.Visible = true;
-            EstadoData.Visible = true;
-            FollowData.Visible = true;
             Datos.Instance.PilaS.Push(_tree);
-            GenerarFollow();
-            GenerarTrans();
+            MostrarFollow();
+            MostrarTrans();
             sw.Stop();
             txtTime.Text = "Tiempo de ejeccion en creación del arbol y ER: " + sw.Elapsed.ToString("hh\\:mm\\:ss\\.fff");
             DrawTree drawMyTree = new DrawTree();
             drawMyTree.Show();
+            Exportar.Enabled = true;
+            FLFN_Data.Visible = true;
+            EstadoData.Visible = true;
+            FollowData.Visible = true;
         }
         private void GenerarPostOrden(ArbolB tree)//Imprime First, Last, Nullers
         {
@@ -951,12 +951,16 @@ namespace LFA_Proyecto
                     }
                     Last = Last.Remove(Last.Length - 1);
                 }
-                this.TransicionesData.Rows.Add(tree.Dato, First, Last, tree.Nuller);
+                this.FLFN_Data.Rows.Add(tree.Dato, First, Last, tree.Nuller);
 
             }
         }
-        private void GenerarFollow()
+        private void MostrarFollow()
         {
+            foreach (var item in Datos.Instance.SimbolosTotales)
+            {
+                this.EstadoData.Columns.Add(item, item);
+            }
             foreach (var item in Datos.Instance.DiccTrans)
             {
                 var Final = string.Empty;
@@ -968,7 +972,7 @@ namespace LFA_Proyecto
                 this.FollowData.Rows.Add(item.Key, Final.TrimEnd(new char[] { ',' }));
             }
         }
-        private void GenerarTrans()
+        private void MostrarTrans()
         {
             foreach (var item in Datos.Instance.DicFollow)
             {

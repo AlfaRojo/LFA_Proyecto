@@ -49,6 +49,7 @@ namespace LFA_Proyecto.Help
         /// Almacena los valores Follow para ser impresos
         /// </summary>
         public Dictionary<int, List<int>> DicFollow = new Dictionary<int, List<int>>();
+        public List<string> SimbolosTotales = new List<string>();
         //Agregar
         public struct AllData
         {
