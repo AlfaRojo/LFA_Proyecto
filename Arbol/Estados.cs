@@ -35,7 +35,9 @@ namespace LFA_Proyecto.Arbol
             {
                 if (!Terminales.Contains(item) && item != "#")
                 {
+
                     Terminales.Add(item);
+                    Datos.Instance.SimbolosTotales.Add(item);
                 }
             }
         }

@@ -740,7 +740,7 @@ namespace LFA_Proyecto
                     {
                         Puntos[0] = Puntos[0].Replace("'", "").Replace(" ", "");
                         Inicial = Encoding.ASCII.GetBytes(Puntos[0]);
-                        Final = Encoding.ASCII.GetBytes(Puntos[0]);
+                        Final = Encoding.ASCII.GetBytes(Puntos[1]);
                         Rango = Final[0] - Inicial[0] + 1;
                     }
                     if (Inicial[0] >= 65 && Final[0] <= 90)
@@ -980,13 +980,11 @@ namespace LFA_Proyecto
             foreach (var item in primerelemnto.Value)
             {
                 Tabla.Columns.Add($"{item.Key}");
-
             }
             var columnas = Tabla.Columns.Count;
             var ContadorColumnas = 0;
             Tabla.Rows.Add();
             var ContadorFilas = 0;
-
             foreach (var item in diccestados)
             {
                 Tabla.Rows.Add();
@@ -1004,12 +1002,165 @@ namespace LFA_Proyecto
                         Tabla.Rows[ContadorFilas][ContadorColumnas] = "----";
                         ContadorColumnas++;
                     }
-
                 }
                 ContadorFilas++;
                 ContadorColumnas = 0;
             }
             this.EstadoData.DataSource = Tabla;
+        }
+        private void Exportar_Click(object sender, EventArgs e)
+        {
+            var switchtipo = string.Empty;
+            var casetotal = string.Empty;
+            List<Datos.AllData> FormandoTokens = new List<Datos.AllData>(); List<string> ListaS = new List<string>();
+            List<string> FormandoActions = new List<string>();
+            List<string> listaLetras = new List<string>();
+            List<string> listaDigito = new List<string>();
+            List<string> listaCHR = new List<string>();
+            foreach (var item in Datos.Instance.listaSets)
+            {
+                var toAdd = item.Split('=');
+                toAdd[0] = toAdd[0].Trim();
+                ListaS.Add(toAdd[0]);
+                #region test
+                string[] Mas = toAdd[1].Split('+');
+                foreach (var set in Mas)
+                {
+                    var tipo = set.Trim().Split(new string[] { ".." }, StringSplitOptions.None);
+                    if (tipo.Length > 1)
+                    {
+                        byte[] start;
+                        byte[] end;
+                        int rank;
+                        start = Encoding.ASCII.GetBytes(tipo[0]);
+                        var st = start.Min();
+                        end = Encoding.ASCII.GetBytes(tipo[1]);
+                        var nd = end.Max();
+                        rank = nd - start[1] + 1;
+                        AlfabetoMayuscula = Enumerable.Range(start[1], rank).Select(x => (char)x).ToArray();
+                        if (toAdd[0] == "LETRA")
+                        {
+                            foreach (var letra in AlfabetoMayuscula)
+                            {
+                                if (!listaLetras.Contains(letra.ToString()))
+                                {
+                                    listaLetras.Add(letra.ToString());
+                                }
+                            }
+                        }
+                        else if (toAdd[0] == "DIGITO")
+                        {
+                            foreach (var letra in AlfabetoMayuscula)
+                            {
+                                if (!listaDigito.Contains(letra.ToString()))
+                                {
+                                    listaDigito.Add(letra.ToString());
+                                }
+                            }
+                        }
+                    }
+                }
+                #endregion
+            }
+            foreach (var item in Datos.Instance.SimbolosTerminales)
+            {
+                if (!Utilities.Ter.Contains(item.StringData) && !ListaS.Contains(item.StringData))
+                {
+                    FormandoTokens.Add(item);
+                }
+            }
+            foreach (var item in Datos.Instance.listaAction)
+            {
+                var spliter = item.Split('=');
+                spliter[1] = spliter[1].TrimStart('\'').TrimEnd('\'');
+                casetotal += "case \"" + spliter[1] + "\":\n" +
+                    "Console.WriteLine(item + \" - ACTION: " + spliter[0] + "\");\nbreak;\n";
+            }
+            var switchSET = string.Empty;
+            foreach (var item in ListaS)
+            {
+                if (item.Trim() == "LETRA")
+                {
+                    foreach (var letra in listaLetras)
+                    {
+                        casetotal += "case \"" + letra + "\":\n" +
+                         "Console.WriteLine(item +\" - SET: " + item + "\");\nbreak;\n";
+                    }
+                }
+                else if (item == "DIGITO")
+                {
+                    foreach (var letra in listaDigito)
+                    {
+                        casetotal += "case \"" + letra + "\":\n" +
+                         "Console.WriteLine(item +\" - SET: " + item + "\");\nbreak;\n";
+                    }
+                }
+            }
+            foreach (var item in FormandoTokens)
+            {
+                if (!ListaS.Contains(item.StringData))
+                {
+
+                    var token = item.StringData;
+                    if (token == "'''")
+                    {
+                        token = token.Replace("'''", "'");
+                    }
+                    else
+                    {
+                        token = token.TrimStart('\'').TrimEnd('\'');
+                    }
+                    var comillas = Convert.ToChar(34);
+                    if (token == "\"")
+                    {
+                        var barra = Convert.ToChar(92);
+                        casetotal += "case " + comillas + barra + token + comillas + ":\n" +
+                         "Console.WriteLine(item +\" - TOKEN: " + item.IntegerData + "\");\nbreak;\n";
+                    }
+                    else if (token != "#")
+                    {
+                        casetotal += "case " + comillas + token + comillas + ":\n" +
+                         "Console.WriteLine(item +\" - TOKEN: " + item.IntegerData + "\");\nbreak;\n";
+                    }
+                }
+            }
+            var inicio = "using System;" +
+                "\nnamespace LFA\n{\nclass Program\n{\nstatic void Main(string[] args)" +
+                "\n{\nConsole.WriteLine(" +
+                "\"Ingrese texto a comprobar:\");\n" +
+                "var txtresultante = Console.ReadLine();\n" +
+                "var spliter = txtresultante.Split(' ');\n" +
+                "foreach (var item in spliter){" +
+                "\nswitch(txtresultante){\n";
+            var final = "\ndefault:" +
+                  "Console.WriteLine(\"ERROR # - item - no se encuentra asignado\");\n" +
+                  "break;\n}\n}" +
+                  "Console.ReadKey();\n}\n}\n}";
+            foreach (var error in Datos.Instance.listaError)
+            {
+                var numero = Regex.Match(error, @"\d+").Value;
+                int numAgregado = Int32.Parse(numero);
+                final = "\ndefault:" +
+                  "Console.WriteLine(\"ERROR " + numAgregado + " - item - no se encuentra asignado\");\n" +
+                  "break;\n}\n}" +
+                  "Console.ReadKey();\n}\n}\n}";
+            }
+            using (SaveFileDialog actuArchivo = new SaveFileDialog())
+            {
+                actuArchivo.FilterIndex = 2;
+                actuArchivo.RestoreDirectory = true;
+                actuArchivo.DefaultExt = "cs";
+                if (actuArchivo.ShowDialog() == DialogResult.OK)
+                {
+                    using (StreamWriter escritor = File.CreateText(actuArchivo.FileName))
+                    {
+                        escritor.Write(inicio);
+                        escritor.Write(casetotal);
+                        escritor.Write(final);
+                    }
+                    MessageBox.Show("Archivo creado en:\n" + actuArchivo.FileName, "Lenguajes Formales & Autómatas", MessageBoxButtons.OK);
+                }
+            }
         }
     }
 }

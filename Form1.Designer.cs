@@ -318,6 +318,7 @@
             this.Exportar.TabIndex = 16;
             this.Exportar.Text = "Exportar";
             this.Exportar.UseVisualStyleBackColor = false;
+            this.Exportar.Click += new System.EventHandler(this.Exportar_Click);
             // 
             // Form1
             // 
