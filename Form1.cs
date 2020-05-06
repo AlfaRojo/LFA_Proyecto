@@ -1131,7 +1131,7 @@ namespace LFA_Proyecto
                 "var txtresultante = Console.ReadLine();\n" +
                 "var spliter = txtresultante.Split(' ');\n" +
                 "foreach (var item in spliter){" +
-                "\nswitch(txtresultante){\n";
+                "\nswitch(item){\n";
             var final = "\ndefault:" +
                   "Console.WriteLine(\"ERROR # - item - no se encuentra asignado\");\n" +
                   "break;\n}\n}" +

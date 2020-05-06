@@ -9,7 +9,7 @@ Console.WriteLine("Ingrese texto a comprobar:");
 var txtresultante = Console.ReadLine();
 var spliter = txtresultante.Split(' ');
 foreach (var item in spliter){
-switch(txtresultante){
+switch(item){
 case "PROGRAM":
 Console.WriteLine(item + " - ACTION: 18");
 break;
