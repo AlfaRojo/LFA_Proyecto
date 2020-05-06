@@ -1017,6 +1017,7 @@ namespace LFA_Proyecto
             List<string> listaLetras = new List<string>();
             List<string> listaDigito = new List<string>();
             List<string> listaCHR = new List<string>();
+            var token = string.Empty;
             foreach (var item in Datos.Instance.listaSets)
             {
                 var toAdd = item.Split('=');
@@ -1062,13 +1063,6 @@ namespace LFA_Proyecto
                 }
                 #endregion
             }
-            foreach (var item in Datos.Instance.SimbolosTerminales)
-            {
-                if (!Utilities.Ter.Contains(item.StringData) && !ListaS.Contains(item.StringData))
-                {
-                    FormandoTokens.Add(item);
-                }
-            }
             foreach (var item in Datos.Instance.listaAction)
             {
                 var spliter = item.Split('=');
@@ -1076,7 +1070,13 @@ namespace LFA_Proyecto
                 casetotal += "case \"" + spliter[1] + "\":\n" +
                     "Console.WriteLine(item + \" - ACTION: " + spliter[0] + "\");\nbreak;\n";
             }
-            var switchSET = string.Empty;
+            foreach (var item in Datos.Instance.SimbolosTerminales)
+            {
+                if (!ListaS.Contains(item.StringData) && !Utilities.Ter.Contains(item.StringData) && item.StringData != "#")
+                {
+                    FormandoTokens.Add(item);
+                }
+            }
             foreach (var item in ListaS)
             {
                 if (item.Trim() == "LETRA")
@@ -1100,26 +1100,25 @@ namespace LFA_Proyecto
             {
                 if (!ListaS.Contains(item.StringData))
                 {
-
-                    var token = item.StringData;
-                    if (token == "'''")
+                    var addtoken = item.StringData;
+                    if (addtoken == "'''")
                     {
-                        token = token.Replace("'''", "'");
+                        addtoken = addtoken.Replace("'''", "'");
                     }
                     else
                     {
-                        token = token.TrimStart('\'').TrimEnd('\'');
+                        addtoken = addtoken.TrimStart('\'').TrimEnd('\'');
                     }
                     var comillas = Convert.ToChar(34);
-                    if (token == "\"")
+                    if (addtoken == "\"")
                     {
                         var barra = Convert.ToChar(92);
-                        casetotal += "case " + comillas + barra + token + comillas + ":\n" +
+                        casetotal += "case " + comillas + barra + addtoken + comillas + ":\n" +
                          "Console.WriteLine(item +\" - TOKEN: " + item.IntegerData + "\");\nbreak;\n";
                     }
-                    else if (token != "#")
+                    else if (addtoken != "#")
                     {
-                        casetotal += "case " + comillas + token + comillas + ":\n" +
+                        casetotal += "case " + comillas + addtoken + comillas + ":\n" +
                          "Console.WriteLine(item +\" - TOKEN: " + item.IntegerData + "\");\nbreak;\n";
                     }
                 }
@@ -1141,7 +1140,7 @@ namespace LFA_Proyecto
                 var numero = Regex.Match(error, @"\d+").Value;
                 int numAgregado = Int32.Parse(numero);
                 final = "\ndefault:" +
-                  "Console.WriteLine(\"ERROR " + numAgregado + " - item - no se encuentra asignado\");\n" +
+                  "Console.WriteLine(item + \" - ERROR " + numAgregado + " no se encuentra asignado\");\n" +
                   "break;\n}\n}" +
                   "Console.ReadKey();\n}\n}\n}";
             }

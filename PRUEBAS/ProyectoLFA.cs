@@ -407,7 +407,7 @@ case "=":
 Console.WriteLine(item +" - TOKEN: 53");
 break;
 
-default:Console.WriteLine("ERROR 5 - item - no se encuentra asignado");
+default:Console.WriteLine(item + " - ERROR 5 no se encuentra asignado");
 break;
 }
 }Console.ReadKey();

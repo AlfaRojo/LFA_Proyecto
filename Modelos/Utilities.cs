@@ -9,6 +9,7 @@ namespace LFA_Proyecto.Modelos
         public static string[] Nullers = { "?", "*" };
         public static string[] Car = { "*", "?", "+", "(", ")", ".", "|", "'", "\"" };
         public static string[] Ter = { "*", "?", "+", ".", "|", "(", ")" };
+        public static string[] Token = { "*", "?", "+", "|", "(", ")" };
         public static string[] Op = { "*", "?", "+", ".", "|" };
     }
 }
