@@ -585,7 +585,6 @@ namespace LFA_Proyecto
             Datos.Instance.PilaS.Clear();
             Datos.Instance.PilaT.Clear();
             miDato.Rows.Clear();
-            EstadoData.Rows.Clear();
             FollowData.Rows.Clear();
             FLFN_Data.Rows.Clear();
         }//Reiniciar listas sin necesidad de cerrar el programa
@@ -1018,6 +1017,18 @@ namespace LFA_Proyecto
             List<string> listaDigito = new List<string>();
             List<string> listaCHR = new List<string>();
             var token = string.Empty;
+            foreach (var item in Datos.Instance.listaToken)
+            {
+                var toadd = item.Split(new char[] { '=' }, 2);
+                var numero = Regex.Match(toadd[0], @"\d+").Value;
+                int numAgregado = Int32.Parse(numero);
+                toadd[1] = toadd[1].Trim();
+                if (toadd[1].StartsWith("'") && toadd[1].EndsWith("'") && toadd[1].Length <= 9)
+                {
+                    toadd[1] = toadd[1].Replace("''", string.Empty);
+                    FormandoTokens.Add(new Datos.AllData(numAgregado, toadd[1]));
+                }
+            }
             foreach (var item in Datos.Instance.listaSets)
             {
                 var toAdd = item.Split('=');
@@ -1069,13 +1080,6 @@ namespace LFA_Proyecto
                 spliter[1] = spliter[1].TrimStart('\'').TrimEnd('\'');
                 casetotal += "case \"" + spliter[1] + "\":\n" +
                     "Console.WriteLine(item + \" - ACTION: " + spliter[0] + "\");\nbreak;\n";
-            }
-            foreach (var item in Datos.Instance.SimbolosTerminales)
-            {
-                if (!ListaS.Contains(item.StringData) && !Utilities.Ter.Contains(item.StringData) && item.StringData != "#")
-                {
-                    FormandoTokens.Add(item);
-                }
             }
             foreach (var item in ListaS)
             {

@@ -12,7 +12,6 @@ namespace LFA_Proyecto.Arbol
         public ArbolB HijoIzquierdo { get; set; }
         public string Padre { get; set; }
 
-        public int Value;
         public List<int> First = new List<int>();
         public List<int> Last = new List<int>();
         public bool Eshoja => HijoDerecho == null && HijoIzquierdo == null;
