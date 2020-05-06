@@ -957,33 +957,59 @@ namespace LFA_Proyecto
         }
         private void MostrarFollow()
         {
-            foreach (var item in Datos.Instance.SimbolosTotales)
+            foreach (var item in Datos.Instance.DicFollow)
             {
-                this.EstadoData.Columns.Add(item, item);
-            }
-            foreach (var item in Datos.Instance.DiccTrans)
-            {
-                var Final = string.Empty;
-                var follow = item.Value;
-                for (int i = 0; i < follow.Count; i++)
+                var follow = string.Empty;
+                foreach (var values in item.Value)
                 {
-                    Final = Final + follow.ElementAt(i).ToString() + ",";
+                    follow = follow + values.ToString() + ",";
                 }
-                this.FollowData.Rows.Add(item.Key, Final.TrimEnd(new char[] { ',' }));
+                if (follow.Length > 0)
+                {
+                    follow = follow.Remove(follow.Length - 1);
+                }
+                this.FollowData.Rows.Add(item.Key, follow);
             }
         }
         private void MostrarTrans()
         {
-            foreach (var item in Datos.Instance.DicFollow)
+            var Tabla = new DataTable();
+            var primerelemnto = Datos.Instance.DiccionarioTransiciones.First();
+            var diccestados = Datos.Instance.DiccionarioTransiciones;
+            Tabla.Columns.Add("Estados");
+            foreach (var item in primerelemnto.Value)
             {
-                var Final = string.Empty;
-                var trans = item.Value;
-                for (int i = 0; i < trans.Count; i++)
-                {
-                    Final = Final + trans.ElementAt(i).ToString() + ",";
-                }
-                this.EstadoData.Rows.Add(item.Key, Final.TrimEnd(new char[] { ',' }));
+                Tabla.Columns.Add($"{item.Key}");
+
             }
+            var columnas = Tabla.Columns.Count;
+            var ContadorColumnas = 0;
+            Tabla.Rows.Add();
+            var ContadorFilas = 0;
+
+            foreach (var item in diccestados)
+            {
+                Tabla.Rows.Add();
+                Tabla.Rows[ContadorFilas][ContadorColumnas] = string.Join(",", item.Key);
+                ContadorColumnas++;
+                foreach (var item2 in item.Value)
+                {
+                    if (item2.Value.Count != 0)
+                    {
+                        Tabla.Rows[ContadorFilas][ContadorColumnas] = string.Join(",", item2.Value);
+                        ContadorColumnas++;
+                    }
+                    else
+                    {
+                        Tabla.Rows[ContadorFilas][ContadorColumnas] = "----";
+                        ContadorColumnas++;
+                    }
+
+                }
+                ContadorFilas++;
+                ContadorColumnas = 0;
+            }
+            this.EstadoData.DataSource = Tabla;
         }
     }
 }

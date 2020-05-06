@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LFA_Proyecto.Modelos;
 
 namespace LFA_Proyecto.Arbol
 {
@@ -11,16 +12,32 @@ namespace LFA_Proyecto.Arbol
     {
         private Dictionary<List<int>, Dictionary<string, List<int>>> TablaEstados = new Dictionary<List<int>, Dictionary<string, List<int>>>();
         private Dictionary<int, List<int>> Follows;
-        private List<ArbolB> listaST;
         private ArbolB miArbol;
-        private List<Datos.AllData> simbolosTerminales;
+        private List<string> TerminalesArbol = new List<string>();
+        private List<string> Terminales = new List<string>();
 
-        public Estados(Dictionary<int, List<int>> follows, List<ArbolB> listaST, ArbolB miArbol, List<Datos.AllData> simbolosTerminales)
+        public Estados(Dictionary<int, List<int>> follows, ArbolB miArbol, List<Datos.AllData> simbolosTerminales)
         {
             Follows = follows;
-            this.listaST = listaST;
             this.miArbol = miArbol;
-            this.simbolosTerminales = simbolosTerminales;
+            GetNodos(simbolosTerminales);
+        }
+        public void GetNodos(List<Datos.AllData> ST)
+        {
+            foreach (var item in ST)
+            {
+                if (!Utilities.Ter.Contains(item.StringData))
+                {
+                    this.TerminalesArbol.Add(item.StringData);
+                }
+            }
+            foreach (var item in TerminalesArbol)
+            {
+                if (!Terminales.Contains(item) && item != "#")
+                {
+                    Terminales.Add(item);
+                }
+            }
         }
         public Dictionary<List<int>, Dictionary<string, List<int>>> CrearEstados(ArbolB Arbol)
         {
@@ -29,14 +46,14 @@ namespace LFA_Proyecto.Arbol
             var diccModificar = new Dictionary<string, List<int>>();
             var EstadoInicial = Arbol.First;
             EstadosHistorial.Add(EstadoInicial);
-            foreach (var Simbolo in listaST)
+            foreach (var Simbolo in Terminales)
             {
                 var ListaConcordancia = new List<int>();
                 var ListaFollows = new List<int>();
                 foreach (var item in EstadoInicial)
                 {
-                    var SimbolosArbol = simbolosTerminales[item - 1];
-                    if (Simbolo.Dato == SimbolosArbol.StringData)
+                    var SimbolosArbol = TerminalesArbol[item - 1];//Arbol
+                    if (Simbolo == SimbolosArbol)
                     {
                         ListaConcordancia.Add(item);
                     }
@@ -46,7 +63,7 @@ namespace LFA_Proyecto.Arbol
                     Follows.TryGetValue(SimblosItem, out var follows);
                     ListaFollows.AddRange(follows);
                 }
-                diccModificar.Add(Simbolo.Dato, ListaFollows);
+                diccModificar.Add(Simbolo, ListaFollows);
                 if (!EstadosAprobar.Any(c => c.SequenceEqual(ListaFollows)) && !EstadosHistorial.Any(c => c.SequenceEqual(ListaFollows)) && ListaFollows.Count != 0)
                 {
                     EstadosAprobar.Enqueue(ListaFollows);
@@ -58,14 +75,14 @@ namespace LFA_Proyecto.Arbol
                 var diccModificarNoInicial = new Dictionary<string, List<int>>();
                 var Estado = EstadosAprobar.Dequeue();
                 EstadosHistorial.Add(Estado);
-                foreach (var Simbolo in listaST)
+                foreach (var Simbolo in Terminales)
                 {
                     var ListaConcordancia = new List<int>();
                     var ListaFollows = new List<int>();
                     foreach (var item in Estado)
                     {
-                        var SimbolosArbol = simbolosTerminales[item - 1];
-                        if (Simbolo.Dato == SimbolosArbol.StringData)
+                        var SimbolosArbol = TerminalesArbol[item - 1];
+                        if (Simbolo == SimbolosArbol)
                         {
                             ListaConcordancia.Add(item);
                         }
@@ -75,7 +92,7 @@ namespace LFA_Proyecto.Arbol
                         Follows.TryGetValue(SimblosItem, out var follows);
                         ListaFollows.AddRange(follows);
                     }
-                    diccModificarNoInicial.Add(Simbolo.Dato, ListaFollows);
+                    diccModificarNoInicial.Add(Simbolo, ListaFollows);
                     if (!EstadosAprobar.Any(c => c.SequenceEqual(ListaFollows)) && !EstadosHistorial.Any(c => c.SequenceEqual(ListaFollows)) && ListaFollows.Count != 0)
                     {
                         EstadosAprobar.Enqueue(ListaFollows);

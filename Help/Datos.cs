@@ -50,6 +50,11 @@ namespace LFA_Proyecto.Help
         /// </summary>
         public Dictionary<int, List<int>> DicFollow = new Dictionary<int, List<int>>();
         public List<string> SimbolosTotales = new List<string>();
+
+        /// <summary>
+        /// Diccionario donde se almacenan las transiciones
+        /// </summary>
+        public Dictionary<List<int>, Dictionary<string, List<int>>> DiccionarioTransiciones = new Dictionary<List<int>, Dictionary<string, List<int>>>();
         //Agregar
         public struct AllData
         {
