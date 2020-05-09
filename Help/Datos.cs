@@ -42,6 +42,10 @@ namespace LFA_Proyecto.Help
         /// </summary>
         public List<AllData> SimbolosTerminales = new List<AllData>();
         /// <summary>
+        /// Guarda los elementos de las Actions
+        /// </summary>
+        public List<AllActions> SimbolosAction = new List<AllActions>();
+        /// <summary>
         /// Almacena las tablas de transicion para ser imprimidas luego
         /// </summary>
         public Dictionary<int, List<int>> DiccTrans = new Dictionary<int, List<int>>();
@@ -49,7 +53,14 @@ namespace LFA_Proyecto.Help
         /// Almacena los valores Follow para ser impresos
         /// </summary>
         public Dictionary<int, List<int>> DicFollow = new Dictionary<int, List<int>>();
+        /// <summary>
+        /// Guarda los elementos sin repetir
+        /// </summary>
         public List<string> SimbolosTotales = new List<string>();
+        /// <summary>
+        /// Guarda las reservadas
+        /// </summary>
+        public List<string> misReservas = new List<string>();
 
         /// <summary>
         /// Diccionario donde se almacenan las transiciones
@@ -64,6 +75,18 @@ namespace LFA_Proyecto.Help
                 StringData = strValue;
             }
             public int IntegerData { get; private set; }
+            public string StringData { get; private set; }
+        }
+        public struct AllActions
+        {
+            public AllActions(int intValue, string typeAct, string strValue)
+            {
+                IntegerData = intValue;
+                typeAction = typeAct;
+                StringData = strValue;
+            }
+            public int IntegerData { get; set; }
+            public string typeAction { get; private set; }
             public string StringData { get; private set; }
         }
     }

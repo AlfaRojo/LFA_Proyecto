@@ -98,6 +98,7 @@ namespace LFA_Proyecto
                         }
                         #endregion
                         var lecturaAux = string.Empty;
+                        var reservado = string.Empty;
                         while (reader.Peek() > 0)
                         {
                             lecturaAux = reader.ReadLine();
@@ -182,30 +183,32 @@ namespace LFA_Proyecto
                                         {
                                             Datos.Instance.listaToken.RemoveAt(i);
                                         }
-                                        string myText = Datos.Instance.listaToken.ElementAt(i);
+                                        var myText = Datos.Instance.listaToken.ElementAt(i);
+                                        var textoAux = myText;
                                         myText = Regex.Replace(myText, @"\s+", "");
-                                        if (!myText.Trim(Delimitadores).Contains("TOKEN"))//Error de escritura
+                                        textoAux = Regex.Replace(myText, @"\s+", "");
+                                        if (!textoAux.Trim(Delimitadores).Contains("TOKEN"))//Error de escritura
                                         {
                                             MessageBox.Show("TOKEN en la linea " + i + " no contiene TOKEN o se encunetra mal escrito.");
                                             return;
                                         }
-                                        if (myText.All(char.IsDigit))//No contiene dígito----NO FUNCIONA, REVISAR!
+                                        if (textoAux.All(char.IsDigit))//No contiene dígito----NO FUNCIONA, REVISAR!
                                         {
                                             MessageBox.Show("TOKEN en la linea " + i + " no contiene numeración válida.");
                                             return;
                                         }
-                                        if (!myText.Contains("="))//Error de igualación
+                                        if (!textoAux.Contains("="))//Error de igualación
                                         {
                                             MessageBox.Show("TOKEN en la linea " + i + " no contiene =.");
                                             return;
                                         }
                                         else//Enviar split de igual para comprobar Sintaxis
                                         {
-                                            string[] Linea = myText.Split('=');
+                                            string[] Linea = textoAux.Split('=');
                                             SpliterTOKEN(Linea, sender, e);
                                         }
                                         //Agregar la comprobación de expresión regular
-                                        this.miDato.Rows.Add(i, myText, "TOKENS");
+                                        this.miDato.Rows.Add(i, textoAux, "TOKENS");
                                         #endregion
                                         if (Datos.Instance.SimbolosTerminales.Count() == 0)
                                         {
@@ -214,6 +217,7 @@ namespace LFA_Proyecto
                                         var txtAgregado = myText.Split(new char[] { '=' }, 2);
                                         var numero = Regex.Match(txtAgregado[0], @"\d+").Value;
                                         int numAgregado = Int32.Parse(numero);
+                                        #region Ingresar a Lista
                                         if (txtAgregado[1].StartsWith("'") && txtAgregado[1].EndsWith("'"))
                                         {
                                             //Start_End(numAgregado, txtAgregado[1], listaSETS);
@@ -351,36 +355,91 @@ namespace LFA_Proyecto
                                         }
                                         else
                                         {
-                                            var actual = txtAgregado[1].Replace("{RESERVADAS()}", string.Empty);
+                                            var actual = txtAgregado[1];
                                             bool isHere = false;
+                                            bool tokens = false;
+                                            bool reservada = false;
+                                            var token = string.Empty;
                                             for (int o = 0; o < txtAgregado[1].Length; o++)
                                             {
-                                                foreach (var item in listaSETS)
+                                                if (actual.StartsWith("{") || reservada)
                                                 {
-                                                    if (actual.StartsWith(item))
+                                                    reservada = true;
+                                                    if (token.EndsWith("}") && token.Length > 1)
                                                     {
-                                                        isHere = true;
-                                                        while (actual.StartsWith(item))
+                                                        reservada = false;
+                                                        var next = actual.Substring(0, 1);
+                                                        if (!Utilities.Car.Contains(next))
                                                         {
-                                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, item));
-                                                            actual = actual.Remove(0, item.Length);
-                                                            var siguiente = actual.Substring(0, 1);
-                                                            if (!Utilities.Op.Contains(siguiente) && siguiente != ")")
-                                                            {
-                                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "."));
-                                                            }
+                                                            Datos.Instance.misReservas.Add(token);
+                                                            token = string.Empty;
+                                                            reservada = false;
                                                         }
                                                     }
-                                                    var next = actual.Substring(0, 1);
-                                                    if (Utilities.Car.Contains(next))
+                                                    else
                                                     {
-                                                        isHere = true;
-                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, next));
-                                                        actual = actual.Remove(0, next.Length);
+                                                        var next = actual.Substring(0, 1);
+                                                        if (next != "{" || next != "}")//No se agregan por la lectura de lineas
+                                                        {
+                                                            token += actual.Substring(0, 1);
+                                                        }
+                                                        actual = actual.Remove(0, 1);
                                                     }
-                                                    if (actual.Length == 0)
+                                                }
+                                                else if (actual.StartsWith("'") || tokens)
+                                                {
+                                                    tokens = true;
+                                                    if (token.EndsWith("'") && token.Length > 1)
                                                     {
-                                                        break;
+                                                        tokens = false;
+                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, token));
+                                                        var next = actual.Substring(0, 1);
+                                                        if (!Utilities.Car.Contains(next))
+                                                        {
+                                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "."));
+                                                            token = string.Empty;
+                                                            tokens = false;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        token += actual.Substring(0, 1);
+                                                        actual = actual.Remove(0, 1);
+                                                    }
+                                                }
+                                                if (!tokens && !reservada)
+                                                {
+                                                    foreach (var item in listaSETS)
+                                                    {
+                                                        if (actual.StartsWith(item))
+                                                        {
+                                                            isHere = true;
+                                                            while (actual.StartsWith(item))
+                                                            {
+                                                                Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, item));
+                                                                actual = actual.Remove(0, item.Length);
+                                                                if (actual.Length == 0)
+                                                                {
+                                                                    break;
+                                                                }
+                                                                var siguiente = actual.Substring(0, 1);
+                                                                if (!Utilities.Op.Contains(siguiente) && siguiente != ")")
+                                                                {
+                                                                    Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "."));
+                                                                }
+                                                            }
+                                                        }
+                                                        if (actual.Length == 0)
+                                                        {
+                                                            break;
+                                                        }
+                                                        var next = actual.Substring(0, 1);
+                                                        if (Utilities.otros.Contains(next))
+                                                        {
+                                                            isHere = true;
+                                                            Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, next));
+                                                            actual = actual.Remove(0, next.Length);
+                                                        }
                                                     }
                                                 }
                                                 if (actual.Length == 3)
@@ -394,6 +453,18 @@ namespace LFA_Proyecto
                                                 }
                                                 if (actual.Length == 0)
                                                 {
+                                                    if (token.StartsWith("'"))
+                                                    {
+                                                        Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "."));
+                                                        token = string.Empty;
+                                                        tokens = false;
+                                                    }
+                                                    else if (token.StartsWith("{"))
+                                                    {
+                                                        Datos.Instance.misReservas.Add(token);
+                                                        token = string.Empty;
+                                                        tokens = false;
+                                                    }
                                                     break;
                                                 }
                                                 if (!isHere)
@@ -404,6 +475,7 @@ namespace LFA_Proyecto
                                             }
                                             Datos.Instance.SimbolosTerminales.Add(new Datos.AllData(numAgregado, "|"));
                                         }
+                                        #endregion
                                     }
                                     catch (ArgumentOutOfRangeException)
                                     {
@@ -422,70 +494,86 @@ namespace LFA_Proyecto
                             #region All ACTIONS Sintaxis //COMPLETO
                             if (lecturaAux.ToString().Replace("( |\t)", "").Replace(" ", "") == "ACTIONS")
                             {
-                                lecturaAux = reader.ReadLine();//Siguiente linea
-                                if (lecturaAux.ToString().Replace(" ", "").Replace("\t", "") == "RESERVADAS()")//Comprobar que le siga RESERVADAS()
+                                foreach (var item in Datos.Instance.misReservas)
                                 {
                                     lecturaAux = reader.ReadLine();//Siguiente linea
-                                    if (lecturaAux.ToString().Replace(" ", "").Replace("\t", "") == "{")//Comprobar 3ra linea abra con llave {
+                                    var reserva = item.TrimStart('{').TrimEnd('}');
+                                    if (lecturaAux == "")
                                     {
-                                        while ((lecturaAux = reader.ReadLine()) != "}")
+                                        while (lecturaAux == "")//Omitir todos los saltos de linea
                                         {
-                                            if (lecturaAux == "}")
-                                            {
-                                                lecturaAux = reader.ReadLine();
-                                                break;
-                                            }
-                                            if (lecturaAux == resTOKENS || lecturaAux == resERROR || lecturaAux == "SETS")//Condicion de salida
-                                            {
-                                                if (Datos.Instance.listaAction.Last().Replace(" ", "").Replace("\t", "") != "}")//Sii el ultimo no es de cerrar llave }
-                                                {
-                                                    MessageBox.Show("ACTIONS debe finalizar en -}-");
-                                                    return;
-                                                }
-                                                Datos.Instance.listaAction.RemoveAt(Datos.Instance.listaAction.Count() - 1);//Sii lo contiene, se elimina, inesesario
-                                                break;
-                                            }
-                                            Datos.Instance.listaAction.Add(lecturaAux.Replace(" ", "").Replace("\t", ""));//Agregar a su lista respectiva
-                                        }
-                                        if (Datos.Instance.listaAction.Contains(""))
-                                        {
-                                            Datos.Instance.listaAction.RemoveAll(X => X == "");
-                                        }
-                                        for (int i = 0; i < Datos.Instance.listaAction.Count(); i++)//Agregar al GridView y comprobar Sintaxis
-                                        {
-                                            string[] compERROR = Datos.Instance.listaAction.ElementAt(i).Split('=');
-                                            try
-                                            {
-                                                if (!(int.TryParse(compERROR[0], out int x)))
-                                                {
-                                                    MessageBox.Show("ACTIONS en la linea " + i + " no inicia con valor numérico");
-                                                    return;
-                                                }
-                                                if (!(compERROR[1].StartsWith("'")) && !(compERROR[1].EndsWith("'")))
-                                                {
-                                                    MessageBox.Show("ACTIONS en la linea " + i + " no inicia o finaliza correctamente");
-                                                    return;
-                                                }
-                                            }
-                                            catch (IndexOutOfRangeException)
-                                            {
-                                                MessageBox.Show("ACTIONS en la linea " + i + " no inicia correctamente");
-                                                return;
-                                            }
-                                            this.miDato.Rows.Add(i, Datos.Instance.listaAction.ElementAt(i), "ACTIONS");
+                                            lecturaAux = reader.ReadLine();
                                         }
                                     }
-                                    else
+                                    lecturaAux = lecturaAux.Trim();
+                                    if (lecturaAux.ToString().Trim() == reserva)//Comprobar que le siga RESERVADAS()
                                     {
-                                        MessageBox.Show("ACTIONS debe iniciar en -{-");
-                                        RebootList();
+                                        lecturaAux = reader.ReadLine();//Siguiente linea
+                                        if (lecturaAux.ToString().Replace(" ", "").Replace("\t", "") == "{")//Comprobar 3ra linea abra con llave {
+                                        {
+                                            while ((lecturaAux = reader.ReadLine()) != "}")
+                                            {
+                                                if (lecturaAux == "}")
+                                                {
+                                                    lecturaAux = reader.ReadLine();
+                                                    break;
+                                                }
+                                                if (lecturaAux == resTOKENS || lecturaAux == resERROR || lecturaAux == "SETS")//Condicion de salida
+                                                {
+                                                    if (Datos.Instance.listaAction.Last().Replace(" ", "").Replace("\t", "") != "}")//Sii el ultimo no es de cerrar llave }
+                                                    {
+                                                        MessageBox.Show("ACTIONS debe finalizar en -}-");
+                                                        return;
+                                                    }
+                                                    Datos.Instance.listaAction.RemoveAt(Datos.Instance.listaAction.Count() - 1);//Sii lo contiene, se elimina, inesesario
+                                                    break;
+                                                }
+                                                var numero = Regex.Match(lecturaAux, @"\d+").Value;
+                                                int numAgregado = Int32.Parse(numero);
+                                                var txtAgregar = lecturaAux.Split('=');
+                                                Datos.Instance.SimbolosAction.Add(new Datos.AllActions(numAgregado, reserva, txtAgregar[1].Trim()));
+                                                Datos.Instance.listaAction.Add(lecturaAux.Replace(" ", "").Replace("\t", ""));//Agregar a su lista respectiva
+                                            }
+                                            if (Datos.Instance.listaAction.Contains(""))
+                                            {
+                                                Datos.Instance.listaAction.RemoveAll(X => X == "");
+                                            }
+                                            for (int i = 0; i < Datos.Instance.listaAction.Count(); i++)//Agregar al GridView y comprobar Sintaxis
+                                            {
+                                                string[] compERROR = Datos.Instance.listaAction.ElementAt(i).Split('=');
+                                                try
+                                                {
+                                                    if (!(int.TryParse(compERROR[0], out int x)))
+                                                    {
+                                                        MessageBox.Show("ACTIONS en la linea " + i + " no inicia con valor numérico");
+                                                        return;
+                                                    }
+                                                    if (!(compERROR[1].StartsWith("'")) && !(compERROR[1].EndsWith("'")))
+                                                    {
+                                                        MessageBox.Show("ACTIONS en la linea " + i + " no inicia o finaliza correctamente");
+                                                        return;
+                                                    }
+                                                }
+                                                catch (IndexOutOfRangeException)
+                                                {
+                                                    MessageBox.Show("ACTIONS en la linea " + i + " no inicia correctamente");
+                                                    return;
+                                                }
+                                                this.miDato.Rows.Add(i, Datos.Instance.listaAction.ElementAt(i), "ACTIONS");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            MessageBox.Show(item + " debe iniciar en -{-");
+                                            RebootList();
+                                            return;
+                                        }
+                                    }
+                                    else//Sintaxis incorrecto entre ACTIONS & RESERVADAS()
+                                    {
+                                        MessageBox.Show(item + " se utiliza en TOKEN\nsin embargo no se encuentra delcarado en ACTIONS");
                                         return;
                                     }
-                                }
-                                else//Sintaxis incorrecto entre ACTIONS & RESERVADAS()
-                                {
-                                    MessageBox.Show("ACTIONS debe de ir seguido de RESERVADAS()");
-                                    return;
                                 }
                             }
                             #endregion
@@ -584,6 +672,7 @@ namespace LFA_Proyecto
             Datos.Instance.DicFollow.Clear();
             Datos.Instance.PilaS.Clear();
             Datos.Instance.PilaT.Clear();
+            Datos.Instance.misReservas.Clear();
             miDato.Rows.Clear();
             FollowData.Rows.Clear();
             FLFN_Data.Rows.Clear();
@@ -1074,12 +1163,12 @@ namespace LFA_Proyecto
                 }
                 #endregion
             }
-            foreach (var item in Datos.Instance.listaAction)
+            foreach (var item in Datos.Instance.SimbolosAction)
             {
-                var spliter = item.Split('=');
-                spliter[1] = spliter[1].TrimStart('\'').TrimEnd('\'');
-                casetotal += "case \"" + spliter[1] + "\":\n" +
-                    "Console.WriteLine(item + \" - ACTION: " + spliter[0] + "\");\nbreak;\n";
+                var valor = item.StringData;
+                valor = valor.TrimStart('\'').TrimEnd('\'');
+                casetotal += "case \"" + valor + "\":\n" +
+                    "Console.WriteLine(item + \" - ACTION: " + item.IntegerData + " - Tipo: " + item.typeAction + "\");\nbreak;\n";
             }
             foreach (var item in ListaS)
             {
@@ -1127,14 +1216,6 @@ namespace LFA_Proyecto
                     }
                 }
             }
-            var inicio = "using System;" +
-                "\nnamespace LFA\n{\nclass Program\n{\nstatic void Main(string[] args)" +
-                "\n{\nConsole.WriteLine(" +
-                "\"Ingrese texto a comprobar:\");\n" +
-                "var txtresultante = Console.ReadLine();\n" +
-                "var spliter = txtresultante.Split(' ');\n" +
-                "foreach (var item in spliter){" +
-                "\nswitch(item){\n";
             var final = "\ndefault:" +
                   "Console.WriteLine(\"ERROR # - item - no se encuentra asignado\");\n" +
                   "break;\n}\n}" +
@@ -1155,8 +1236,18 @@ namespace LFA_Proyecto
                 actuArchivo.DefaultExt = "cs";
                 if (actuArchivo.ShowDialog() == DialogResult.OK)
                 {
+                    var tipo_Namespace = Path.GetFileNameWithoutExtension(actuArchivo.FileName);
                     using (StreamWriter escritor = File.CreateText(actuArchivo.FileName))
                     {
+                        var inicio = "using System;" +
+                        "\nnamespace " + tipo_Namespace+ " \n{\nclass Program\n{\nstatic void Main(string[] args)" +
+                        "\n{\nConsole.WriteLine(" +
+                        "\"Ingrese texto a comprobar:\");\n" +
+                          "var txtresultante = Console.ReadLine();\n" +
+                         "var spliter = txtresultante.Split(' ');\n" +
+                         "foreach (var item in spliter){" +
+                        "\nswitch(item){\n";
+
                         escritor.Write(inicio);
                         escritor.Write(casetotal);
                         escritor.Write(final);

@@ -25,6 +25,13 @@ namespace LFA_Proyecto.Modelos//Creador: Ing. Moises Alonso
         /// <param name="RE"></param>
         public void Tree(List<Datos.AllData> RE)
         {
+            var prueba = new List<string>();
+            var stringer = string.Empty;
+            foreach (var item in RE)
+            {
+                prueba.Add(item.StringData);
+                stringer += item.StringData;
+            }
             foreach (var item in RE)
             {
                 if (item.StringData == "(")

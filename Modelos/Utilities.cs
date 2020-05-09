@@ -7,6 +7,7 @@ namespace LFA_Proyecto.Modelos
     public class Utilities
     {
         public static string[] Nullers = { "?", "*" };
+        public static string[] otros = { "*", "?", "+", "(", ")", ".", "|", "\"" };
         public static string[] Car = { "*", "?", "+", "(", ")", ".", "|", "'", "\"" };
         public static string[] Ter = { "*", "?", "+", ".", "|", "(", ")" };
         public static string[] Token = { "*", "?", "+", "|", "(", ")" };
